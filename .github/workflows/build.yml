@@ -1,0 +1,68 @@
+name: Build Apple tvOS Styled TVBox APK
+
+on:
+  push:
+    branches: [ main, master, fongmi ]
+  pull_request:
+    branches: [ main, master, fongmi ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android TV APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Build Leanback TV APK (Release & Debug)
+        run: |
+          ./gradlew assembleLeanbackDebug --no-daemon --stacktrace
+
+      - name: Prepare APK Outputs
+        id: prepare_apks
+        run: |
+          mkdir -p outputs/
+          find app/build/outputs/apk/ -name "*.apk" -exec cp {} outputs/ \;
+          ls -lh outputs/
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Apple-TVBox-Leanback-APK
+          path: outputs/*.apk
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Apple TVBox Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: outputs/*.apk
+          body: |
+            ## 🍎 Apple tvOS 风格专属电视端播放器
+
+            ### 视觉与交互特性：
+            - ✨ **Apple tvOS 沉浸式设计**：全屏高清剧照联动 + 顶部半透明胶囊分类导航
+            - 🚀 **全规格超清渲染 (ARGB_8888)**：全色彩解码与硬件加速
+            - 🎬 **三层货架联动**：【现在观看】横版卡片 + 【继续观看】历史进度 + 【正在热播】5列竖版海报流
+            - 🧭 **悬浮抽屉菜单**：仅由遥控器物理【菜单键】呼出，内置实时时钟与 9 大功能入口
+            - ⚡ **智能焦点记忆**：退出侧边抽屉或二级页面瞬间精准恢复原焦点
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
