@@ -38,11 +38,11 @@ jobs:
           git clone --depth 1 -b release https://github.com/FongMi/media.git /tmp/media
           cd /tmp/media
           chmod +x gradlew
-          echo "Building media AARs..."
-          ./gradlew assembleRelease --no-daemon -x test -x lint -x check || ./gradlew assemble --no-daemon -x test
-          echo "Copying generated AARs to app/libs/..."
+          echo "Building media library AARs..."
+          ./gradlew assembleRelease --no-daemon -x test -x lint -x check
+          echo "Copying library AARs to app/libs/..."
           mkdir -p $GITHUB_WORKSPACE/app/libs
-          find . -name "*.aar" -exec cp -v {} $GITHUB_WORKSPACE/app/libs/ \;
+          find libraries/ -name "*.aar" ! -name "*demo*" ! -name "*test*" ! -name "out.aar" -exec cp -v {} $GITHUB_WORKSPACE/app/libs/ \;
           cd $GITHUB_WORKSPACE
           echo "=== Contents of app/libs ==="
           ls -lh app/libs/
