@@ -130,3 +130,8 @@ dependencies {
     annotationProcessor libs.glide.compiler
     coreLibraryDesugaring libs.desugar
 }
+
+tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+    enabled = false
+}
+
