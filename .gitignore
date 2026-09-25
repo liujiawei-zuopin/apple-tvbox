@@ -4,7 +4,7 @@
 .settings
 *build
 *.jks
-*.properties
+local.properties
 lib-*.aar
 /Release
 /docs
