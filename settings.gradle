@@ -25,3 +25,9 @@ include ':catvod'
 include ':chaquo'
 include ':quickjs'
 rootProject.name = "TV"
+
+if (file("media").exists()) {
+    includeBuild("media")
+} else if (file("../media").exists()) {
+    includeBuild("../media")
+}

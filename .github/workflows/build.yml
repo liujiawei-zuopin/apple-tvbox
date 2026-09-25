@@ -20,6 +20,10 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Checkout Media3 Sub-repository
+        run: |
+          git clone --depth 1 https://github.com/FongMi/media.git media
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -33,7 +37,9 @@ jobs:
           python-version: '3.10'
 
       - name: Grant Execute Permission for Gradlew
-        run: chmod +x gradlew
+        run: |
+          chmod +x gradlew
+          if [ -f media/gradlew ]; then chmod +x media/gradlew; fi
 
       - name: Build Leanback TV APK (Release & Debug)
         run: |
