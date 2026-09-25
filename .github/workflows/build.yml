@@ -32,21 +32,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Checkout and Compile Media3 AAR Libraries
-        run: |
-          echo "Cloning FongMi media repository..."
-          git clone --depth 1 -b release https://github.com/FongMi/media.git /tmp/media
-          cd /tmp/media
-          chmod +x gradlew
-          echo "Building media library AARs and publishing to Maven Local..."
-          ./gradlew publishToMavenLocal assembleRelease --no-daemon -x test -x lint -x check
-          echo "Copying library AARs from buildout to app/libs/..."
-          mkdir -p $GITHUB_WORKSPACE/app/libs
-          find /tmp/media -name "*.aar" ! -path "*/demo/*" ! -path "*/demos/*" ! -path "*/test*" ! -name "*test*" ! -name "out.aar" -exec cp -v {} $GITHUB_WORKSPACE/app/libs/ \;
-          cd $GITHUB_WORKSPACE
-          echo "=== Final Contents of app/libs ==="
-          ls -lh app/libs/
-
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
