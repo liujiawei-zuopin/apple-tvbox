@@ -2,6 +2,8 @@ package com.fongmi.android.tv.player.exo;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +17,16 @@ import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
+import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.audio.AudioSink;
 import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
+import androidx.media3.exoplayer.libass.LibassPlaybackSession;
 import androidx.media3.exoplayer.source.preload.DefaultPreloadManager;
+import androidx.media3.exoplayer.text.TextOutput;
+import androidx.media3.exoplayer.text.TextRenderer;
 import androidx.media3.exoplayer.trackselection.DecodeTrackSelector;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.util.EventLogger;
@@ -33,6 +39,7 @@ import com.fongmi.android.tv.setting.DecodeSetting;
 import com.fongmi.android.tv.setting.PlayerSetting;
 import com.fongmi.android.tv.setting.SpeedSetting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -97,11 +104,11 @@ public final class ExoUtil {
     }
 
     static RenderersFactory buildRenderersFactory() {
-        return new ExoRenderersFactory(null);
+        return new ExoRenderersFactory(null, null, null);
     }
 
-    static RenderersFactory buildRenderersFactory(@Nullable AudioProcessor audioProcessor) {
-        return new ExoRenderersFactory(audioProcessor);
+    static RenderersFactory buildRenderersFactory(AudioProcessor audioProcessor, TextOutput secondaryTextOutput, LibassPlaybackSession libassPlaybackSession) {
+        return new ExoRenderersFactory(audioProcessor, secondaryTextOutput, libassPlaybackSession);
     }
 
     private static AudioSink buildAudioSink(Context context, boolean enableFloatOutput, boolean enableAudioOutputPlaybackParams, @Nullable AudioProcessor audioProcessor) {
@@ -114,10 +121,14 @@ public final class ExoUtil {
     private static final class ExoRenderersFactory extends DefaultRenderersFactory {
 
         @Nullable private final AudioProcessor audioProcessor;
+        @Nullable private final TextOutput secondaryTextOutput;
+        @Nullable private final LibassPlaybackSession libassPlaybackSession;
 
-        private ExoRenderersFactory(@Nullable AudioProcessor audioProcessor) {
+        private ExoRenderersFactory(@Nullable AudioProcessor audioProcessor, @Nullable TextOutput secondaryTextOutput, @Nullable LibassPlaybackSession libassPlaybackSession) {
             super(App.get());
             this.audioProcessor = audioProcessor;
+            this.secondaryTextOutput = secondaryTextOutput;
+            this.libassPlaybackSession = libassPlaybackSession;
             setEnableDecoderFallback(true);
             setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON);
             setDolbyVisionOutputPolicy(DecodeSetting.getDolbyVisionOutputPolicy());
@@ -126,6 +137,18 @@ public final class ExoUtil {
         @Override
         protected AudioSink buildAudioSink(@NonNull Context context, boolean enableFloatOutput, boolean enableAudioOutputPlaybackParams) {
             return ExoUtil.buildAudioSink(context, enableFloatOutput, enableAudioOutputPlaybackParams, audioProcessor);
+        }
+
+        @Override
+        protected void buildMiscellaneousRenderers(@NonNull Context context, @NonNull Handler eventHandler, int extensionRendererMode, @NonNull ArrayList<Renderer> out) {
+            super.buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, out);
+            if (libassPlaybackSession != null && libassPlaybackSession.isAvailable()) out.add(libassPlaybackSession.createClockRenderer());
+        }
+
+        @Override
+        protected void buildTextRenderers(@NonNull Context context, @NonNull TextOutput output, @NonNull Looper outputLooper, int extensionRendererMode, @NonNull ArrayList<Renderer> out) {
+            super.buildTextRenderers(context, output, outputLooper, extensionRendererMode, out);
+            if (secondaryTextOutput != null) out.add(new TextRenderer(secondaryTextOutput, outputLooper));
         }
     }
 }

@@ -6,11 +6,8 @@ plugins {
 }
 
 def localProps = new Properties()
-def localFile = rootProject.file('local.properties')
-if (localFile.exists()) {
-    localFile.withInputStream {
-        localProps.load(it)
-    }
+rootProject.file('local.properties').withInputStream {
+    localProps.load(it)
 }
 
 android {
@@ -49,22 +46,18 @@ android {
 
     signingConfigs {
         release {
-            if (localProps.containsKey('storeFile') && file(localProps['storeFile']).exists()) {
-                storeFile file(localProps['storeFile'])
-                keyAlias localProps['keyAlias']
-                keyPassword localProps['storePassword']
-                storePassword localProps['storePassword']
-            }
+            storeFile file(localProps['storeFile'])
+            keyAlias localProps['keyAlias']
+            keyPassword localProps['storePassword']
+            storePassword localProps['storePassword']
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
-            if (signingConfigs.release.storeFile != null) {
-                signingConfig = signingConfigs.release
-            }
+            minifyEnabled = true
+            shrinkResources = true
+            signingConfig = signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'proguard-rules-media.pro'
         }
     }
@@ -100,18 +93,6 @@ dependencies {
     implementation libs.appcompat
     implementation libs.lifecycle.service
     implementation libs.media
-    implementation libs.media3.common
-    implementation libs.media3.exoplayer
-    implementation libs.media3.ui
-    implementation libs.media3.datasource
-    implementation libs.media3.database
-    implementation libs.media3.session
-    implementation libs.media3.effect
-    implementation libs.media3.extractor
-    implementation libs.media3.exoplayer.hls
-    implementation libs.media3.exoplayer.dash
-    implementation libs.media3.exoplayer.rtsp
-    implementation libs.media3.exoplayer.smoothstreaming
     implementation libs.palette
     implementation libs.recyclerview
     implementation libs.room.runtime
