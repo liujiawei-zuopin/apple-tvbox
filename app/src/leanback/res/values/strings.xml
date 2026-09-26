@@ -10,6 +10,20 @@
     <string name="home_history">History</string>
     <string name="home_recommend">Recommend</string>
 
+    <string name="tab_home">Home</string>
+    <string name="shelf_watch_now">Watch Now</string>
+    <string name="shelf_continue_watch">Continue Watching</string>
+    <string name="shelf_hot_recommend">Top Picks</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_history">History</string>
+    <string name="menu_live">Live TV</string>
+    <string name="menu_config">Config</string>
+    <string name="menu_site">Sites</string>
+    <string name="menu_cloud">Cloud Drive</string>
+    <string name="menu_collect">Favorites</string>
+    <string name="menu_push">Push</string>
+    <string name="menu_setting">Settings</string>
+
     <!-- Collect -->
     <string name="collect_result">Search results for <xliff:g name="name">%s</xliff:g></string>
 

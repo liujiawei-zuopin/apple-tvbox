@@ -10,6 +10,20 @@
     <string name="home_history">最近观看</string>
     <string name="home_recommend">更新推荐</string>
 
+    <string name="tab_home">主页</string>
+    <string name="shelf_watch_now">现在观看</string>
+    <string name="shelf_continue_watch">继续观看</string>
+    <string name="shelf_hot_recommend">正在热播</string>
+    <string name="menu_search">搜索</string>
+    <string name="menu_history">历史</string>
+    <string name="menu_live">直播</string>
+    <string name="menu_config">配置</string>
+    <string name="menu_site">线路</string>
+    <string name="menu_cloud">网盘</string>
+    <string name="menu_collect">收藏</string>
+    <string name="menu_push">推送</string>
+    <string name="menu_setting">设置</string>
+
     <!-- Collect -->
     <string name="collect_result">“<xliff:g name="name">%s</xliff:g>”的搜索结果</string>
 
