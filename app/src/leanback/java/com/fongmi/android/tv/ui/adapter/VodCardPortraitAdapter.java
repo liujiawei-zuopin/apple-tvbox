@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.ui.adapter;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +61,7 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
         Vod item = mItems.get(position);
         holder.name.setText(item.getName());
         holder.remark.setText(item.getRemarks());
-        holder.remark.setVisibility(item.getRemarks().isEmpty() ? View.GONE : View.VISIBLE);
+        holder.remark.setVisibility(TextUtils.isEmpty(item.getRemarks()) ? View.GONE : View.VISIBLE);
         ImgUtil.load(item.getName(), item.getPic(), holder.image);
 
         holder.itemView.setOnClickListener(v -> {

@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.ui.adapter;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,12 +57,13 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
         if (item instanceof Vod vod) {
             holder.name.setText(vod.getName());
             holder.remark.setText(vod.getRemarks());
-            holder.remark.setVisibility(vod.getRemarks().isEmpty() ? View.GONE : View.VISIBLE);
+            holder.remark.setVisibility(TextUtils.isEmpty(vod.getRemarks()) ? View.GONE : View.VISIBLE);
             holder.progress.setVisibility(View.GONE);
             ImgUtil.load(vod.getName(), vod.getPic(), holder.image);
         } else if (item instanceof History history) {
             holder.name.setText(history.getVodName());
             holder.remark.setText(history.getVodRemarks());
+            holder.remark.setVisibility(TextUtils.isEmpty(history.getVodRemarks()) ? View.GONE : View.VISIBLE);
             int progress = history.getDuration() > 0 ? (int) (history.getPosition() * 100 / history.getDuration()) : 0;
             holder.progress.setProgress(progress);
             holder.progress.setVisibility(progress > 0 ? View.VISIBLE : View.GONE);

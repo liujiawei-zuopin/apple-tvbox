@@ -251,7 +251,9 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
             List<Vod> hotPicks = all.subList(shelf1Size, all.size());
             mWatchNowAdapter.setItems(watchNow);
             mHotPicksAdapter.setItems(hotPicks);
-            updateHero(watchNow.get(0));
+            if (!watchNow.isEmpty()) {
+                updateHero(watchNow.get(0));
+            }
 
             // Focus first item if available
             App.post(() -> {
@@ -285,12 +287,12 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
     private void populateCategoryData(Result result) {
         if (result == null) return;
-        mCategoryGridAdapter.setItems(result.getList());
+        mCategoryGridAdapter.setItems(result.getList() != null ? result.getList() : new ArrayList<>());
 
         // Populate sub-category filters
         Class currentClass = mTopNavAdapter.getItem(mCurrentTab);
         List<Filter> filters = currentClass != null ? currentClass.getFilters() : null;
-        if (filters == null || filters.isEmpty()) {
+        if ((filters == null || filters.isEmpty()) && result.getFilters() != null) {
             filters = result.getFilters().get(currentClass != null ? currentClass.getTypeId() : "");
         }
         if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {
@@ -303,7 +305,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
     private void updateHero(Vod vod) {
         if (vod == null) return;
-        mBinding.heroTitle.setText(vod.getName());
+        mBinding.heroTitle.setText(vod.getName() != null ? vod.getName() : "");
 
         List<String> metas = new ArrayList<>();
         if (!TextUtils.isEmpty(vod.getRemarks())) metas.add(vod.getRemarks());
@@ -314,11 +316,11 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
         String desc = vod.getContent();
         if (TextUtils.isEmpty(desc)) desc = vod.getActor();
-        mBinding.heroDesc.setText(desc);
+        mBinding.heroDesc.setText(desc != null ? desc : "");
         mBinding.heroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
 
         // Load background with 300ms smooth crossfade
-        if (!TextUtils.isEmpty(vod.getPic())) {
+        if (!isFinishing() && !isDestroyed() && !TextUtils.isEmpty(vod.getPic())) {
             Glide.with(this)
                     .load(ImgUtil.getUrl(vod.getPic()))
                     .transition(DrawableTransitionOptions.withCrossFade(300))
@@ -379,7 +381,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
             Vod v = new Vod();
             v.setName(history.getVodName());
             v.setPic(history.getVodPic());
-            v.setContent(history.getVodRemarks());
+            v.setRemarks(history.getVodRemarks());
             updateHero(v);
         }
     }
