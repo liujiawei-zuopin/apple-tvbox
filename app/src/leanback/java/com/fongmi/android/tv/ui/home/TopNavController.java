@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.bean.Class;
 import com.fongmi.android.tv.ui.adapter.TopNavAdapter;
 
@@ -16,7 +15,7 @@ import java.util.List;
 
 /**
  * Controller for Apple tvOS Centered Frosted Capsule Navigation Bar.
- * Fixed Tabs: "主页" (Home), "电影" (Movies), "剧集" (TV Series), "综艺" (Variety), "搜索" (Search Icon).
+ * Fixed 5 Tabs: "主页" (Home), "电影" (Movies), "剧集" (TV Series), "综艺" (Variety), "搜索" (Search 🔍).
  */
 public class TopNavController implements TopNavAdapter.OnTabListener {
 

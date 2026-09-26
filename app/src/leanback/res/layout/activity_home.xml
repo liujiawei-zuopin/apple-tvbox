@@ -32,7 +32,7 @@
         android:alpha="0"
         android:background="#66101014" />
 
-    <!-- Layer 0d: Soft Frosted Ambient Backdrop for Category Pages -->
+    <!-- Layer 0d: Soft Frosted Ambient Backdrop for Category & Search Pages -->
     <View
         android:id="@+id/categoryAmbientBackdrop"
         android:layout_width="match_parent"
@@ -63,48 +63,12 @@
             android:paddingStart="44dp"
             android:paddingEnd="44dp">
 
-            <!-- Top Navigation Bar (Pure Centered Translucent Frosted Capsule Bar) -->
-            <RelativeLayout
-                android:id="@+id/topBar"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_alignParentTop="true"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:paddingTop="6dp"
-                android:paddingBottom="2dp">
-
-                <!-- Center: Apple TV Style Translucent Capsule Tabs Bar (Tightly hugs tabs) -->
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:id="@+id/topNavContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_centerHorizontal="true"
-                    android:background="@drawable/bg_top_capsule_bar"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center"
-                    android:paddingStart="3dp"
-                    android:paddingEnd="3dp">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/topNavRecycler"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:nextFocusDown="@id/recyclerWatchNow"
-                        android:orientation="horizontal" />
-                </androidx.appcompat.widget.LinearLayoutCompat>
-            </RelativeLayout>
-
-            <!-- Main Interactive Content Container -->
+            <!-- Main Interactive Content Container (Full Match-Parent, Top Bar Overlays It) -->
             <FrameLayout
                 android:id="@+id/contentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/topBar"
-                android:clipChildren="true"
+                android:clipChildren="false"
                 android:clipToPadding="false">
 
                 <!-- 1. Home Shelves ScrollView (Hero Synopsis + Now Watching + Continue + Hot Picks) -->
@@ -112,7 +76,7 @@
                     android:id="@+id/homeScrollView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipChildren="true"
+                    android:clipChildren="false"
                     android:clipToPadding="false"
                     android:overScrollMode="never"
                     android:scrollbars="none">
@@ -124,6 +88,7 @@
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="vertical"
+                        android:paddingTop="48dp"
                         android:paddingBottom="80dp">
 
                         <!-- Hero Synopsis Info Area (Sunk to bottom-middle, maximizing backdrop exposure) -->
@@ -131,7 +96,7 @@
                             android:id="@+id/heroInfoLayout"
                             android:layout_width="660dp"
                             android:layout_height="115dp"
-                            android:layout_marginTop="125dp"
+                            android:layout_marginTop="100dp"
                             android:layout_marginBottom="16dp"
                             android:orientation="vertical">
 
@@ -168,7 +133,7 @@
                                 tools:text="是一部1972年的美国黑帮电影，根据马里奥·普佐的1969年同名小说改编，弗朗西斯·科波拉执导，由马龙·白兰度和阿尔·帕西诺主演。" />
                         </androidx.appcompat.widget.LinearLayoutCompat>
 
-                        <!-- Shelf 1: 现在观看 (Watch Now 16:9 Compact - Sunk to bottom of 1st screen) -->
+                        <!-- Shelf 1: 现在观看 (Watch Now 16:9 Compact 138x78dp - Optical Alignment) -->
                         <TextView
                             android:id="@+id/headerWatchNow"
                             android:layout_width="wrap_content"
@@ -183,17 +148,18 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerWatchNow"
                             android:layout_width="match_parent"
-                            android:layout_height="98dp"
+                            android:layout_height="88dp"
+                            android:layout_marginStart="-3.5dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:orientation="horizontal" />
 
-                        <!-- Shelf 2: 继续观看 (Continue Watching 16:9 Compact with progress) -->
+                        <!-- Shelf 2: 继续观看 (Continue Watching 16:9 Compact 138x78dp with progress) -->
                         <TextView
                             android:id="@+id/headerContinue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
+                            android:layout_marginTop="18dp"
                             android:layout_marginBottom="4dp"
                             android:text="@string/shelf_continue_watch"
                             android:textColor="@color/white"
@@ -205,19 +171,20 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerContinue"
                             android:layout_width="match_parent"
-                            android:layout_height="98dp"
+                            android:layout_height="88dp"
+                            android:layout_marginStart="-3.5dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:orientation="horizontal"
                             android:visibility="gone"
                             tools:visibility="visible" />
 
-                        <!-- Shelf 3: 正在热播 (Top Picks 5-Columns 2:3) -->
+                        <!-- Shelf 3: 正在热播 (Top Picks 5-Columns 2:3 Portrait cards) -->
                         <TextView
                             android:id="@+id/headerHot"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="22dp"
+                            android:layout_marginTop="20dp"
                             android:layout_marginBottom="6dp"
                             android:text="@string/shelf_hot_recommend"
                             android:textColor="@color/white"
@@ -228,6 +195,7 @@
                             android:id="@+id/gridHot"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="-6dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:nestedScrollingEnabled="false" />
@@ -243,6 +211,7 @@
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:orientation="vertical"
+                    android:paddingTop="52dp"
                     android:visibility="gone">
 
                     <!-- Sub-category Filter Bar -->
@@ -269,7 +238,15 @@
                         android:paddingBottom="60dp" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <!-- 3. Empty State Guide (When no subscription source is configured) -->
+                <!-- 3. Embedded Search View (Apple TV style full Search Page) -->
+                <include
+                    android:id="@+id/searchContainer"
+                    layout="@layout/layout_home_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <!-- 4. Empty State Guide (When no subscription source is configured) -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/emptyView"
                     android:layout_width="wrap_content"
@@ -320,6 +297,44 @@
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
             </FrameLayout>
+
+            <!-- Top Navigation Bar (Pure Floating Centered Frosted Capsule Bar) -->
+            <RelativeLayout
+                android:id="@+id/topBar"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_alignParentTop="true"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingTop="6dp"
+                android:paddingBottom="2dp">
+
+                <!-- Center: Apple TV Style Translucent Capsule Tabs Bar -->
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/topNavContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/bg_top_capsule_bar"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:gravity="center"
+                    android:paddingStart="2.5dp"
+                    android:paddingTop="2.5dp"
+                    android:paddingEnd="2.5dp"
+                    android:paddingBottom="2.5dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/topNavRecycler"
+                        android:layout_width="wrap_content"
+                        android:layout_height="29dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:nextFocusDown="@id/recyclerWatchNow"
+                        android:orientation="horizontal" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </RelativeLayout>
+
         </RelativeLayout>
     </com.fongmi.android.tv.ui.custom.ProgressLayout>
 

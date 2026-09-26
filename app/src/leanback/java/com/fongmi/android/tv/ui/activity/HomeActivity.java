@@ -49,6 +49,7 @@ import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.dialog.ConfigDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.ui.home.HeroViewController;
+import com.fongmi.android.tv.ui.home.SearchViewController;
 import com.fongmi.android.tv.ui.home.ShelfSectionController;
 import com.fongmi.android.tv.ui.home.SideDrawerController;
 import com.fongmi.android.tv.ui.home.TopNavController;
@@ -74,6 +75,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private TopNavController mTopNavController;
     private ShelfSectionController mShelfController;
     private SideDrawerController mDrawerController;
+    private SearchViewController mSearchController;
 
     private FilterChipAdapter mFilterAdapter;
     private VodCardPortraitAdapter mCategoryGridAdapter;
@@ -120,6 +122,17 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
         mShelfController = new ShelfSectionController(this, mBinding, this);
         mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
+        mSearchController = new SearchViewController(this, mBinding.searchContainer, new SearchViewController.SearchCallback() {
+            @Override
+            public void onNavigateToTopNav() {
+                mTopNavController.requestFocus();
+            }
+
+            @Override
+            public void onOpenDrawer() {
+                openDrawer();
+            }
+        });
 
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
@@ -152,13 +165,14 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             int containerH = mBinding.contentContainer.getHeight();
             if (containerH <= 0) return;
 
+            int topPadding = ResUtil.dp2px(48);
             int heroH = ResUtil.dp2px(115);
-            int heroBottomMargin = ResUtil.dp2px(14);
-            int shelf1H = ResUtil.dp2px(20) + ResUtil.dp2px(98); // Header + Recycler
-            int bottomSafetyPadding = ResUtil.dp2px(24);
+            int heroBottomMargin = ResUtil.dp2px(16);
+            int shelf1H = ResUtil.dp2px(20) + ResUtil.dp2px(88); // Header + Recycler
+            int bottomSafetyPadding = ResUtil.dp2px(20);
 
-            int targetTopMargin = containerH - heroH - heroBottomMargin - shelf1H - bottomSafetyPadding;
-            if (targetTopMargin > ResUtil.dp2px(50)) {
+            int targetTopMargin = containerH - topPadding - heroH - heroBottomMargin - shelf1H - bottomSafetyPadding;
+            if (targetTopMargin > ResUtil.dp2px(40)) {
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mBinding.heroInfoLayout.getLayoutParams();
                 lp.topMargin = targetTopMargin;
                 mBinding.heroInfoLayout.setLayoutParams(lp);
@@ -183,7 +197,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             if (mCurrentTab == 0) {
                 populateHomeData(mResult = result);
                 Cache.clear().put(result);
-            } else {
+            } else if (mCurrentTab != 4) {
                 populateCategoryData(result);
             }
         });
@@ -354,19 +368,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     @Override
     public void onTabSelected(int position, Class item) {
         if (item == null) return;
-        if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
-            return; // Search only triggers on click/enter
-        }
         switchTab(position, item);
     }
 
     @Override
     public void onTabClicked(int position, Class item) {
         if (item == null) return;
-        if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
-            SearchActivity.start(this, "");
-            return;
-        }
         switchTab(position, item);
     }
 
@@ -374,6 +381,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     public void onNavigateDown() {
         if (mCurrentTab == 0) {
             mShelfController.focusWatchNowItem(0);
+        } else if (mCurrentTab == 4 || TopNavController.ID_SEARCH.equals(mTopNavController.getItem(mCurrentTab) != null ? mTopNavController.getItem(mCurrentTab).getTypeId() : "")) {
+            mSearchController.requestFocus();
         } else {
             if (mBinding.categoryFilterRecycler.getVisibility() == View.VISIBLE && mBinding.categoryFilterRecycler.getChildCount() > 0) {
                 mBinding.categoryFilterRecycler.getChildAt(0).requestFocus();
@@ -415,10 +424,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
             // Home View with smooth transition
             mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            mBinding.categoryContainer.setVisibility(View.GONE);
+            mBinding.searchContainer.getRoot().setVisibility(View.GONE);
+
             mBinding.homeScrollView.setAlpha(0f);
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
             mBinding.homeScrollView.animate().alpha(1f).setDuration(200).start();
-            mBinding.categoryContainer.setVisibility(View.GONE);
             mHeroController.setVisibility(View.VISIBLE);
             mHeroController.resetScroll();
             mBinding.topBar.setTranslationY(0);
@@ -432,12 +443,32 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                     mViewModel.homeContent();
                 }
             }
+        } else if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
+            // Embedded Search Page with smooth transition
+            mBinding.homeScrollView.setVisibility(View.GONE);
+            mBinding.categoryContainer.setVisibility(View.GONE);
+            mHeroController.setVisibility(View.GONE);
+
+            mBinding.categoryAmbientBackdrop.setAlpha(0f);
+            mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+
+            mBinding.searchContainer.getRoot().setAlpha(0f);
+            mBinding.searchContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
+            mBinding.searchContainer.getRoot().setVisibility(View.VISIBLE);
+            mBinding.searchContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
+
+            mBinding.topBar.setTranslationY(0);
+            mBinding.topBar.setAlpha(1f);
+
+            mSearchController.onTabActivated();
         } else {
             // Category View with smooth cross-fade transition and fixed frosted ambient background
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
 
             mBinding.homeScrollView.setVisibility(View.GONE);
+            mBinding.searchContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
@@ -467,6 +498,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mCurrentCategoryClass = item;
 
         mBinding.homeScrollView.setVisibility(View.GONE);
+        mBinding.searchContainer.getRoot().setVisibility(View.GONE);
         mHeroController.setVisibility(View.GONE);
 
         mBinding.categoryAmbientBackdrop.setAlpha(0f);

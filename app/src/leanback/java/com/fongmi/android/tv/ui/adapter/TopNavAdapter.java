@@ -60,12 +60,7 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     }
 
     public void setSelectedPosition(int position) {
-        if (position >= 0 && position < mItems.size()) {
-            Class item = mItems.get(position);
-            if (TAB_SEARCH.equals(item.getTypeId())) {
-                return; // Do not persist search as selected tab indicator
-            }
-        }
+        if (position < 0 || position >= mItems.size()) return;
         if (mSelectedPosition == position) return;
         int old = mSelectedPosition;
         mSelectedPosition = position;
@@ -88,18 +83,18 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
         if (isSearch) {
             holder.text.setVisibility(View.GONE);
             holder.icon.setVisibility(View.VISIBLE);
-            holder.itemView.setSelected(false);
         } else {
             holder.icon.setVisibility(View.GONE);
             holder.text.setVisibility(View.VISIBLE);
             holder.text.setText(item.getTypeName());
-            holder.itemView.setSelected(position == mSelectedPosition);
         }
+
+        holder.itemView.setSelected(position == mSelectedPosition);
 
         holder.itemView.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
-            if (!isSearch && mSelectedPosition != pos) {
+            if (mSelectedPosition != pos) {
                 setSelectedPosition(pos);
             }
             if (mListener != null) {
@@ -108,17 +103,27 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
         });
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+            holder.itemView.animate()
+                    .scaleX(hasFocus ? 1.04f : 1.0f)
+                    .scaleY(hasFocus ? 1.04f : 1.0f)
+                    .setDuration(160)
+                    .start();
+
             if (hasFocus) {
+                int pos = holder.getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    if (mSelectedPosition != pos) {
+                        setSelectedPosition(pos);
+                    }
+                }
+
                 if (mDebounceRunnable != null) {
                     App.removeCallbacks(mDebounceRunnable);
                 }
                 mDebounceRunnable = () -> {
-                    int pos = holder.getBindingAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION && mListener != null) {
-                        if (!isSearch && mSelectedPosition != pos) {
-                            setSelectedPosition(pos);
-                            mListener.onTabFocused(pos, item);
-                        }
+                    int p = holder.getBindingAdapterPosition();
+                    if (p != RecyclerView.NO_POSITION && mListener != null) {
+                        mListener.onTabFocused(p, item);
                     }
                 };
                 App.post(mDebounceRunnable, 180);
