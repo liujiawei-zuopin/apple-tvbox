@@ -29,11 +29,21 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
 
     public TopNavAdapter(OnTabListener listener) {
         this.mListener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (position >= 0 && position < mItems.size()) {
+            Class c = mItems.get(position);
+            return c.getTypeId() != null ? c.getTypeId().hashCode() : position;
+        }
+        return position;
     }
 
     public void setItems(List<Class> items) {
         mItems.clear();
-        mItems.addAll(items);
+        if (items != null) mItems.addAll(items);
         notifyDataSetChanged();
     }
 
@@ -46,6 +56,7 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     }
 
     public void setSelectedPosition(int position) {
+        if (mSelectedPosition == position) return;
         int old = mSelectedPosition;
         mSelectedPosition = position;
         notifyItemChanged(old);
@@ -66,9 +77,13 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
         holder.text.setSelected(position == mSelectedPosition);
 
         holder.itemView.setOnClickListener(v -> {
-            setSelectedPosition(holder.getBindingAdapterPosition());
+            int pos = holder.getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+            if (mSelectedPosition != pos) {
+                setSelectedPosition(pos);
+            }
             if (mListener != null) {
-                mListener.onTabClicked(holder.getBindingAdapterPosition(), item);
+                mListener.onTabClicked(pos, item);
             }
         });
 
@@ -80,11 +95,13 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
                 mDebounceRunnable = () -> {
                     int pos = holder.getBindingAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION && mListener != null) {
-                        setSelectedPosition(pos);
-                        mListener.onTabFocused(pos, item);
+                        if (mSelectedPosition != pos) {
+                            setSelectedPosition(pos);
+                            mListener.onTabFocused(pos, item);
+                        }
                     }
                 };
-                App.post(mDebounceRunnable, 250);
+                App.post(mDebounceRunnable, 200);
             }
         });
     }

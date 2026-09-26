@@ -403,8 +403,13 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     // Shelf & Poster Callbacks
     @Override
-    public void onVodFocused(Vod vod) {
+    public void onWatchNowFocused(Vod vod) {
         mHeroController.updateHero(vod);
+    }
+
+    @Override
+    public void onVodFocused(Vod vod) {
+        // Category grid item focused
     }
 
     @Override
@@ -423,11 +428,6 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (!vod.isAction()) {
             CollectActivity.start(this, vod.getName());
         }
-    }
-
-    @Override
-    public void onHistoryFocused(History history) {
-        mHeroController.updateHero(history);
     }
 
     @Override

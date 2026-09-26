@@ -26,7 +26,7 @@ import java.util.List;
  * - "正在热播" (Hot Picks - 5-column 2:3 Portrait cards)
  *
  * Implements deterministic D-Pad step jumping, smooth center-focused scrolling,
- * and memory of focused card positions.
+ * and strict Hero background binding exclusively to "Watch Now" shelf selection.
  */
 public class ShelfSectionController {
 
@@ -43,10 +43,9 @@ public class ShelfSectionController {
     private int mHotPicksFocusedPos = 0;
 
     public interface ShelfCallback {
-        void onVodFocused(Vod vod);
+        void onWatchNowFocused(Vod vod);
         void onVodClicked(Vod vod);
         void onVodLongClicked(Vod vod);
-        void onHistoryFocused(History history);
         void onHistoryClicked(History history);
         void onHistoryLongClicked(History history);
         void onNavigateToTopNav();
@@ -61,14 +60,12 @@ public class ShelfSectionController {
     }
 
     private void initViews() {
-        // Shelf 1: 现在观看 (Watch Now)
+        // Shelf 1: 现在观看 (Watch Now - Sole driver for Hero backdrop & metadata)
         mWatchNowAdapter = new VodCardLandscapeAdapter(new VodCardLandscapeAdapter.OnItemClickListener() {
             @Override
             public void onItemFocused(Object item) {
                 if (item instanceof Vod vod && mCallback != null) {
-                    mCallback.onVodFocused(vod);
-                } else if (item instanceof History hist && mCallback != null) {
-                    mCallback.onHistoryFocused(hist);
+                    mCallback.onWatchNowFocused(vod);
                 }
             }
 
@@ -94,13 +91,11 @@ public class ShelfSectionController {
         mBinding.recyclerWatchNow.setAdapter(mWatchNowAdapter);
         setupWatchNowKeyNavigation();
 
-        // Shelf 2: 继续观看 (Continue Watching)
+        // Shelf 2: 继续观看 (Continue Watching - Does NOT alter Hero backdrop)
         mContinueAdapter = new VodCardLandscapeAdapter(new VodCardLandscapeAdapter.OnItemClickListener() {
             @Override
             public void onItemFocused(Object item) {
-                if (item instanceof History hist && mCallback != null) {
-                    mCallback.onHistoryFocused(hist);
-                }
+                // Background stays locked to Watch Now selection
             }
 
             @Override
@@ -121,11 +116,11 @@ public class ShelfSectionController {
         mBinding.recyclerContinue.setAdapter(mContinueAdapter);
         setupContinueKeyNavigation();
 
-        // Shelf 3: 正在热播 (Hot Picks 5 columns)
+        // Shelf 3: 正在热播 (Hot Picks 5 columns - Does NOT alter Hero backdrop)
         mHotPicksAdapter = new VodCardPortraitAdapter(new VodCardPortraitAdapter.OnVodClickListener() {
             @Override
             public void onVodFocused(Vod vod) {
-                if (mCallback != null) mCallback.onVodFocused(vod);
+                // Background stays locked to Watch Now selection
             }
 
             @Override
@@ -312,6 +307,7 @@ public class ShelfSectionController {
     }
 
     public void focusWatchNowItem(int position) {
+        mWatchNowFocusedPos = position;
         App.post(() -> {
             mBinding.recyclerWatchNow.scrollToPosition(position);
             App.post(() -> {
@@ -326,6 +322,7 @@ public class ShelfSectionController {
     }
 
     public void focusContinueItem(int position) {
+        mContinueFocusedPos = position;
         App.post(() -> {
             mBinding.recyclerContinue.scrollToPosition(position);
             App.post(() -> {
@@ -340,6 +337,7 @@ public class ShelfSectionController {
     }
 
     public void focusHotPicksItem(int position) {
+        mHotPicksFocusedPos = position;
         App.post(() -> {
             mBinding.gridHot.scrollToPosition(position);
             App.post(() -> {

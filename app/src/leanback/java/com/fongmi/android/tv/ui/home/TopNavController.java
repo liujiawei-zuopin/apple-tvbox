@@ -34,6 +34,7 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         this.mRecycler = recycler;
         this.mCallback = callback;
         this.mAdapter = new TopNavAdapter(this);
+        this.mRecycler.setItemAnimator(null);
         this.mRecycler.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
         this.mRecycler.setAdapter(mAdapter);
 

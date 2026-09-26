@@ -36,12 +36,12 @@
                     android:scaleType="centerCrop"
                     tools:src="@tools:sample/backgrounds/scenic" />
 
-                <!-- Bottom Gradient Shadow -->
+                <!-- Bottom Frosted Glass Tray -->
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="54dp"
                     android:layout_gravity="bottom"
-                    android:background="@drawable/gradient_scrim_hero" />
+                    android:background="@drawable/bg_card_frosted_scrim" />
 
                 <TextView
                     android:id="@+id/remark"
