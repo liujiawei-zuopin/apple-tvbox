@@ -2,7 +2,6 @@ package com.fongmi.android.tv.ui.activity;
 
 import android.app.SearchManager;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -52,7 +51,6 @@ import com.fongmi.android.tv.ui.dialog.ConfigDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.utils.FileChooser;
 import com.fongmi.android.tv.utils.ImgUtil;
-import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.PermissionUtil;
 import com.fongmi.android.tv.utils.ResUtil;
@@ -130,6 +128,9 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
     }
 
     private void setupTopNav() {
+        mBinding.btnMenuToggle.setOnClickListener(v -> openDrawer());
+        mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().show(this));
+
         mTopNavAdapter = new TopNavAdapter(this);
         mBinding.topNavRecycler.setHorizontalSpacing(ResUtil.dp2px(12));
         mBinding.topNavRecycler.setAdapter(mTopNavAdapter);
@@ -241,25 +242,33 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         // Populate shelves
         List<Vod> all = result != null && result.getList() != null ? result.getList() : new ArrayList<>();
         if (!all.isEmpty()) {
+            mBinding.emptyView.setVisibility(View.GONE);
+            mBinding.homeScrollView.setVisibility(View.VISIBLE);
+            mBinding.heroInfoLayout.setVisibility(View.VISIBLE);
+
             int shelf1Size = Math.min(all.size(), 8);
             List<Vod> watchNow = all.subList(0, shelf1Size);
             List<Vod> hotPicks = all.subList(shelf1Size, all.size());
             mWatchNowAdapter.setItems(watchNow);
             mHotPicksAdapter.setItems(hotPicks);
             updateHero(watchNow.get(0));
+
+            // Focus first item if available
+            App.post(() -> {
+                if (mBinding.recyclerWatchNow.getChildCount() > 0) {
+                    mBinding.recyclerWatchNow.getChildAt(0).requestFocus();
+                } else {
+                    mBinding.topNavRecycler.requestFocus();
+                }
+            }, 200);
         } else {
             mWatchNowAdapter.setItems(new ArrayList<>());
             mHotPicksAdapter.setItems(new ArrayList<>());
+            mBinding.homeScrollView.setVisibility(View.GONE);
+            mBinding.heroInfoLayout.setVisibility(View.GONE);
+            mBinding.emptyView.setVisibility(View.VISIBLE);
+            App.post(() -> mBinding.btnEmptyConfig.requestFocus(), 200);
         }
-
-        // Focus first item if available
-        App.post(() -> {
-            if (mBinding.recyclerWatchNow.getChildCount() > 0) {
-                mBinding.recyclerWatchNow.getChildAt(0).requestFocus();
-            } else {
-                mBinding.topNavRecycler.requestFocus();
-            }
-        }, 200);
     }
 
     private void getHistory() {
@@ -445,13 +454,16 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (KeyUtil.isMenuKey(event) && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (isDrawerOpen()) {
-                closeDrawer();
-            } else {
-                openDrawer();
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            int keyCode = event.getKeyCode();
+            if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
+                if (isDrawerOpen()) {
+                    closeDrawer();
+                } else {
+                    openDrawer();
+                }
+                return true;
             }
-            return true;
         }
         return super.dispatchKeyEvent(event);
     }
