@@ -50,6 +50,7 @@ import com.fongmi.android.tv.ui.adapter.VodCardPortraitAdapter;
 import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.dialog.ConfigDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
+import com.fongmi.android.tv.ui.home.CategoryViewController;
 import com.fongmi.android.tv.ui.home.HeroViewController;
 import com.fongmi.android.tv.ui.home.SearchViewController;
 import com.fongmi.android.tv.ui.home.ShelfSectionController;
@@ -78,9 +79,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private ShelfSectionController mShelfController;
     private SideDrawerController mDrawerController;
     private SearchViewController mSearchController;
+    private CategoryViewController mCategoryController;
 
-    private FilterChipAdapter mFilterAdapter;
-    private VodCardPortraitAdapter mCategoryGridAdapter;
     private SiteViewModel mViewModel;
     private Result mResult;
     private List<Class> mRawTypes = new ArrayList<>();
@@ -124,6 +124,37 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
         mShelfController = new ShelfSectionController(this, mBinding, this);
         mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
+        mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, new CategoryViewController.CategoryCallback() {
+            @Override
+            public void onVodClicked(Vod vod) {
+                HomeActivity.this.onVodClicked(vod);
+            }
+
+            @Override
+            public void onVodLongClicked(Vod vod) {
+                HomeActivity.this.onVodLongClicked(vod);
+            }
+
+            @Override
+            public void onFilterSelected(Value value) {
+                HomeActivity.this.onFilterSelected(value);
+            }
+
+            @Override
+            public void onNavigateToTopNav() {
+                mTopNavController.requestFocus();
+            }
+
+            @Override
+            public void onOpenDrawer() {
+                openDrawer();
+            }
+
+            @Override
+            public void onCategoryScrolled(int scrollY) {
+                updateTopBarOnScroll(scrollY);
+            }
+        });
         mSearchController = new SearchViewController(this, mBinding.searchContainer, new SearchViewController.SearchCallback() {
             @Override
             public void onNavigateToTopNav() {
@@ -144,22 +175,11 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             updateTopBarOnScroll(scrollY);
         });
 
-        // 2. Category Grid scrolling -> Parallax top bar collapse
-        mBinding.categoryGrid.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int scrollY = recyclerView.computeVerticalScrollOffset();
-                updateTopBarOnScroll(scrollY);
-            }
-        });
-
-        // 3. Search Page ScrollView scrolling -> Parallax top bar collapse
+        // 2. Search Page ScrollView scrolling -> Parallax top bar collapse
         mBinding.searchContainer.scroll.setOnScrollChangeListener((NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) -> {
             updateTopBarOnScroll(scrollY);
         });
 
-        setupCategoryView();
         setupViewModel();
         adjustHeroSpaceForSunkShelf();
 
@@ -199,16 +219,6 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 mBinding.heroInfoLayout.setLayoutParams(lp);
             }
         });
-    }
-
-    private void setupCategoryView() {
-        mFilterAdapter = new FilterChipAdapter(this);
-        mBinding.categoryFilterRecycler.setHorizontalSpacing(ResUtil.dp2px(10));
-        mBinding.categoryFilterRecycler.setAdapter(mFilterAdapter);
-
-        mCategoryGridAdapter = new VodCardPortraitAdapter(this);
-        mBinding.categoryGrid.setLayoutManager(new GridLayoutManager(this, 5));
-        mBinding.categoryGrid.setAdapter(mCategoryGridAdapter);
     }
 
     private void setupViewModel() {
@@ -371,19 +381,13 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     private void populateCategoryData(Result result) {
         if (result == null) return;
-        mCategoryGridAdapter.setItems(result.getList() != null ? result.getList() : new ArrayList<>());
-
-        Class currentClass = mCurrentCategoryClass;
-        List<Filter> filters = currentClass != null ? currentClass.getFilters() : null;
-        if ((filters == null || filters.isEmpty()) && result.getFilters() != null) {
-            filters = result.getFilters().get(currentClass != null ? currentClass.getTypeId() : "");
+        String tabType = "movie";
+        if (mCurrentTab == 2) tabType = "tv";
+        else if (mCurrentTab == 3) tabType = "variety";
+        else if (mTopNavController.getItem(mCurrentTab) != null) {
+            tabType = mTopNavController.getItem(mCurrentTab).getTypeId();
         }
-        if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {
-            mFilterAdapter.setItems(filters.get(0).getValue());
-            mBinding.categoryFilterRecycler.setVisibility(View.VISIBLE);
-        } else {
-            mBinding.categoryFilterRecycler.setVisibility(View.GONE);
-        }
+        mCategoryController.setCategoryData(result, mCurrentCategoryClass, tabType);
     }
 
     @Override
@@ -405,11 +409,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         } else if (mCurrentTab == 4 || TopNavController.ID_SEARCH.equals(mTopNavController.getItem(mCurrentTab) != null ? mTopNavController.getItem(mCurrentTab).getTypeId() : "")) {
             mSearchController.requestFocus();
         } else {
-            if (mBinding.categoryFilterRecycler.getVisibility() == View.VISIBLE && mBinding.categoryFilterRecycler.getChildCount() > 0) {
-                mBinding.categoryFilterRecycler.getChildAt(0).requestFocus();
-            } else if (mBinding.categoryGrid.getChildCount() > 0) {
-                mBinding.categoryGrid.getChildAt(0).requestFocus();
-            }
+            mCategoryController.focusHeroPlayButton();
         }
     }
 
@@ -445,8 +445,9 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
             // Home View with smooth transition
             mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
-            mBinding.categoryContainer.setVisibility(View.GONE);
+            mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
 
             mBinding.homeScrollView.setAlpha(0f);
@@ -468,12 +469,14 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         } else if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
             // Embedded Search Page with smooth transition
             mBinding.homeScrollView.setVisibility(View.GONE);
-            mBinding.categoryContainer.setVisibility(View.GONE);
+            mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+            mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
+            mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
             mBinding.searchContainer.getRoot().setAlpha(0f);
@@ -486,7 +489,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             mSearchController.onTabActivated();
         } else {
-            // Category View with smooth cross-fade transition and fixed frosted ambient background
+            // Category View with smooth cross-fade transition and custom frosted ambient background
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
 
@@ -494,18 +497,36 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
+            // Set category ambient theme
+            if (TopNavController.ID_MOVIE.equals(item.getTypeId())) {
+                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_movie_emerald);
+            } else if (TopNavController.ID_TV.equals(item.getTypeId())) {
+                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_tv_sapphire);
+            } else if (TopNavController.ID_VARIETY.equals(item.getTypeId())) {
+                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_variety_amethyst);
+            } else {
+                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
+            }
+
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+
+            mBinding.categoryAmbientTint.setAlpha(0f);
+            mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
+            mBinding.categoryAmbientTint.animate().alpha(1f).setDuration(220).start();
+
             mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
-            mBinding.categoryContainer.setAlpha(0f);
-            mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));
-            mBinding.categoryContainer.setVisibility(View.VISIBLE);
-            mBinding.categoryContainer.animate().alpha(1f).translationY(0).setDuration(220).start();
+            mBinding.categoryContainer.getRoot().setAlpha(0f);
+            mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
+            mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
+            mBinding.categoryContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
 
             mBinding.topBar.setTranslationY(0);
             mBinding.topBar.setAlpha(1f);
+
+            mCategoryController.resetScroll();
 
             mExtend.clear();
             if (getHome() != null && mCurrentCategoryClass != null) {
@@ -528,25 +549,26 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+
+        mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
+        mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
-        mBinding.categoryContainer.setAlpha(0f);
-        mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));
-        mBinding.categoryContainer.setVisibility(View.VISIBLE);
-        mBinding.categoryContainer.animate().alpha(1f).translationY(0).setDuration(220).start();
+        mBinding.categoryContainer.getRoot().setAlpha(0f);
+        mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
+        mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
+        mBinding.categoryContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
 
         mBinding.topBar.setTranslationY(0);
         mBinding.topBar.setAlpha(1f);
+
+        mCategoryController.resetScroll();
 
         mExtend.clear();
         if (getHome() != null) {
             mViewModel.categoryContent(getHome().getKey(), item.getTypeId(), "1", true, mExtend);
         }
-        App.post(() -> {
-            if (mBinding.categoryGrid.getChildCount() > 0) {
-                mBinding.categoryGrid.getChildAt(0).requestFocus();
-            }
-        }, 300);
+        App.post(() -> mCategoryController.focusHeroPlayButton(), 300);
     }
 
     @Override
@@ -743,6 +765,9 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     protected void onDestroy() {
         if (mHeroController != null) {
             mHeroController.destroy();
+        }
+        if (mCategoryController != null) {
+            mCategoryController.destroy();
         }
         DLNARendererService.stop(this);
         LiveConfig.get().clear();

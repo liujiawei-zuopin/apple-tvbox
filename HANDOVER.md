@@ -1,9 +1,9 @@
 # Apple TVBox 项目工程交接与技术架构文档
 
-> **版本**：`v1.0.53`  
-> **基线 Commit**：`f442036`  
+> **版本**：`v1.0.54`  
+> **基线 Commit**：`Release v1.0.54`  
 > **分支**：`main`  
-> **最后构建状态**：GitHub Actions CI 构建通过 (Release `v1.0.53`)  
+> **最后构建状态**：GitHub Actions CI 构建通过 (Release `v1.0.54`)  
 > **代码仓库**：[liujiawei-zuopin/apple-tvbox](https://github.com/liujiawei-zuopin/apple-tvbox)  
 > **本地工作区**：`c:\Users\liuji\Documents\antigravity\sharp-brahmagupta\apple-tvbox`
 
@@ -19,12 +19,14 @@ graph TD
         TopNav["TopNavController (居中 34dp 磨砂胶囊栏)"]
         Hero["HeroViewController (双图层全景海报与动态毛玻璃)"]
         Shelf["ShelfSectionController (沉底货架与 138x78dp 光学对齐)"]
+        Category["CategoryViewController (分类大屏 Hero轮播+立即播放+推荐+子分类+全部影片)"]
         Search["SearchViewController (内置全功能大屏搜索页)"]
         Drawer["SideDrawerController (毛玻璃抽屉菜单 & 原生源分类)"]
         HomeAct["HomeActivity (主控制器调度、视差滚动与阶梯返回)"]
         HomeAct --> TopNav
         HomeAct --> Hero
         HomeAct --> Shelf
+        HomeAct --> Category
         HomeAct --> Search
         HomeAct --> Drawer
     end
@@ -51,11 +53,12 @@ graph TD
 
 前端 UI 逻辑全部解耦至独立控制器中，避免了以往所有逻辑堆叠在单一 Activity 导致的“改一处坏全局”问题：
 
-| 组件名称 | 对应 Java 控制器 / 布局文件 | 职责与设计规范 (v1.0.50 升级) |
+| 组件名称 | 对应 Java 控制器 / 布局文件 | 职责与设计规范 (v1.0.54 升级) |
 | :--- | :--- | :--- |
 | **顶部胶囊导航** | `TopNavController.java`<br>`TopNavAdapter.java`<br>`bg_top_capsule_bar.xml`<br>`bg_capsule_selected.xml` | • 完全屏幕水平居中，34dp 磨砂玻璃外槽 + 29dp 弹性缩放药丸。<br>• 固定 5 大入口：主页、电影、剧集、综艺、搜索 🔍。<br>• 纯白高亮药丸跟随焦点同步平移，杜绝双药丸 Bug。 |
 | **Hero 全景海报与动态模糊** | `HeroViewController.java`<br>`BlurUtil.java`<br>`activity_home.xml` | • **双图层架构**：底层高清海报 + 顶层预生成 StackBlur 毛玻璃层。<br>• **第一屏海报区域极大化**：占据屏幕 70% 面积，极具视觉冲击力。<br>• **下滑动态毛玻璃化**：下滑离开第一屏时，海报平滑过渡为深色磨砂背景，简介文字视差淡出；滑回第一屏瞬间恢复清晰。 |
 | **三大沉底货架与光学对齐** | `ShelfSectionController.java`<br>`VodCardLandscapeAdapter.java`<br>`VodCardPortraitAdapter.java` | • **卡片均分排布**：138dp × 78dp 黄金 16:9 卡片，首屏均分排布 6 张卡片无截断。<br>• **光学视觉对齐**：负外边距校准，卡片左圆角弧顶与标题文字垂直对齐。<br>• **D-Pad 确定性单步跳轴**：`现在观看 ⬇️ 继续观看 ⬇️ 正在热播 ⬆️ 顶栏胶囊`。 |
+| **分类大屏频道页** | `CategoryViewController.java`<br>`VodCardPortraitShelfAdapter.java`<br>`layout_category_channel.xml`<br>`bg_ambient_movie_emerald.xml`<br>`bg_ambient_tv_sapphire.xml`<br>`bg_ambient_variety_amethyst.xml` | • **专属暗色毛玻璃背景**：电影（深墨绿 `#072015`）、剧集（深宝蓝 `#081A3A`）、综艺（深紫晶 `#1E0B34`）。<br>• **顶部 Hero 轮播**：轮播近期热播剧，简介下方包含 Apple tvOS 纯白高光「▶ 立即播放」按钮。<br>• **推荐货架 (16:9)**：138x78dp 横版卡片（不联动上方 Hero）。<br>• **子分类货架 (2:3)**：精选主流子分类横向货架。<br>• **全部影片 (5 列大网格)**：多维分类芯片筛选 + 5 列瀑布流全量影片。 |
 | **大屏内置搜索** | `SearchViewController.java`<br>`layout_home_search.xml`<br>`shape_search_bar.xml` | • 顶栏直接切换搜索页，内置虚拟键盘、热搜榜单、历史记录与语音输入。<br>• 按键上下平滑与顶栏联动。 |
 | **毛玻璃抽屉** | `SideDrawerController.java`<br>`layout_side_drawer.xml` | • 左侧呼出式深色磨砂面板，按遥控器 [菜单键] 或在首张卡片按 `⬅️` 滑出。<br>• 顶部展示时钟，包含 9 项快捷菜单与当前站点原始原生分类网格。 |
 

@@ -40,12 +40,20 @@
         android:scaleType="centerCrop"
         android:visibility="gone" />
 
-    <!-- Layer 0e: Deep Frosted Dim Filter for Category Pages -->
+    <!-- Layer 0e: Category Themed Ambient Frosted Tint (Emerald, Sapphire, Amethyst) -->
+    <View
+        android:id="@+id/categoryAmbientTint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_ambient_default"
+        android:visibility="gone" />
+
+    <!-- Layer 0f: Deep Frosted Dim Filter for Category Pages -->
     <View
         android:id="@+id/categoryAmbientOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#88101014"
+        android:background="#66101014"
         android:visibility="gone" />
 
     <!-- Layer 1: Dark Cinematic Scrim Overlay (First Screen Atmosphere) -->
@@ -211,40 +219,13 @@
                     </androidx.appcompat.widget.LinearLayoutCompat>
                 </androidx.core.widget.NestedScrollView>
 
-                <!-- 2. Category View (Sub-category filters + 5-column poster grid) -->
-                <androidx.appcompat.widget.LinearLayoutCompat
+                <!-- 2. Category Channel View (Apple TV+ rich channels with Hero, Play Button, Shelves & Grid) -->
+                <include
                     android:id="@+id/categoryContainer"
+                    layout="@layout/layout_category_channel"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:orientation="vertical"
-                    android:paddingTop="52dp"
-                    android:visibility="gone">
-
-                    <!-- Sub-category Filter Bar -->
-                    <androidx.leanback.widget.HorizontalGridView
-                        android:id="@+id/categoryFilterRecycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="36dp"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="10dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        app:focusOutEnd="false"
-                        app:focusOutFront="false" />
-
-                    <!-- 5-Column Category Poster Grid -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/categoryGrid"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:nextFocusUp="@id/topNavRecycler"
-                        android:paddingBottom="60dp" />
-                </androidx.appcompat.widget.LinearLayoutCompat>
+                    android:visibility="gone" />
 
                 <!-- 3. Embedded Search View (Apple TV style full Search Page) -->
                 <include
