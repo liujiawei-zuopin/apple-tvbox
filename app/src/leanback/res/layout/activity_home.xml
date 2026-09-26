@@ -108,64 +108,16 @@
                     tools:text="17:30" />
             </RelativeLayout>
 
-            <!-- Hero Synopsis Info Area (Visible on Home Tab) -->
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/heroInfoLayout"
-                android:layout_width="560dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/topBar"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/heroTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:shadowColor="#99000000"
-                    android:shadowDx="2"
-                    android:shadowDy="2"
-                    android:shadowRadius="6"
-                    android:textColor="@color/white"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
-                    tools:text="教父 第一部" />
-
-                <TextView
-                    android:id="@+id/heroMeta"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="13sp"
-                    tools:text="4K 超清 · 9.4分 · 1972 · 剧情 / 犯罪" />
-
-                <TextView
-                    android:id="@+id/heroDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:ellipsize="end"
-                    android:lineSpacingExtra="3dp"
-                    android:maxLines="3"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="13sp"
-                    tools:text="是一部1972年的美国黑帮电影，根据马里奥·普佐的1969年同名小说改编，弗朗西斯·科波拉执导，由马龙·白兰度和阿尔·帕西诺主演。" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
             <!-- Main Interactive Content Container -->
             <FrameLayout
                 android:id="@+id/contentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/heroInfoLayout"
+                android:layout_below="@id/topBar"
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <!-- 1. Home Shelves ScrollView (Now Watching + Continue + Hot Picks) -->
+                <!-- 1. Home Shelves ScrollView (Hero Synopsis + Now Watching + Continue + Hot Picks) -->
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/homeScrollView"
                     android:layout_width="match_parent"
@@ -183,12 +135,58 @@
                         android:orientation="vertical"
                         android:paddingBottom="60dp">
 
+                        <!-- Hero Synopsis Info Area (Top of Home) -->
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:id="@+id/heroInfoLayout"
+                            android:layout_width="560dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/heroTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:shadowColor="#99000000"
+                                android:shadowDx="2"
+                                android:shadowDy="2"
+                                android:shadowRadius="6"
+                                android:textColor="@color/white"
+                                android:textSize="30sp"
+                                android:textStyle="bold"
+                                tools:text="教父 第一部" />
+
+                            <TextView
+                                android:id="@+id/heroMeta"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="13sp"
+                                tools:text="4K 超清 · 9.4分 · 1972 · 剧情 / 犯罪" />
+
+                            <TextView
+                                android:id="@+id/heroDesc"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:ellipsize="end"
+                                android:lineSpacingExtra="3dp"
+                                android:maxLines="3"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="13sp"
+                                tools:text="是一部1972年的美国黑帮电影，根据马里奥·普佐的1969年同名小说改编，弗朗西斯·科波拉执导，由马龙·白兰度和阿尔·帕西诺主演。" />
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+
                         <!-- Shelf 1: 现在观看 (Watch Now 16:9) -->
                         <TextView
                             android:id="@+id/headerWatchNow"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="4dp"
                             android:layout_marginBottom="6dp"
                             android:text="@string/shelf_watch_now"
                             android:textColor="@color/white"
