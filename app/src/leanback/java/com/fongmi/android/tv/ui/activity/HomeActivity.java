@@ -279,9 +279,13 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         mCategoryGridAdapter.setItems(result.getList());
 
         // Populate sub-category filters
-        if (result.getFilters() != null && !result.getFilters().isEmpty()) {
-            Filter firstFilter = result.getFilters().get(0);
-            mFilterAdapter.setItems(firstFilter.getValue());
+        Class currentClass = mTopNavAdapter.getItem(mCurrentTab);
+        List<Filter> filters = currentClass != null ? currentClass.getFilters() : null;
+        if (filters == null || filters.isEmpty()) {
+            filters = result.getFilters().get(currentClass != null ? currentClass.getTypeId() : "");
+        }
+        if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {
+            mFilterAdapter.setItems(filters.get(0).getValue());
             mBinding.categoryFilterRecycler.setVisibility(View.VISIBLE);
         } else {
             mBinding.categoryFilterRecycler.setVisibility(View.GONE);
