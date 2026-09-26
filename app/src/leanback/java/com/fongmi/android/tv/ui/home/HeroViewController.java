@@ -20,6 +20,7 @@ import com.fongmi.android.tv.databinding.ActivityHomeBinding;
 import com.fongmi.android.tv.utils.BlurUtil;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.ResUtil;
+import com.fongmi.android.tv.utils.Task;
 
 import java.util.ArrayList;
 import java.util.List;
