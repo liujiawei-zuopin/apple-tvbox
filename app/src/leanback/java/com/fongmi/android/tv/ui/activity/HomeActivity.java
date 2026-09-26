@@ -285,8 +285,9 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         }
         mTopNavAdapter.setItems(tabs);
 
-        // Populate shelves
+        boolean hasSites = !VodConfig.get().getSites().isEmpty();
         List<Vod> all = result != null && result.getList() != null ? result.getList() : new ArrayList<>();
+
         if (!all.isEmpty()) {
             mBinding.emptyView.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
@@ -309,6 +310,21 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
                     mBinding.topNavRecycler.requestFocus();
                 }
             }, 200);
+        } else if (hasSites && tabs.size() > 1) {
+            mBinding.emptyView.setVisibility(View.GONE);
+            mTopNavAdapter.setSelectedPosition(1);
+            switchTab(1, tabs.get(1));
+            App.post(() -> mBinding.topNavRecycler.requestFocus(), 200);
+        } else if (hasSites) {
+            mBinding.emptyView.setVisibility(View.GONE);
+            mBinding.homeScrollView.setVisibility(View.VISIBLE);
+            mBinding.heroInfoLayout.setVisibility(View.VISIBLE);
+            mWatchNowAdapter.setItems(new ArrayList<>());
+            mHotPicksAdapter.setItems(new ArrayList<>());
+            mBinding.heroTitle.setText(getHome() != null && !TextUtils.isEmpty(getHome().getName()) ? getHome().getName() : "影视精选");
+            mBinding.heroMeta.setText("已连接 · 暂无首页推荐");
+            mBinding.heroDesc.setText("请按遥控器上方向键切换上方分类，或按 [菜单键] 切换站点线路");
+            App.post(() -> mBinding.topNavRecycler.requestFocus(), 200);
         } else {
             mWatchNowAdapter.setItems(new ArrayList<>());
             mHotPicksAdapter.setItems(new ArrayList<>());

@@ -57,6 +57,24 @@ public class UrlUtil {
     }
 
     public static String convert(String url) {
+        if (TextUtils.isEmpty(url)) return "";
+        try {
+            Uri uri = uri(url);
+            String host = uri.getHost();
+            if (host != null) {
+                boolean nonAscii = false;
+                for (int i = 0; i < host.length(); i++) {
+                    if (host.charAt(i) > 127) {
+                        nonAscii = true;
+                        break;
+                    }
+                }
+                if (nonAscii) {
+                    String asciiHost = java.net.IDN.toASCII(host);
+                    url = url.replace(host, asciiHost);
+                }
+            }
+        } catch (Throwable ignored) {}
         String scheme = scheme(url);
         String prefix = scheme + "://";
         return switch (scheme) {
