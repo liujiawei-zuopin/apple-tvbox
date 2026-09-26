@@ -38,7 +38,8 @@ public class SiteApi {
 
     public static String call(@NonNull Site site, @NonNull ArrayMap<String, String> params) throws IOException {
         if (!site.getExt().isEmpty()) params.put("extend", site.getExt());
-        Call call = site.getExt().length() <= 1000 ? OkHttp.newCall(site.getApi(), site.getHeader(), params) : OkHttp.newCall(site.getApi(), site.getHeader(), OkHttp.toBody(params));
+        String api = UrlUtil.convert(site.getApi());
+        Call call = site.getExt().length() <= 1000 ? OkHttp.newCall(api, site.getHeader(), params) : OkHttp.newCall(api, site.getHeader(), OkHttp.toBody(params));
         try (Response response = call.execute()) {
             return response.body().string();
         }
@@ -77,7 +78,7 @@ public class SiteApi {
             setTypes(site, result);
             return result;
         } else {
-            try (Response response = OkHttp.newCall(site.getApi(), site.getHeader()).execute()) {
+            try (Response response = OkHttp.newCall(UrlUtil.convert(site.getApi()), site.getHeader()).execute()) {
                 String homeContent = response.body().string();
                 SpiderDebug.log("home", homeContent);
                 Result result = Result.fromType(site.getType(), homeContent);
@@ -232,7 +233,7 @@ public class SiteApi {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("ac", ac(site.getType()));
         params.put("ids", TextUtils.join(",", ids));
-        try (Response response = OkHttp.newCall(site.getApi(), site.getHeader(), params).execute()) {
+        try (Response response = OkHttp.newCall(UrlUtil.convert(site.getApi()), site.getHeader(), params).execute()) {
             result.setList(Result.fromType(site.getType(), response.body().string()).getList());
             return result;
         }

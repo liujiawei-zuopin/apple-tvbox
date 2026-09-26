@@ -1,0 +1,14 @@
+{
+  "spider": "",
+  "sites": [
+    {
+      "key": "apple_demo",
+      "name": "Apple TV+ 精选",
+      "type": 1,
+      "api": "assets://demo_api.json",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1
+    }
+  ]
+}

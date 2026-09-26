@@ -273,6 +273,29 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     private void getHistory() {
         List<History> histories = History.get();
+        if (histories.isEmpty() && VodConfig.getUrl() != null && VodConfig.getUrl().contains("demo_config")) {
+            History h1 = new History();
+            h1.setKey("101");
+            h1.setVodName("沙丘 2");
+            h1.setVodPic("https://image.tmdb.org/t/p/w780/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg");
+            h1.setVodRemarks("剩余 45 分钟");
+            h1.setPosition(65);
+            h1.setDuration(100);
+
+            History h2 = new History();
+            h2.setKey("102");
+            h2.setVodName("奥本海默");
+            h2.setVodPic("https://image.tmdb.org/t/p/w780/ptpr0kGAckfQkJeJIt8st5dglvd.jpg");
+            h2.setVodRemarks("剩余 1 小时 20 分钟");
+            h2.setPosition(40);
+            h2.setDuration(100);
+
+            List<History> demoHist = new ArrayList<>();
+            demoHist.add(h1);
+            demoHist.add(h2);
+            mShelfController.setContinueData(demoHist);
+            return;
+        }
         mShelfController.setContinueData(histories);
     }
 

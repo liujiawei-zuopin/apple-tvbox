@@ -1,0 +1,178 @@
+{
+  "code": 1,
+  "msg": "数据成功返回",
+  "page": 1,
+  "pagecount": 1,
+  "limit": 20,
+  "total": 10,
+  "class": [
+    {
+      "type_id": "movie",
+      "type_name": "热门电影"
+    },
+    {
+      "type_id": "series",
+      "type_name": "精品剧集"
+    },
+    {
+      "type_id": "anime",
+      "type_name": "巅峰动漫"
+    },
+    {
+      "type_id": "doc",
+      "type_name": "人文纪录"
+    }
+  ],
+  "list": [
+    {
+      "vod_id": "101",
+      "vod_name": "沙丘 2",
+      "type_id": "movie",
+      "type_name": "热门电影",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
+      "vod_remarks": "4K HDR · 杜比视界",
+      "vod_year": "2024",
+      "vod_area": "美国",
+      "vod_actor": "提莫西·查拉梅 / 赞达亚 / 丽贝卡·弗格森 / 弗洛伦丝·皮尤",
+      "vod_director": "丹尼斯·维伦纽瓦",
+      "vod_content": "保罗·厄崔迪携手契妮和弗雷曼人，对毁灭他家族的阴谋者展开复仇。在面对一生至爱与已知宇宙命运之间的两难抉择时，他必须极力阻止只有他能预见的浩劫与圣战爆发。",
+      "vod_play_from": "Apple TV+ 原生专线$$$备用专线",
+      "vod_play_url": "正片 4K HDR$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#正片 杜比视界$https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8$$$备用高清$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+    },
+    {
+      "vod_id": "102",
+      "vod_name": "奥本海默",
+      "type_id": "movie",
+      "type_name": "热门电影",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/ptpr0kGAckfQkJeJIt8st5dglvd.jpg",
+      "vod_remarks": "IMAX 4K · 杜比全景声",
+      "vod_year": "2023",
+      "vod_area": "美国",
+      "vod_actor": "基里安·墨菲 / 艾米莉·布朗特 / 马特·达蒙 / 小罗伯特·唐尼",
+      "vod_director": "克里斯托弗·诺兰",
+      "vod_content": "聚焦“原子弹之父”罗伯特·奥本海默主导曼哈顿计划研发首枚核武器的波澜壮阔历程，以及随之而来的道德审判与政治风暴。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "正片 IMAX 4K$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    },
+    {
+      "vod_id": "103",
+      "vod_name": "流人 第四季",
+      "type_id": "series",
+      "type_name": "精品剧集",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/e1BEf8KjVp1D1j5R2M8G3X3P1N1.jpg",
+      "vod_remarks": "更新至第6集 · 4K",
+      "vod_year": "2024",
+      "vod_area": "英国",
+      "vod_actor": "加里·奥德曼 / 杰克·劳登 / 克里斯汀·斯科特·托马斯",
+      "vod_director": "亚当·兰道",
+      "vod_content": "在伦敦一处购物中心遭遇炸弹袭击后，斯劳屋的特工们再次卷入军情五处内部叛国阴谋，杰克逊·兰姆必须用他独特的手段拯救团队。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "第01集$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#第02集$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#第03集$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+    },
+    {
+      "vod_id": "104",
+      "vod_name": "基地 第三季",
+      "type_id": "series",
+      "type_name": "精品剧集",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/A1E4B9uH9T1mP7cT4U6g3L5b2.jpg",
+      "vod_remarks": "Apple TV+ 独家巨制",
+      "vod_year": "2024",
+      "vod_area": "美国",
+      "vod_actor": "李·佩斯 / 杰瑞德·哈里斯 / 卢·洛贝尔",
+      "vod_director": "大卫·S·高耶",
+      "vod_content": "根据艾萨克·阿西莫夫同名经典科幻小说改编，讲述银河帝国衰落之际，一群流亡者踏上拯救人类并重建文明的艰辛旅程。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "第01集$https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    },
+    {
+      "vod_id": "105",
+      "vod_name": "头脑特工队 2",
+      "type_id": "anime",
+      "type_name": "巅峰动漫",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg",
+      "vod_remarks": "4K HDR · 原声国配双轨",
+      "vod_year": "2024",
+      "vod_area": "美国",
+      "vod_actor": "艾米·波勒 / 玛雅·霍克 / 肯辛顿·塔尔曼",
+      "vod_director": "凯尔西·曼",
+      "vod_content": "莱莉步入青春期，情绪控制中心突然迎来了焦焦、慕慕、丧丧和尬尬等全新情绪，乐乐和老伙伴们必须学会与新情绪共处。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "正片 4K$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    },
+    {
+      "vod_id": "106",
+      "vod_name": "蓦然回首",
+      "type_id": "anime",
+      "type_name": "巅峰动漫",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/hU1y3j0rJ8GfKkL7m7h1j.jpg",
+      "vod_remarks": "藤本树原作 · 豆瓣 8.7 分",
+      "vod_year": "2024",
+      "vod_area": "日本",
+      "vod_actor": "河合优实 / 吉田美月喜",
+      "vod_director": "押山清高",
+      "vod_content": "对漫画充满自信的四年级小学生藤野，与足不出户却画技惊人的同级生京本，因四格漫画结缘，开启了关于创作、友情与成长的动人篇章。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "正片 1080P$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+    },
+    {
+      "vod_id": "107",
+      "vod_name": "地球脉动 第三季",
+      "type_id": "doc",
+      "type_name": "人文纪录",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/fP4E7lU4jX3Gk3Q.jpg",
+      "vod_remarks": "BBC 4K 原生母带",
+      "vod_year": "2023",
+      "vod_area": "英国",
+      "vod_actor": "大卫·爱登堡",
+      "vod_director": "迈克尔·冈顿",
+      "vod_content": "走遍地球最偏远、最荒凉的角落，展现令人惊叹的自然奇观与生灵的顽强生存史诗。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "第01集 海岸$https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    },
+    {
+      "vod_id": "108",
+      "vod_name": "星际穿越",
+      "type_id": "movie",
+      "type_name": "热门电影",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/gEU2QniE6EwfVDxCzsxPnTeftcm.jpg",
+      "vod_remarks": "经典科幻 · 诺兰执导",
+      "vod_year": "2014",
+      "vod_area": "美国",
+      "vod_actor": "马修·麦康纳 / 安妮·海瑟薇 / 杰西卡·查斯坦",
+      "vod_director": "克里斯托弗·诺兰",
+      "vod_content": "在地球环境恶化濒临绝境之际，前NASA宇航员库珀告别儿女，穿过土星附近的虫洞前往未知星系为人类寻找新家园。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "正片 4K HDR$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    },
+    {
+      "vod_id": "109",
+      "vod_name": "早间新闻 第四季",
+      "type_id": "series",
+      "type_name": "精品剧集",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/k7qy0w1z8t0m0.jpg",
+      "vod_remarks": "艾美奖获奖作品",
+      "vod_year": "2024",
+      "vod_area": "美国",
+      "vod_actor": "詹妮弗·安妮斯顿 / 瑞茜·威瑟斯彭 / 比利·克鲁德普",
+      "vod_director": "米米·莱德",
+      "vod_content": "聚焦美国早间新闻节目的激烈权力斗争与新闻伦理冲突，展现现代职场与舆论场的错综复杂。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "第01集$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    },
+    {
+      "vod_id": "110",
+      "vod_name": "赛博朋克：边缘行者",
+      "type_id": "anime",
+      "type_name": "巅峰动漫",
+      "vod_pic": "https://image.tmdb.org/t/p/w780/7k3zF2K5.jpg",
+      "vod_remarks": "扳机社神作 · 9.0 分",
+      "vod_year": "2022",
+      "vod_area": "日本",
+      "vod_actor": "KENN / 悠木碧 / 潘惠美",
+      "vod_director": "今石洋之",
+      "vod_content": "在沉溺于技术与身体改造的夜之城，一个底层少年大卫·马丁内斯为了生存成为雇佣兵“边缘行者”的悲壮传奇。",
+      "vod_play_from": "Apple TV+ 原生专线",
+      "vod_play_url": "第01集$https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+    }
+  ]
+}
