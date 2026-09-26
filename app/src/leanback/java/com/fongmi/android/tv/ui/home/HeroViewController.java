@@ -77,7 +77,7 @@ public class HeroViewController {
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                 if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
-                                App.execute(() -> {
+                                Task.execute(() -> {
                                     Bitmap blurred = BlurUtil.blur(resource, 20, 4);
                                     if (blurred != null) {
                                         App.post(() -> {
