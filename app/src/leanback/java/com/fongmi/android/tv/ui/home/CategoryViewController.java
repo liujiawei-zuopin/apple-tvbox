@@ -490,56 +490,50 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             filters = result.getFilters().get(categoryClass != null ? categoryClass.getTypeId() : "");
         }
 
-        String subGenre1Name = "热播精选";
-        String subGenre2Name = "高分精选";
-        if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null && filters.get(0).getValue().size() > 2) {
+        String subGenre1Name = "动作";
+        String subGenre2Name = "爱情";
+        if ("tv".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("剧"))) {
+            subGenre1Name = "国产剧";
+            subGenre2Name = "美剧";
+        } else if ("variety".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("综艺"))) {
+            subGenre1Name = "真人秀";
+            subGenre2Name = "脱口秀";
+        }
+
+        if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {
             List<Value> values = filters.get(0).getValue();
-            // Pick 1st and 2nd valid sub-genres (skipping "全部" if present)
             int idx = 0;
             for (Value val : values) {
                 if (!"全部".equals(val.getN()) && !TextUtils.isEmpty(val.getN())) {
-                    if (idx == 0) subGenre1Name = val.getN() + "精选";
-                    else if (idx == 1) subGenre2Name = val.getN() + "精选";
+                    if (idx == 0) subGenre1Name = val.getN();
+                    else if (idx == 1) subGenre2Name = val.getN();
                     idx++;
                     if (idx >= 2) break;
                 }
             }
         }
 
-        if (total >= 16) {
-            int shelf1Start = Math.min(total, recommendEnd);
-            int shelf1End = Math.min(total, shelf1Start + 6);
-            List<Vod> shelf1Items = new ArrayList<>(all.subList(shelf1Start, shelf1End));
-
-            int shelf2Start = Math.min(total, shelf1End);
-            int shelf2End = Math.min(total, shelf2Start + 6);
-            List<Vod> shelf2Items = new ArrayList<>(all.subList(shelf2Start, shelf2End));
-
-            if (!shelf1Items.isEmpty()) {
-                mBinding.categoryHeaderSubGenre1.setText(subGenre1Name);
-                mBinding.categoryHeaderSubGenre1.setVisibility(View.VISIBLE);
-                mBinding.categoryRecyclerSubGenre1.setVisibility(View.VISIBLE);
-                mSubGenre1Adapter.setItems(shelf1Items);
-            } else {
-                mBinding.categoryHeaderSubGenre1.setVisibility(View.GONE);
-                mBinding.categoryRecyclerSubGenre1.setVisibility(View.GONE);
-            }
-
-            if (!shelf2Items.isEmpty()) {
-                mBinding.categoryHeaderSubGenre2.setText(subGenre2Name);
-                mBinding.categoryHeaderSubGenre2.setVisibility(View.VISIBLE);
-                mBinding.categoryRecyclerSubGenre2.setVisibility(View.VISIBLE);
-                mSubGenre2Adapter.setItems(shelf2Items);
-            } else {
-                mBinding.categoryHeaderSubGenre2.setVisibility(View.GONE);
-                mBinding.categoryRecyclerSubGenre2.setVisibility(View.GONE);
-            }
-        } else {
-            mBinding.categoryHeaderSubGenre1.setVisibility(View.GONE);
-            mBinding.categoryRecyclerSubGenre1.setVisibility(View.GONE);
-            mBinding.categoryHeaderSubGenre2.setVisibility(View.GONE);
-            mBinding.categoryRecyclerSubGenre2.setVisibility(View.GONE);
+        // SubGenre 1 Shelf
+        List<Vod> shelf1Items = new ArrayList<>();
+        int shelf1Count = Math.min(total, 6);
+        for (int i = 0; i < shelf1Count; i++) {
+            shelf1Items.add(all.get((i + 2) % total));
         }
+        mBinding.categoryHeaderSubGenre1.setText(subGenre1Name);
+        mBinding.categoryHeaderSubGenre1.setVisibility(View.VISIBLE);
+        mBinding.categoryRecyclerSubGenre1.setVisibility(View.VISIBLE);
+        mSubGenre1Adapter.setItems(shelf1Items);
+
+        // SubGenre 2 Shelf
+        List<Vod> shelf2Items = new ArrayList<>();
+        int shelf2Count = Math.min(total, 6);
+        for (int i = 0; i < shelf2Count; i++) {
+            shelf2Items.add(all.get((i + 4) % total));
+        }
+        mBinding.categoryHeaderSubGenre2.setText(subGenre2Name);
+        mBinding.categoryHeaderSubGenre2.setVisibility(View.VISIBLE);
+        mBinding.categoryRecyclerSubGenre2.setVisibility(View.VISIBLE);
+        mSubGenre2Adapter.setItems(shelf2Items);
 
         // 4. Section 4: "全部影片" Filter Chips & 5-Column Grid
         if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {

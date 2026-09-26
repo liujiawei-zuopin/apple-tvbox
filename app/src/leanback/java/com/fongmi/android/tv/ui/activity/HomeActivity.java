@@ -444,6 +444,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mCurrentTab = position;
         if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
             // Home View with smooth transition
+            mBinding.heroScrim.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
@@ -468,6 +469,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             }
         } else if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
             // Embedded Search Page with smooth transition
+            mBinding.heroScrim.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.GONE);
             mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
@@ -493,6 +495,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
 
+            mBinding.heroScrim.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.GONE);
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);

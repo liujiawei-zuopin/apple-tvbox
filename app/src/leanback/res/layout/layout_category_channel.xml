@@ -109,12 +109,14 @@
                         android:layout_width="15dp"
                         android:layout_height="15dp"
                         android:layout_marginEnd="6dp"
+                        android:duplicateParentState="true"
                         android:src="@drawable/ic_widget_play"
                         app:tint="@color/selector_focus_white_pill_text" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:duplicateParentState="true"
                         android:text="立即播放"
                         android:textColor="@color/selector_focus_white_pill_text"
                         android:textSize="14sp"
