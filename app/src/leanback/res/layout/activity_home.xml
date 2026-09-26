@@ -89,6 +89,8 @@
                         android:layout_height="36dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
+                        android:nextFocusLeft="@id/btnMenuToggle"
+                        android:nextFocusDown="@id/recyclerWatchNow"
                         app:focusOutEnd="false"
                         app:focusOutFront="false" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -199,6 +201,8 @@
                             android:layout_height="180dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
+                            android:nextFocusUp="@id/topNavRecycler"
+                            android:nextFocusDown="@id/gridHot"
                             app:focusOutEnd="false"
                             app:focusOutFront="false" />
 
@@ -245,6 +249,7 @@
                             android:layout_height="wrap_content"
                             android:clipChildren="false"
                             android:clipToPadding="false"
+                            android:nextFocusUp="@id/recyclerWatchNow"
                             android:nestedScrollingEnabled="false" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -280,6 +285,7 @@
                         android:layout_weight="1"
                         android:clipChildren="false"
                         android:clipToPadding="false"
+                        android:nextFocusUp="@id/topNavRecycler"
                         android:paddingBottom="60dp" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
