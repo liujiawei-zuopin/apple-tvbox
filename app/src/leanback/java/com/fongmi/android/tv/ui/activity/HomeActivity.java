@@ -165,7 +165,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         mBinding.sideDrawer.menuLive.setOnClickListener(v -> { closeDrawer(); LiveActivity.start(this); });
         mBinding.sideDrawer.menuConfig.setOnClickListener(v -> { closeDrawer(); ConfigDialog.create().show(this); });
         mBinding.sideDrawer.menuSite.setOnClickListener(v -> { closeDrawer(); SiteDialog.create().show(this); });
-        mBinding.sideDrawer.menuCloud.setOnClickListener(v -> { closeDrawer(); FileActivity.start(this); });
+        mBinding.sideDrawer.menuCloud.setOnClickListener(v -> { closeDrawer(); startActivity(new Intent(this, FileActivity.class)); });
         mBinding.sideDrawer.menuCollect.setOnClickListener(v -> { closeDrawer(); KeepActivity.start(this); });
         mBinding.sideDrawer.menuPush.setOnClickListener(v -> { closeDrawer(); PushActivity.start(this); });
         mBinding.sideDrawer.menuSetting.setOnClickListener(v -> { closeDrawer(); SettingActivity.start(this); });
@@ -385,7 +385,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         if (item instanceof Vod vod) {
             onVodLongClicked(vod);
         } else if (item instanceof History history) {
-            History.delete(history.getKey());
+            history.delete();
             getHistory();
         }
     }

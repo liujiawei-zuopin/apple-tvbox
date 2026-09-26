@@ -62,9 +62,9 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
         } else if (item instanceof History history) {
             holder.name.setText(history.getVodName());
             holder.remark.setText(history.getVodRemarks());
-            holder.remark.setVisibility(history.getVodRemarks().isEmpty() ? View.GONE : View.VISIBLE);
-            holder.progress.setVisibility(View.VISIBLE);
-            holder.progress.setProgress(history.getProgress());
+            int progress = history.getDuration() > 0 ? (int) (history.getPosition() * 100 / history.getDuration()) : 0;
+            holder.progress.setProgress(progress);
+            holder.progress.setVisibility(progress > 0 ? View.VISIBLE : View.GONE);
             ImgUtil.load(history.getVodName(), history.getVodPic(), holder.image);
         }
 
