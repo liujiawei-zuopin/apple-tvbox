@@ -6,8 +6,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import com.fongmi.android.tv.R;
-import com.fongmi.android.tv.bean.Config;
-import com.fongmi.android.tv.databinding.ViewSideDrawerBinding;
+import com.fongmi.android.tv.databinding.LayoutSideDrawerBinding;
 import com.fongmi.android.tv.ui.activity.CollectActivity;
 import com.fongmi.android.tv.ui.activity.FileActivity;
 import com.fongmi.android.tv.ui.activity.KeepActivity;
@@ -25,10 +24,10 @@ import com.fongmi.android.tv.utils.ResUtil;
 public class SideDrawerController {
 
     private final Activity mActivity;
-    private final ViewSideDrawerBinding mBinding;
+    private final LayoutSideDrawerBinding mBinding;
     private View mLastFocusedView;
 
-    public SideDrawerController(Activity activity, ViewSideDrawerBinding binding) {
+    public SideDrawerController(Activity activity, LayoutSideDrawerBinding binding) {
         this.mActivity = activity;
         this.mBinding = binding;
         initEvents();

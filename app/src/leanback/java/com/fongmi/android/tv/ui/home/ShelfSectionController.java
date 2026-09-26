@@ -1,18 +1,15 @@
 package com.fongmi.android.tv.ui.home;
 
 import android.app.Activity;
-import android.view.View;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.bean.History;
 import com.fongmi.android.tv.bean.Vod;
 import com.fongmi.android.tv.databinding.ActivityHomeBinding;
 import com.fongmi.android.tv.ui.adapter.VodCardLandscapeAdapter;
 import com.fongmi.android.tv.ui.adapter.VodCardPortraitAdapter;
-import com.fongmi.android.tv.ui.custom.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,12 +134,12 @@ public class ShelfSectionController {
 
     public void setContinueData(List<History> items) {
         if (items != null && !items.isEmpty()) {
-            mBinding.headerContinue.setVisibility(View.VISIBLE);
-            mBinding.recyclerContinue.setVisibility(View.VISIBLE);
+            mBinding.headerContinue.setVisibility(android.view.View.VISIBLE);
+            mBinding.recyclerContinue.setVisibility(android.view.View.VISIBLE);
             mContinueAdapter.setItems(items);
         } else {
-            mBinding.headerContinue.setVisibility(View.GONE);
-            mBinding.recyclerContinue.setVisibility(View.GONE);
+            mBinding.headerContinue.setVisibility(android.view.View.GONE);
+            mBinding.recyclerContinue.setVisibility(android.view.View.GONE);
             mContinueAdapter.setItems(new ArrayList<>());
         }
     }
