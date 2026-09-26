@@ -37,6 +37,8 @@ import com.fongmi.android.tv.event.ConfigEvent;
 import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.event.ServerEvent;
 import com.fongmi.android.tv.impl.Callback;
+import com.fongmi.android.tv.impl.ConfigListener;
+import com.fongmi.android.tv.impl.SiteListener;
 import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.player.extractor.Source;
 import com.fongmi.android.tv.server.Server;
@@ -65,7 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabListener, VodCardLandscapeAdapter.OnItemClickListener, VodCardPortraitAdapter.OnVodClickListener, FilterChipAdapter.OnClickListener {
+public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabListener, VodCardLandscapeAdapter.OnItemClickListener, VodCardPortraitAdapter.OnVodClickListener, FilterChipAdapter.OnClickListener, ConfigListener, SiteListener {
 
     private ActivityHomeBinding mBinding;
     private TopNavAdapter mTopNavAdapter;
@@ -129,7 +131,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
     private void setupTopNav() {
         mBinding.btnMenuToggle.setOnClickListener(v -> openDrawer());
-        mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().show(this));
+        mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
         mTopNavAdapter = new TopNavAdapter(this);
         mBinding.topNavRecycler.setHorizontalSpacing(ResUtil.dp2px(12));
@@ -164,7 +166,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         mBinding.sideDrawer.menuSearch.setOnClickListener(v -> { closeDrawer(); SearchActivity.start(this); });
         mBinding.sideDrawer.menuHistory.setOnClickListener(v -> { closeDrawer(); CollectActivity.start(this, getString(R.string.home_history)); });
         mBinding.sideDrawer.menuLive.setOnClickListener(v -> { closeDrawer(); LiveActivity.start(this); });
-        mBinding.sideDrawer.menuConfig.setOnClickListener(v -> { closeDrawer(); ConfigDialog.create().show(this); });
+        mBinding.sideDrawer.menuConfig.setOnClickListener(v -> { closeDrawer(); ConfigDialog.create().vod().show(this); });
         mBinding.sideDrawer.menuSite.setOnClickListener(v -> { closeDrawer(); SiteDialog.create().show(this); });
         mBinding.sideDrawer.menuCloud.setOnClickListener(v -> { closeDrawer(); startActivity(new Intent(this, FileActivity.class)); });
         mBinding.sideDrawer.menuCollect.setOnClickListener(v -> { closeDrawer(); KeepActivity.start(this); });
@@ -225,6 +227,38 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
                 getHistory();
             }
         };
+    }
+
+    @Override
+    public void setConfig(Config config) {
+        if (config == null) return;
+        mBinding.progressLayout.showProgress();
+        if (config.getUrl() != null && config.getUrl().startsWith("file")) {
+            PermissionUtil.requestFile(this, allGranted -> loadConfig(config));
+        } else {
+            loadConfig(config);
+        }
+    }
+
+    private void loadConfig(Config config) {
+        switch (config.getType()) {
+            case 0:
+                VodConfig.load(config, getCallback());
+                break;
+            case 1:
+                LiveConfig.load(config, getCallback());
+                break;
+            case 2:
+                WallConfig.load(config, getCallback());
+                break;
+        }
+    }
+
+    @Override
+    public void setSite(Site item) {
+        VodConfig.get().setHome(item);
+        RefreshEvent.history();
+        RefreshEvent.home();
     }
 
     private void populateHomeData(Result result) {
