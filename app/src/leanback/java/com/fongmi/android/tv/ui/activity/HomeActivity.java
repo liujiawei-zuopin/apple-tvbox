@@ -578,7 +578,6 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
             case VOD:
                 RefreshEvent.history();
                 RefreshEvent.home();
-                setLogo();
                 break;
             case COMMON:
                 break;
