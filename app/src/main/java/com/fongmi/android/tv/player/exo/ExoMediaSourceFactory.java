@@ -111,8 +111,13 @@ public class ExoMediaSourceFactory implements MediaSource.Factory {
     @NonNull
     @Override
     public MediaSource createMediaSource(@NonNull MediaItem mediaItem) {
-        getHttpDataSourceFactory().setDefaultRequestProperties(ExoUtil.extractHeaders(mediaItem));
-        return defaultMediaSourceFactory.createMediaSource(mediaItem);
+        try {
+            getHttpDataSourceFactory().setDefaultRequestProperties(ExoUtil.extractHeaders(mediaItem));
+            return defaultMediaSourceFactory.createMediaSource(mediaItem);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return new androidx.media3.exoplayer.source.ProgressiveMediaSource.Factory(getDataSourceFactory(), createDefaultExtractorsFactory()).createMediaSource(mediaItem);
+        }
     }
 
     private static ExtractorsFactory createDefaultExtractorsFactory() {
