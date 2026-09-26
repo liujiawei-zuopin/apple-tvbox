@@ -1,9 +1,10 @@
 package com.fongmi.android.tv.ui.home;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.databinding.LayoutSideDrawerBinding;
@@ -23,11 +24,11 @@ import com.fongmi.android.tv.utils.ResUtil;
  */
 public class SideDrawerController {
 
-    private final Activity mActivity;
+    private final FragmentActivity mActivity;
     private final LayoutSideDrawerBinding mBinding;
     private View mLastFocusedView;
 
-    public SideDrawerController(Activity activity, LayoutSideDrawerBinding binding) {
+    public SideDrawerController(FragmentActivity activity, LayoutSideDrawerBinding binding) {
         this.mActivity = activity;
         this.mBinding = binding;
         initEvents();

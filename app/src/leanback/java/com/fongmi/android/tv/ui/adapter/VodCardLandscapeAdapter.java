@@ -42,7 +42,7 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
             if (obj instanceof Vod vod) {
                 return vod.getId() != null ? vod.getId().hashCode() : (vod.getName() != null ? vod.getName().hashCode() : position);
             } else if (obj instanceof History hist) {
-                return hist.getId() != null ? hist.getId().hashCode() : position;
+                return hist.getKey() != null ? hist.getKey().hashCode() : position;
             }
         }
         return position;
