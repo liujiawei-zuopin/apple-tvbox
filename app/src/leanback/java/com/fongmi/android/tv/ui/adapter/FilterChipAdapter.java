@@ -42,7 +42,7 @@ public class FilterChipAdapter extends RecyclerView.Adapter<FilterChipAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_top_capsule, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_filter_chip, parent, false);
         return new ViewHolder(view);
     }
 

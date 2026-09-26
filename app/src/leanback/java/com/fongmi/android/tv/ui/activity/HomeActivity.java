@@ -121,7 +121,6 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         setupViewModel();
 
         initConfig();
-        setLogo();
     }
 
     @Override
@@ -129,7 +128,6 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
     }
 
     private void setupTopNav() {
-        mBinding.btnMenuToggle.setOnClickListener(v -> openDrawer());
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
         mTopNavAdapter = new TopNavAdapter(this);
@@ -388,10 +386,6 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
                     .transition(DrawableTransitionOptions.withCrossFade(300))
                     .into(mBinding.heroBackdrop);
         }
-    }
-
-    private void setLogo() {
-        ImgUtil.logo(mBinding.logo);
     }
 
     @Override

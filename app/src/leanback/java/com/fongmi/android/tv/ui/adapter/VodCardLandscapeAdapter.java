@@ -85,6 +85,7 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
         });
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+            v.animate().scaleX(hasFocus ? 1.06f : 1.0f).scaleY(hasFocus ? 1.06f : 1.0f).translationZ(hasFocus ? 8f : 0f).setDuration(180).start();
             if (hasFocus && mListener != null) {
                 mListener.onItemFocused(item);
             }
