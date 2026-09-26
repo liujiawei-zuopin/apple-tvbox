@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fongmi.android.tv.App;
@@ -44,7 +45,7 @@ import okhttp3.Response;
  */
 public class SearchViewController implements WordAdapter.OnClickListener, RecordAdapter.OnClickListener, KeyboardAdapter.OnClickListener {
 
-    private final Activity mActivity;
+    private final FragmentActivity mActivity;
     private final LayoutHomeSearchBinding mBinding;
     private final SearchCallback mCallback;
 
@@ -57,7 +58,7 @@ public class SearchViewController implements WordAdapter.OnClickListener, Record
         void onOpenDrawer();
     }
 
-    public SearchViewController(Activity activity, LayoutHomeSearchBinding binding, SearchCallback callback) {
+    public SearchViewController(FragmentActivity activity, LayoutHomeSearchBinding binding, SearchCallback callback) {
         this.mActivity = activity;
         this.mBinding = binding;
         this.mCallback = callback;
