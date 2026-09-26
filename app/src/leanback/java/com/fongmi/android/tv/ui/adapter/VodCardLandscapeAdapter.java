@@ -85,7 +85,9 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
         });
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-            v.animate().scaleX(hasFocus ? 1.06f : 1.0f).scaleY(hasFocus ? 1.06f : 1.0f).translationZ(hasFocus ? 8f : 0f).setDuration(180).start();
+            if (holder.card != null) {
+                holder.card.animate().scaleX(hasFocus ? 1.05f : 1.0f).scaleY(hasFocus ? 1.05f : 1.0f).translationZ(hasFocus ? 6f : 0f).setDuration(160).start();
+            }
             if (hasFocus && mListener != null) {
                 mListener.onItemFocused(item);
             }
@@ -98,6 +100,7 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public final androidx.cardview.widget.CardView card;
         public final ImageView image;
         public final TextView name;
         public final TextView remark;
@@ -105,6 +108,7 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            card = itemView.findViewById(R.id.card);
             image = itemView.findViewById(R.id.image);
             name = itemView.findViewById(R.id.name);
             remark = itemView.findViewById(R.id.remark);

@@ -301,12 +301,14 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
                 updateHero(watchNow.get(0));
             }
 
-            // Focus first item if available
+            // Focus first item only if no view currently has focus
             App.post(() -> {
-                if (mBinding.recyclerWatchNow.getChildCount() > 0) {
-                    mBinding.recyclerWatchNow.getChildAt(0).requestFocus();
-                } else {
-                    mBinding.topNavRecycler.requestFocus();
+                if (getCurrentFocus() == null || getCurrentFocus() == mBinding.btnEmptyConfig) {
+                    if (mBinding.recyclerWatchNow.getChildCount() > 0) {
+                        mBinding.recyclerWatchNow.getChildAt(0).requestFocus();
+                    } else {
+                        mBinding.topNavRecycler.requestFocus();
+                    }
                 }
             }, 200);
         } else if (hasSites && tabs.size() > 1) {
@@ -364,29 +366,37 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         }
     }
 
+    private Runnable mHeroUpdateRunnable;
+
     private void updateHero(Vod vod) {
         if (vod == null) return;
-        mBinding.heroTitle.setText(vod.getName() != null ? vod.getName() : "");
-
-        List<String> metas = new ArrayList<>();
-        if (!TextUtils.isEmpty(vod.getRemarks())) metas.add(vod.getRemarks());
-        if (!TextUtils.isEmpty(vod.getYear())) metas.add(vod.getYear());
-        if (!TextUtils.isEmpty(vod.getArea())) metas.add(vod.getArea());
-        if (!TextUtils.isEmpty(vod.getDirector())) metas.add("导演: " + vod.getDirector());
-        mBinding.heroMeta.setText(TextUtils.join(" · ", metas));
-
-        String desc = vod.getContent();
-        if (TextUtils.isEmpty(desc)) desc = vod.getActor();
-        mBinding.heroDesc.setText(desc != null ? desc : "");
-        mBinding.heroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
-
-        // Load background with 300ms smooth crossfade
-        if (!isFinishing() && !isDestroyed() && !TextUtils.isEmpty(vod.getPic())) {
-            Glide.with(this)
-                    .load(ImgUtil.getUrl(vod.getPic()))
-                    .transition(DrawableTransitionOptions.withCrossFade(300))
-                    .into(mBinding.heroBackdrop);
+        if (mHeroUpdateRunnable != null) {
+            App.removeCallbacks(mHeroUpdateRunnable);
         }
+        mHeroUpdateRunnable = () -> {
+            if (isFinishing() || isDestroyed()) return;
+            mBinding.heroTitle.setText(vod.getName() != null ? vod.getName() : "");
+
+            List<String> metas = new ArrayList<>();
+            if (!TextUtils.isEmpty(vod.getRemarks())) metas.add(vod.getRemarks());
+            if (!TextUtils.isEmpty(vod.getYear())) metas.add(vod.getYear());
+            if (!TextUtils.isEmpty(vod.getArea())) metas.add(vod.getArea());
+            if (!TextUtils.isEmpty(vod.getDirector())) metas.add("导演: " + vod.getDirector());
+            mBinding.heroMeta.setText(TextUtils.join(" · ", metas));
+
+            String desc = vod.getContent();
+            if (TextUtils.isEmpty(desc)) desc = vod.getActor();
+            mBinding.heroDesc.setText(desc != null ? desc : "");
+            mBinding.heroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
+
+            if (!TextUtils.isEmpty(vod.getPic())) {
+                Glide.with(HomeActivity.this)
+                        .load(ImgUtil.getUrl(vod.getPic()))
+                        .transition(DrawableTransitionOptions.withCrossFade(300))
+                        .into(mBinding.heroBackdrop);
+            }
+        };
+        App.post(mHeroUpdateRunnable, 80);
     }
 
     @Override
@@ -406,10 +416,12 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
             mBinding.heroInfoLayout.setVisibility(View.VISIBLE);
             mBinding.categoryContainer.setVisibility(View.GONE);
-            if (mResult != null) {
-                populateHomeData(mResult);
-            } else {
-                mViewModel.homeContent();
+            if (mWatchNowAdapter.isEmpty()) {
+                if (mResult != null) {
+                    populateHomeData(mResult);
+                } else {
+                    mViewModel.homeContent();
+                }
             }
         } else {
             // Category View
