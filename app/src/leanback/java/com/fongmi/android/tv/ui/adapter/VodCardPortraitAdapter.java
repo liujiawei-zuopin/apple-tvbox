@@ -30,6 +30,16 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
 
     public VodCardPortraitAdapter(OnVodClickListener listener) {
         this.mListener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (position >= 0 && position < mItems.size()) {
+            Vod vod = mItems.get(position);
+            return vod.getId() != null ? vod.getId().hashCode() : (vod.getName() != null ? vod.getName().hashCode() : position);
+        }
+        return position;
     }
 
     public void setItems(List<Vod> items) {
@@ -80,7 +90,12 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (holder.card != null) {
-                holder.card.animate().scaleX(hasFocus ? 1.05f : 1.0f).scaleY(hasFocus ? 1.05f : 1.0f).translationZ(hasFocus ? 6f : 0f).setDuration(160).start();
+                holder.card.animate()
+                        .scaleX(hasFocus ? 1.04f : 1.0f)
+                        .scaleY(hasFocus ? 1.04f : 1.0f)
+                        .translationZ(hasFocus ? 6f : 0f)
+                        .setDuration(150)
+                        .start();
             }
             if (hasFocus && mListener != null) {
                 mListener.onVodFocused(item);

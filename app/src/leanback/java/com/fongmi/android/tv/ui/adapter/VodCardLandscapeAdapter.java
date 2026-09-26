@@ -32,6 +32,20 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
 
     public VodCardLandscapeAdapter(OnItemClickListener listener) {
         this.mListener = listener;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (position >= 0 && position < mItems.size()) {
+            Object obj = mItems.get(position);
+            if (obj instanceof Vod vod) {
+                return vod.getId() != null ? vod.getId().hashCode() : (vod.getName() != null ? vod.getName().hashCode() : position);
+            } else if (obj instanceof History hist) {
+                return hist.getId() != null ? hist.getId().hashCode() : position;
+            }
+        }
+        return position;
     }
 
     public void setItems(List<?> items) {
@@ -86,7 +100,12 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (holder.card != null) {
-                holder.card.animate().scaleX(hasFocus ? 1.05f : 1.0f).scaleY(hasFocus ? 1.05f : 1.0f).translationZ(hasFocus ? 6f : 0f).setDuration(160).start();
+                holder.card.animate()
+                        .scaleX(hasFocus ? 1.04f : 1.0f)
+                        .scaleY(hasFocus ? 1.04f : 1.0f)
+                        .translationZ(hasFocus ? 6f : 0f)
+                        .setDuration(150)
+                        .start();
             }
             if (hasFocus && mListener != null) {
                 mListener.onItemFocused(item);

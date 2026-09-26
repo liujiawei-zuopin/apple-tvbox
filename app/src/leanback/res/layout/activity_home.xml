@@ -104,10 +104,10 @@
                         <!-- Hero Synopsis Info Area (Top of Home - Large Poster Exposure) -->
                         <androidx.appcompat.widget.LinearLayoutCompat
                             android:id="@+id/heroInfoLayout"
-                            android:layout_width="600dp"
-                            android:layout_height="125dp"
-                            android:layout_marginTop="160dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_width="620dp"
+                            android:layout_height="115dp"
+                            android:layout_marginTop="46dp"
+                            android:layout_marginBottom="32dp"
                             android:orientation="vertical">
 
                             <TextView
@@ -117,7 +117,7 @@
                                 android:ellipsize="end"
                                 android:maxLines="1"
                                 android:textColor="@color/white"
-                                android:textSize="32sp"
+                                android:textSize="30sp"
                                 android:textStyle="bold"
                                 tools:text="教父 第一部" />
 
@@ -125,7 +125,7 @@
                                 android:id="@+id/heroMeta"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="5dp"
                                 android:textColor="#CCFFFFFF"
                                 android:textSize="13sp"
                                 tools:text="4K 超清 · 9.4分 · 1972 · 剧情 / 犯罪" />
@@ -134,10 +134,10 @@
                                 android:id="@+id/heroDesc"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="5dp"
                                 android:ellipsize="end"
-                                android:lineSpacingExtra="3dp"
-                                android:maxLines="3"
+                                android:lineSpacingExtra="2dp"
+                                android:maxLines="2"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="13sp"
                                 tools:text="是一部1972年的美国黑帮电影，根据马里奥·普佐的1969年同名小说改编，弗朗西斯·科波拉执导，由马龙·白兰度和阿尔·帕西诺主演。" />
@@ -148,23 +148,22 @@
                             android:id="@+id/headerWatchNow"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="0dp"
                             android:layout_marginBottom="6dp"
                             android:text="@string/shelf_watch_now"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="17sp"
                             android:textStyle="bold" />
 
-                        <androidx.leanback.widget.HorizontalGridView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerWatchNow"
                             android:layout_width="match_parent"
-                            android:layout_height="138dp"
+                            android:layout_height="118dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:nextFocusUp="@id/topNavRecycler"
                             android:nextFocusDown="@id/gridHot"
-                            app:focusOutEnd="false"
-                            app:focusOutFront="false" />
+                            android:orientation="horizontal" />
 
                         <!-- Shelf 2: 继续观看 (Continue Watching 16:9 Compact with progress) -->
                         <TextView
@@ -175,20 +174,19 @@
                             android:layout_marginBottom="6dp"
                             android:text="@string/shelf_continue_watch"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="17sp"
                             android:textStyle="bold"
                             android:visibility="gone"
                             tools:visibility="visible" />
 
-                        <androidx.leanback.widget.HorizontalGridView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerContinue"
                             android:layout_width="match_parent"
-                            android:layout_height="138dp"
+                            android:layout_height="118dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
+                            android:orientation="horizontal"
                             android:visibility="gone"
-                            app:focusOutEnd="false"
-                            app:focusOutFront="false"
                             tools:visibility="visible" />
 
                         <!-- Shelf 3: 正在热播 (Top Picks 5-Columns 2:3) -->
