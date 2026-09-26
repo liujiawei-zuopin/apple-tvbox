@@ -100,18 +100,34 @@ dependencies {
     implementation libs.appcompat
     implementation libs.lifecycle.service
     implementation libs.media
-    implementation libs.media3.common
-    implementation libs.media3.exoplayer
-    implementation libs.media3.exoplayer.hls
-    implementation libs.media3.exoplayer.dash
-    implementation libs.media3.exoplayer.rtsp
-    implementation libs.media3.exoplayer.smoothstreaming
-    implementation libs.media3.ui
-    implementation libs.media3.session
-    implementation libs.media3.datasource
-    implementation libs.media3.datasource.okhttp
-    implementation libs.media3.database
-    implementation libs.media3.extractor
+    implementation(libs.media3.exoplayer.hls) {
+        exclude group: 'androidx.media3', module: 'media3-common'
+        exclude group: 'androidx.media3', module: 'media3-datasource'
+        exclude group: 'androidx.media3', module: 'media3-exoplayer'
+        exclude group: 'androidx.media3', module: 'media3-extractor'
+        exclude group: 'androidx.media3', module: 'media3-database'
+    }
+    implementation(libs.media3.exoplayer.dash) {
+        exclude group: 'androidx.media3', module: 'media3-common'
+        exclude group: 'androidx.media3', module: 'media3-datasource'
+        exclude group: 'androidx.media3', module: 'media3-exoplayer'
+        exclude group: 'androidx.media3', module: 'media3-extractor'
+        exclude group: 'androidx.media3', module: 'media3-database'
+    }
+    implementation(libs.media3.exoplayer.rtsp) {
+        exclude group: 'androidx.media3', module: 'media3-common'
+        exclude group: 'androidx.media3', module: 'media3-datasource'
+        exclude group: 'androidx.media3', module: 'media3-exoplayer'
+        exclude group: 'androidx.media3', module: 'media3-extractor'
+        exclude group: 'androidx.media3', module: 'media3-database'
+    }
+    implementation(libs.media3.exoplayer.smoothstreaming) {
+        exclude group: 'androidx.media3', module: 'media3-common'
+        exclude group: 'androidx.media3', module: 'media3-datasource'
+        exclude group: 'androidx.media3', module: 'media3-exoplayer'
+        exclude group: 'androidx.media3', module: 'media3-extractor'
+        exclude group: 'androidx.media3', module: 'media3-database'
+    }
     implementation libs.palette
     implementation libs.recyclerview
     implementation libs.room.runtime
