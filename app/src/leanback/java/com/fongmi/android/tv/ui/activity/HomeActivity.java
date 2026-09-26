@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewbinding.ViewBinding;
 
 import com.bumptech.glide.Glide;
@@ -131,7 +132,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
         mTopNavAdapter = new TopNavAdapter(this);
-        mBinding.topNavRecycler.setHorizontalSpacing(ResUtil.dp2px(12));
+        mBinding.topNavRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mBinding.topNavRecycler.setAdapter(mTopNavAdapter);
     }
 

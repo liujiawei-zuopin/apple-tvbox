@@ -39,54 +39,39 @@
             android:paddingStart="44dp"
             android:paddingEnd="44dp">
 
-            <!-- Top Navigation Bar (Centered Frosted Capsule Bar + Real-time Clock) -->
+            <!-- Top Navigation Bar (Pure Centered Frosted Capsule Bar matching design draft) -->
             <RelativeLayout
                 android:id="@+id/topBar"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="56dp"
                 android:layout_alignParentTop="true"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingTop="16dp"
-                android:paddingBottom="6dp">
+                android:paddingTop="10dp"
+                android:paddingBottom="4dp">
 
-                <!-- Center: Apple TV Style Translucent Capsule Tabs Bar -->
+                <!-- Center: Apple TV Style Translucent Capsule Tabs Bar (Tightly hugs tabs) -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/topNavContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="42dp"
-                    android:layout_centerInParent="true"
+                    android:layout_centerHorizontal="true"
                     android:background="@drawable/bg_top_capsule_bar"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp">
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp">
 
-                    <androidx.leanback.widget.HorizontalGridView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/topNavRecycler"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:nextFocusDown="@id/recyclerWatchNow"
-                        app:focusOutEnd="false"
-                        app:focusOutFront="false" />
+                        android:orientation="horizontal" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
-
-                <!-- Right: Real-time Clock -->
-                <TextClock
-                    android:id="@+id/clock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:format12Hour="HH:mm"
-                    android:format24Hour="HH:mm"
-                    android:textColor="@color/white_90"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    tools:text="17:30" />
             </RelativeLayout>
 
             <!-- Main Interactive Content Container -->
