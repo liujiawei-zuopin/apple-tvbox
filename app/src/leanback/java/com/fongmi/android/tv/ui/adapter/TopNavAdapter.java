@@ -1,8 +1,10 @@
 package com.fongmi.android.tv.ui.adapter;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder> {
+
+    public static final String TAB_SEARCH = "search";
 
     private final List<Class> mItems = new ArrayList<>();
     private final OnTabListener mListener;
@@ -56,6 +60,12 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     }
 
     public void setSelectedPosition(int position) {
+        if (position >= 0 && position < mItems.size()) {
+            Class item = mItems.get(position);
+            if (TAB_SEARCH.equals(item.getTypeId())) {
+                return; // Do not persist search as selected tab indicator
+            }
+        }
         if (mSelectedPosition == position) return;
         int old = mSelectedPosition;
         mSelectedPosition = position;
@@ -73,13 +83,23 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Class item = mItems.get(position);
-        holder.text.setText(item.getTypeName());
-        holder.text.setSelected(position == mSelectedPosition);
+        boolean isSearch = TAB_SEARCH.equals(item.getTypeId());
+
+        if (isSearch) {
+            holder.text.setVisibility(View.GONE);
+            holder.icon.setVisibility(View.VISIBLE);
+            holder.itemView.setSelected(false);
+        } else {
+            holder.icon.setVisibility(View.GONE);
+            holder.text.setVisibility(View.VISIBLE);
+            holder.text.setText(item.getTypeName());
+            holder.itemView.setSelected(position == mSelectedPosition);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
-            if (mSelectedPosition != pos) {
+            if (!isSearch && mSelectedPosition != pos) {
                 setSelectedPosition(pos);
             }
             if (mListener != null) {
@@ -95,13 +115,13 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
                 mDebounceRunnable = () -> {
                     int pos = holder.getBindingAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION && mListener != null) {
-                        if (mSelectedPosition != pos) {
+                        if (!isSearch && mSelectedPosition != pos) {
                             setSelectedPosition(pos);
                             mListener.onTabFocused(pos, item);
                         }
                     }
                 };
-                App.post(mDebounceRunnable, 200);
+                App.post(mDebounceRunnable, 180);
             }
         });
     }
@@ -113,10 +133,12 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView text;
+        public final ImageView icon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.text);
+            icon = itemView.findViewById(R.id.icon);
         }
     }
 }

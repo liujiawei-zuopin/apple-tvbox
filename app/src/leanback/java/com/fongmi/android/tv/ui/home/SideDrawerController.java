@@ -5,8 +5,10 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fongmi.android.tv.R;
+import com.fongmi.android.tv.bean.Class;
 import com.fongmi.android.tv.databinding.LayoutSideDrawerBinding;
 import com.fongmi.android.tv.ui.activity.CollectActivity;
 import com.fongmi.android.tv.ui.activity.FileActivity;
@@ -15,23 +17,53 @@ import com.fongmi.android.tv.ui.activity.LiveActivity;
 import com.fongmi.android.tv.ui.activity.PushActivity;
 import com.fongmi.android.tv.ui.activity.SearchActivity;
 import com.fongmi.android.tv.ui.activity.SettingActivity;
+import com.fongmi.android.tv.ui.adapter.DrawerCategoryAdapter;
 import com.fongmi.android.tv.ui.dialog.ConfigDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.utils.ResUtil;
 
+import java.util.List;
+
 /**
- * Controller for Apple tvOS Side Drawer sliding panel and menu routing.
+ * Controller for Apple tvOS Side Drawer sliding panel, menu routing,
+ * and site raw categories direct navigation.
  */
 public class SideDrawerController {
 
+    public interface DrawerCallback {
+        void onCategorySelected(Class item);
+    }
+
     private final FragmentActivity mActivity;
     private final LayoutSideDrawerBinding mBinding;
+    private final DrawerCallback mCallback;
+    private final DrawerCategoryAdapter mCategoryAdapter;
     private View mLastFocusedView;
 
-    public SideDrawerController(FragmentActivity activity, LayoutSideDrawerBinding binding) {
+    public SideDrawerController(FragmentActivity activity, LayoutSideDrawerBinding binding, DrawerCallback callback) {
         this.mActivity = activity;
         this.mBinding = binding;
+        this.mCallback = callback;
+        this.mCategoryAdapter = new DrawerCategoryAdapter(item -> {
+            closeDrawer();
+            if (mCallback != null) {
+                mCallback.onCategorySelected(item);
+            }
+        });
+        mBinding.drawerCategoryRecycler.setLayoutManager(new LinearLayoutManager(activity));
+        mBinding.drawerCategoryRecycler.setAdapter(mCategoryAdapter);
         initEvents();
+    }
+
+    public void setCategories(List<Class> types) {
+        if (types != null && !types.isEmpty()) {
+            mBinding.drawerCategoryHeader.setVisibility(View.VISIBLE);
+            mBinding.drawerCategoryRecycler.setVisibility(View.VISIBLE);
+            mCategoryAdapter.setItems(types);
+        } else {
+            mBinding.drawerCategoryHeader.setVisibility(View.GONE);
+            mBinding.drawerCategoryRecycler.setVisibility(View.GONE);
+        }
     }
 
     private void initEvents() {

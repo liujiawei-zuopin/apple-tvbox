@@ -91,10 +91,16 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (holder.card != null) {
                 holder.card.animate()
-                        .scaleX(hasFocus ? 1.04f : 1.0f)
-                        .scaleY(hasFocus ? 1.04f : 1.0f)
-                        .translationZ(hasFocus ? 6f : 0f)
-                        .setDuration(150)
+                        .scaleX(hasFocus ? 1.05f : 1.0f)
+                        .scaleY(hasFocus ? 1.05f : 1.0f)
+                        .translationZ(hasFocus ? 8f : 0f)
+                        .setDuration(160)
+                        .start();
+            }
+            if (holder.focusStroke != null) {
+                holder.focusStroke.animate()
+                        .alpha(hasFocus ? 1.0f : 0.0f)
+                        .setDuration(160)
                         .start();
             }
             if (hasFocus && mListener != null) {
@@ -113,6 +119,7 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
         public final ImageView image;
         public final TextView name;
         public final TextView remark;
+        public final View focusStroke;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -120,6 +127,7 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
             image = itemView.findViewById(R.id.image);
             name = itemView.findViewById(R.id.name);
             remark = itemView.findViewById(R.id.remark);
+            focusStroke = itemView.findViewById(R.id.focusStroke);
         }
     }
 }

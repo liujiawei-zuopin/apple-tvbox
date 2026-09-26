@@ -336,6 +336,31 @@
                         android:textStyle="bold" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
+                <!-- 10. 原始源全部分类 -->
+                <TextView
+                    android:id="@+id/drawerCategoryHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="站点原始分类"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/drawerCategoryRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>
     </androidx.appcompat.widget.LinearLayoutCompat>

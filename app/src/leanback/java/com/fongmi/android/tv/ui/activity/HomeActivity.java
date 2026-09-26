@@ -67,7 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class HomeActivity extends BaseActivity implements TopNavController.TopNavCallback, ShelfSectionController.ShelfCallback, VodCardPortraitAdapter.OnVodClickListener, FilterChipAdapter.OnClickListener, ConfigListener, SiteListener {
+public class HomeActivity extends BaseActivity implements TopNavController.TopNavCallback, SideDrawerController.DrawerCallback, ShelfSectionController.ShelfCallback, VodCardPortraitAdapter.OnVodClickListener, FilterChipAdapter.OnClickListener, ConfigListener, SiteListener {
 
     private ActivityHomeBinding mBinding;
     private HeroViewController mHeroController;
@@ -79,7 +79,9 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private VodCardPortraitAdapter mCategoryGridAdapter;
     private SiteViewModel mViewModel;
     private Result mResult;
+    private List<Class> mRawTypes = new ArrayList<>();
     private int mCurrentTab = 0;
+    private Class mCurrentCategoryClass;
     private final HashMap<String, String> mExtend = new HashMap<>();
 
     private Site getHome() {
@@ -117,13 +119,17 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mHeroController = new HeroViewController(this, mBinding);
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
         mShelfController = new ShelfSectionController(this, mBinding, this);
-        mDrawerController = new SideDrawerController(this, mBinding.sideDrawer);
+        mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
 
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
-        // Listen for vertical scrolling to trigger Apple tvOS frosted glass background & text parallax
+        // Listen for vertical scrolling to trigger Apple tvOS frosted glass background & top bar collapse
         mBinding.homeScrollView.setOnScrollChangeListener((NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) -> {
             mHeroController.onScroll(scrollY);
+            int maxCollapse = ResUtil.dp2px(50);
+            mBinding.topBar.setTranslationY(-Math.min(scrollY, maxCollapse));
+            float alpha = Math.max(0f, 1.0f - (float) scrollY / ResUtil.dp2px(85));
+            mBinding.topBar.setAlpha(alpha);
         });
 
         setupCategoryView();
@@ -147,12 +153,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             if (containerH <= 0) return;
 
             int heroH = ResUtil.dp2px(115);
-            int heroBottomMargin = ResUtil.dp2px(16);
-            int shelf1H = ResUtil.dp2px(24) + ResUtil.dp2px(118); // Header + Recycler
-            int bottomSafetyPadding = ResUtil.dp2px(28);
+            int heroBottomMargin = ResUtil.dp2px(14);
+            int shelf1H = ResUtil.dp2px(20) + ResUtil.dp2px(98); // Header + Recycler
+            int bottomSafetyPadding = ResUtil.dp2px(24);
 
             int targetTopMargin = containerH - heroH - heroBottomMargin - shelf1H - bottomSafetyPadding;
-            if (targetTopMargin > ResUtil.dp2px(60)) {
+            if (targetTopMargin > ResUtil.dp2px(50)) {
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mBinding.heroInfoLayout.getLayoutParams();
                 lp.topMargin = targetTopMargin;
                 mBinding.heroInfoLayout.setLayoutParams(lp);
@@ -252,7 +258,9 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void populateHomeData(Result result) {
-        mTopNavController.setTabs(result != null ? result.getTypes() : null);
+        mRawTypes = result != null && result.getTypes() != null ? result.getTypes() : new ArrayList<>();
+        mDrawerController.setCategories(mRawTypes);
+        mTopNavController.setTabs(mRawTypes);
 
         boolean hasSites = !VodConfig.get().getSites().isEmpty();
         List<Vod> all = result != null && result.getList() != null ? result.getList() : new ArrayList<>();
@@ -276,7 +284,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                     mShelfController.focusWatchNowItem(0);
                 }
             }, 200);
-        } else if (hasSites && mTopNavController.getItemCount() > 1) {
+        } else if (hasSites && !mRawTypes.isEmpty()) {
             mBinding.emptyView.setVisibility(View.GONE);
             mTopNavController.setSelectedPosition(1);
             switchTab(1, mTopNavController.getItem(1));
@@ -330,7 +338,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (result == null) return;
         mCategoryGridAdapter.setItems(result.getList() != null ? result.getList() : new ArrayList<>());
 
-        Class currentClass = mTopNavController.getItem(mCurrentTab);
+        Class currentClass = mCurrentCategoryClass;
         List<Filter> filters = currentClass != null ? currentClass.getFilters() : null;
         if ((filters == null || filters.isEmpty()) && result.getFilters() != null) {
             filters = result.getFilters().get(currentClass != null ? currentClass.getTypeId() : "");
@@ -345,6 +353,20 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     @Override
     public void onTabSelected(int position, Class item) {
+        if (item == null) return;
+        if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
+            return; // Search only triggers on click/enter
+        }
+        switchTab(position, item);
+    }
+
+    @Override
+    public void onTabClicked(int position, Class item) {
+        if (item == null) return;
+        if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
+            SearchActivity.start(this, "");
+            return;
+        }
         switchTab(position, item);
     }
 
@@ -366,15 +388,43 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mTopNavController.requestFocus();
     }
 
+    private Class findMappedCategory(String standardId) {
+        if (mRawTypes == null || mRawTypes.isEmpty()) return null;
+        String[] keywords;
+        if (TopNavController.ID_MOVIE.equals(standardId)) {
+            keywords = new String[]{"电影", "动作片", "喜剧片", "爱情片", "科幻片", "恐怖片", "剧情片", "战争片", "纪录片", "Movie", "片"};
+        } else if (TopNavController.ID_TV.equals(standardId)) {
+            keywords = new String[]{"电视剧", "连续剧", "国产剧", "美剧", "韩剧", "日剧", "港剧", "台剧", "海外剧", "剧集", "剧", "TV"};
+        } else if (TopNavController.ID_VARIETY.equals(standardId)) {
+            keywords = new String[]{"综艺", "真人秀", "娱乐", "Show"};
+        } else {
+            return null;
+        }
+        for (String kw : keywords) {
+            for (Class c : mRawTypes) {
+                if (c.getTypeName() != null && c.getTypeName().contains(kw)) {
+                    return c;
+                }
+            }
+        }
+        return mRawTypes.get(0);
+    }
+
     private void switchTab(int position, Class item) {
         mCurrentTab = position;
-        if (position == 0) {
-            // Home View
+        if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
+            // Home View with smooth transition
+            mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            mBinding.homeScrollView.setAlpha(0f);
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
-            mHeroController.setVisibility(View.VISIBLE);
+            mBinding.homeScrollView.animate().alpha(1f).setDuration(200).start();
             mBinding.categoryContainer.setVisibility(View.GONE);
+            mHeroController.setVisibility(View.VISIBLE);
             mHeroController.resetScroll();
+            mBinding.topBar.setTranslationY(0);
+            mBinding.topBar.setAlpha(1f);
             mBinding.homeScrollView.scrollTo(0, 0);
+
             if (mShelfController.isWatchNowEmpty()) {
                 if (mResult != null) {
                     populateHomeData(mResult);
@@ -383,21 +433,70 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 }
             }
         } else {
-            // Category View
+            // Category View with smooth cross-fade transition and fixed frosted ambient background
+            Class mapped = findMappedCategory(item.getTypeId());
+            mCurrentCategoryClass = mapped != null ? mapped : item;
+
             mBinding.homeScrollView.setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
+
+            mBinding.categoryAmbientBackdrop.setAlpha(0f);
+            mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+
+            mBinding.categoryContainer.setAlpha(0f);
+            mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));
             mBinding.categoryContainer.setVisibility(View.VISIBLE);
+            mBinding.categoryContainer.animate().alpha(1f).translationY(0).setDuration(220).start();
+
+            mBinding.topBar.setTranslationY(0);
+            mBinding.topBar.setAlpha(1f);
+
             mExtend.clear();
+            if (getHome() != null && mCurrentCategoryClass != null) {
+                mViewModel.categoryContent(getHome().getKey(), mCurrentCategoryClass.getTypeId(), "1", true, mExtend);
+            }
+        }
+    }
+
+    // Side Drawer Raw Category Clicked
+    @Override
+    public void onCategorySelected(Class item) {
+        if (item == null) return;
+        mCurrentTab = -1;
+        mCurrentCategoryClass = item;
+
+        mBinding.homeScrollView.setVisibility(View.GONE);
+        mHeroController.setVisibility(View.GONE);
+
+        mBinding.categoryAmbientBackdrop.setAlpha(0f);
+        mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
+        mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+
+        mBinding.categoryContainer.setAlpha(0f);
+        mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));
+        mBinding.categoryContainer.setVisibility(View.VISIBLE);
+        mBinding.categoryContainer.animate().alpha(1f).translationY(0).setDuration(220).start();
+
+        mBinding.topBar.setTranslationY(0);
+        mBinding.topBar.setAlpha(1f);
+
+        mExtend.clear();
+        if (getHome() != null) {
             mViewModel.categoryContent(getHome().getKey(), item.getTypeId(), "1", true, mExtend);
         }
+        App.post(() -> {
+            if (mBinding.categoryGrid.getChildCount() > 0) {
+                mBinding.categoryGrid.getChildAt(0).requestFocus();
+            }
+        }, 300);
     }
 
     @Override
     public void onFilterSelected(Value value) {
-        Class currentClass = mTopNavController.getItem(mCurrentTab);
-        if (currentClass != null) {
+        if (mCurrentCategoryClass != null && getHome() != null) {
             mExtend.put("class", value.getV());
-            mViewModel.categoryContent(getHome().getKey(), currentClass.getTypeId(), "1", true, mExtend);
+            mViewModel.categoryContent(getHome().getKey(), mCurrentCategoryClass.getTypeId(), "1", true, mExtend);
         }
     }
 

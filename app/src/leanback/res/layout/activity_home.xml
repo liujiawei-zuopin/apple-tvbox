@@ -24,13 +24,21 @@
         android:alpha="0"
         android:scaleType="centerCrop" />
 
-    <!-- Layer 0c: Deep Frosted Glass Dark Overlay (Transforms into pure ambient glass when scrolled) -->
+    <!-- Layer 0c: Deep Frosted Glass Tint Overlay (Permits vivid ambient blur) -->
     <View
         android:id="@+id/heroFrostedOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0"
-        android:background="#D9101014" />
+        android:background="#66101014" />
+
+    <!-- Layer 0d: Soft Frosted Ambient Backdrop for Category Pages -->
+    <View
+        android:id="@+id/categoryAmbientBackdrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_category_frosted_ambient"
+        android:visibility="gone" />
 
     <!-- Layer 1: Dark Cinematic Scrim Overlay (First Screen Atmosphere) -->
     <View
@@ -55,34 +63,34 @@
             android:paddingStart="44dp"
             android:paddingEnd="44dp">
 
-            <!-- Top Navigation Bar (Pure Centered Frosted Capsule Bar matching design draft) -->
+            <!-- Top Navigation Bar (Pure Centered Translucent Frosted Capsule Bar) -->
             <RelativeLayout
                 android:id="@+id/topBar"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="48dp"
                 android:layout_alignParentTop="true"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingTop="10dp"
-                android:paddingBottom="4dp">
+                android:paddingTop="6dp"
+                android:paddingBottom="2dp">
 
                 <!-- Center: Apple TV Style Translucent Capsule Tabs Bar (Tightly hugs tabs) -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/topNavContainer"
                     android:layout_width="wrap_content"
-                    android:layout_height="42dp"
+                    android:layout_height="36dp"
                     android:layout_centerHorizontal="true"
                     android:background="@drawable/bg_top_capsule_bar"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp">
+                    android:paddingStart="3dp"
+                    android:paddingEnd="3dp">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/topNavRecycler"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="32dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:nextFocusDown="@id/recyclerWatchNow"
@@ -166,16 +174,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="0dp"
-                            android:layout_marginBottom="6dp"
+                            android:layout_marginBottom="4dp"
                             android:text="@string/shelf_watch_now"
                             android:textColor="@color/white"
-                            android:textSize="17sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerWatchNow"
                             android:layout_width="match_parent"
-                            android:layout_height="118dp"
+                            android:layout_height="98dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:orientation="horizontal" />
@@ -185,11 +193,11 @@
                             android:id="@+id/headerContinue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="28dp"
-                            android:layout_marginBottom="6dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="4dp"
                             android:text="@string/shelf_continue_watch"
                             android:textColor="@color/white"
-                            android:textSize="17sp"
+                            android:textSize="15sp"
                             android:textStyle="bold"
                             android:visibility="gone"
                             tools:visibility="visible" />
@@ -197,7 +205,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerContinue"
                             android:layout_width="match_parent"
-                            android:layout_height="118dp"
+                            android:layout_height="98dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:orientation="horizontal"
@@ -209,11 +217,11 @@
                             android:id="@+id/headerHot"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="28dp"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="22dp"
+                            android:layout_marginBottom="6dp"
                             android:text="@string/shelf_hot_recommend"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <androidx.recyclerview.widget.RecyclerView
@@ -241,9 +249,9 @@
                     <androidx.leanback.widget.HorizontalGridView
                         android:id="@+id/categoryFilterRecycler"
                         android:layout_width="match_parent"
-                        android:layout_height="38dp"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginBottom="12dp"
+                        android:layout_height="36dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="10dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         app:focusOutEnd="false"
@@ -298,16 +306,16 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnEmptyConfig"
                         android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="22dp"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="20dp"
                         android:background="@drawable/selector_top_capsule"
                         android:clickable="true"
                         android:focusable="true"
-                        android:paddingStart="28dp"
-                        android:paddingEnd="28dp"
+                        android:paddingStart="24dp"
+                        android:paddingEnd="24dp"
                         android:text="⚙️ 添加配置接口"
                         android:textColor="@color/selector_capsule_text"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 

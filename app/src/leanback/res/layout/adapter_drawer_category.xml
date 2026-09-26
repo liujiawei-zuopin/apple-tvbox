@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/selector_drawer_item"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:duplicateParentState="true"
+        android:src="@drawable/ic_folder"
+        app:tint="@color/selector_drawer_text" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:duplicateParentState="true"
+        android:textColor="@color/selector_drawer_text"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="国产剧" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

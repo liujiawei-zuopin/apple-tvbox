@@ -79,7 +79,7 @@ public class HeroViewController {
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                 if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
                                 Task.execute(() -> {
-                                    Bitmap blurred = BlurUtil.blur(resource, 20, 4);
+                                    Bitmap blurred = BlurUtil.blur(resource, 26, 4);
                                     if (blurred != null) {
                                         App.post(() -> {
                                             if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
@@ -118,7 +118,7 @@ public class HeroViewController {
         mCurrentScrollFraction = fraction;
 
         mBinding.heroBlurBackdrop.setAlpha(fraction);
-        mBinding.heroFrostedOverlay.setAlpha(fraction * 0.88f);
+        mBinding.heroFrostedOverlay.setAlpha(fraction * 0.75f);
 
         // Parallax fade out for hero synopsis text
         float textAlpha = Math.max(0f, 1.0f - (fraction * 1.3f));

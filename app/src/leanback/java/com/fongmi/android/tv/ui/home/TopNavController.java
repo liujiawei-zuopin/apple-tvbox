@@ -16,8 +16,15 @@ import java.util.List;
 
 /**
  * Controller for Apple tvOS Centered Frosted Capsule Navigation Bar.
+ * Fixed Tabs: "主页" (Home), "电影" (Movies), "剧集" (TV Series), "综艺" (Variety), "搜索" (Search Icon).
  */
 public class TopNavController implements TopNavAdapter.OnTabListener {
+
+    public static final String ID_HOME = "home";
+    public static final String ID_MOVIE = "movie";
+    public static final String ID_TV = "tv";
+    public static final String ID_VARIETY = "variety";
+    public static final String ID_SEARCH = TopNavAdapter.TAB_SEARCH;
 
     private final Activity mActivity;
     private final RecyclerView mRecycler;
@@ -26,6 +33,7 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
 
     public interface TopNavCallback {
         void onTabSelected(int position, Class item);
+        void onTabClicked(int position, Class item);
         void onNavigateDown();
     }
 
@@ -37,6 +45,8 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         this.mRecycler.setItemAnimator(null);
         this.mRecycler.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
         this.mRecycler.setAdapter(mAdapter);
+
+        initFixedTabs();
 
         this.mRecycler.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
@@ -59,16 +69,40 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         });
     }
 
-    public void setTabs(List<Class> types) {
+    private void initFixedTabs() {
         List<Class> tabs = new ArrayList<>();
+        
         Class homeTab = new Class();
-        homeTab.setTypeId("home");
-        homeTab.setTypeName(mActivity.getString(R.string.tab_home));
+        homeTab.setTypeId(ID_HOME);
+        homeTab.setTypeName("主页");
         tabs.add(homeTab);
-        if (types != null) {
-            tabs.addAll(types);
-        }
+
+        Class movieTab = new Class();
+        movieTab.setTypeId(ID_MOVIE);
+        movieTab.setTypeName("电影");
+        tabs.add(movieTab);
+
+        Class tvTab = new Class();
+        tvTab.setTypeId(ID_TV);
+        tvTab.setTypeName("剧集");
+        tabs.add(tvTab);
+
+        Class varietyTab = new Class();
+        varietyTab.setTypeId(ID_VARIETY);
+        varietyTab.setTypeName("综艺");
+        tabs.add(varietyTab);
+
+        Class searchTab = new Class();
+        searchTab.setTypeId(ID_SEARCH);
+        searchTab.setTypeName("");
+        tabs.add(searchTab);
+
         mAdapter.setItems(tabs);
+    }
+
+    public void setTabs(List<Class> types) {
+        // Fixed standard tabs remain permanent
+        initFixedTabs();
     }
 
     public int getSelectedPosition() {
@@ -110,7 +144,7 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
     @Override
     public void onTabClicked(int position, Class item) {
         if (mCallback != null) {
-            mCallback.onTabSelected(position, item);
+            mCallback.onTabClicked(position, item);
         }
     }
 }

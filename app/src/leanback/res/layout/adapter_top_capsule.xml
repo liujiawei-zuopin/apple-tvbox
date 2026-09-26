@@ -1,18 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/text"
+    android:id="@+id/capsuleItem"
     android:layout_width="wrap_content"
-    android:layout_height="36dp"
-    android:layout_marginStart="3dp"
-    android:layout_marginEnd="3dp"
+    android:layout_height="32dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
     android:background="@drawable/selector_top_capsule"
     android:clickable="true"
-    android:focusable="true"
-    android:gravity="center"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp"
-    android:textColor="@color/selector_capsule_text"
-    android:textSize="15sp"
-    android:textStyle="bold"
-    tools:text="主页" />
+    android:focusable="true">
+
+    <!-- Text Label for Categories -->
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:duplicateParentState="true"
+        android:gravity="center"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:textColor="@color/selector_capsule_text"
+        android:textSize="12.5sp"
+        android:textStyle="bold"
+        tools:text="主页" />
+
+    <!-- Icon for Search -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:duplicateParentState="true"
+        android:padding="7dp"
+        android:src="@drawable/ic_action_search"
+        android:visibility="gone"
+        app:tint="@color/selector_capsule_text" />
+
+</FrameLayout>
