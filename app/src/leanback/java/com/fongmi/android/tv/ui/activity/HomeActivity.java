@@ -290,24 +290,24 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
 
     private void updateHero(Vod vod) {
         if (vod == null) return;
-        mBinding.heroTitle.setText(vod.getVodName());
+        mBinding.heroTitle.setText(vod.getName());
 
         List<String> metas = new ArrayList<>();
-        if (!TextUtils.isEmpty(vod.getVodRemarks())) metas.add(vod.getVodRemarks());
-        if (!TextUtils.isEmpty(vod.getVodYear())) metas.add(vod.getVodYear());
-        if (!TextUtils.isEmpty(vod.getVodArea())) metas.add(vod.getVodArea());
-        if (!TextUtils.isEmpty(vod.getVodDirector())) metas.add("导演: " + vod.getVodDirector());
+        if (!TextUtils.isEmpty(vod.getRemarks())) metas.add(vod.getRemarks());
+        if (!TextUtils.isEmpty(vod.getYear())) metas.add(vod.getYear());
+        if (!TextUtils.isEmpty(vod.getArea())) metas.add(vod.getArea());
+        if (!TextUtils.isEmpty(vod.getDirector())) metas.add("导演: " + vod.getDirector());
         mBinding.heroMeta.setText(TextUtils.join(" · ", metas));
 
-        String desc = vod.getVodContent();
-        if (TextUtils.isEmpty(desc)) desc = vod.getVodActor();
+        String desc = vod.getContent();
+        if (TextUtils.isEmpty(desc)) desc = vod.getActor();
         mBinding.heroDesc.setText(desc);
         mBinding.heroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
 
         // Load background with 300ms smooth crossfade
-        if (!TextUtils.isEmpty(vod.getVodPic())) {
+        if (!TextUtils.isEmpty(vod.getPic())) {
             Glide.with(this)
-                    .load(ImgUtil.getUrl(vod.getVodPic()))
+                    .load(ImgUtil.getUrl(vod.getPic()))
                     .transition(DrawableTransitionOptions.withCrossFade(300))
                     .into(mBinding.heroBackdrop);
         }
@@ -364,9 +364,9 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
             updateHero(vod);
         } else if (item instanceof History history) {
             Vod v = new Vod();
-            v.setVodName(history.getVodName());
-            v.setVodPic(history.getVodPic());
-            v.setVodRemarks(history.getVodRemarks());
+            v.setName(history.getVodName());
+            v.setPic(history.getVodPic());
+            v.setContent(history.getVodRemarks());
             updateHero(v);
         }
     }
@@ -402,7 +402,7 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         } else if (getHome().isIndex()) {
             CollectActivity.start(this, vod.getName());
         } else {
-            VideoActivity.start(this, getHome().getKey(), vod.getId(), vod.getName(), vod.getVodPic());
+            VideoActivity.start(this, getHome().getKey(), vod.getId(), vod.getName(), vod.getPic());
         }
     }
 

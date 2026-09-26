@@ -54,11 +54,11 @@ public class VodCardLandscapeAdapter extends RecyclerView.Adapter<VodCardLandsca
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Object item = mItems.get(position);
         if (item instanceof Vod vod) {
-            holder.name.setText(vod.getVodName());
-            holder.remark.setText(vod.getVodRemarks());
-            holder.remark.setVisibility(vod.getVodRemarks().isEmpty() ? View.GONE : View.VISIBLE);
+            holder.name.setText(vod.getName());
+            holder.remark.setText(vod.getRemarks());
+            holder.remark.setVisibility(vod.getRemarks().isEmpty() ? View.GONE : View.VISIBLE);
             holder.progress.setVisibility(View.GONE);
-            ImgUtil.load(vod.getVodName(), vod.getVodPic(), holder.image);
+            ImgUtil.load(vod.getName(), vod.getPic(), holder.image);
         } else if (item instanceof History history) {
             holder.name.setText(history.getVodName());
             holder.remark.setText(history.getVodRemarks());

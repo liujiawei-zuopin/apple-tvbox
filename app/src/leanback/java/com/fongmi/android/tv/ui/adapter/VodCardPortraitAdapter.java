@@ -58,10 +58,10 @@ public class VodCardPortraitAdapter extends RecyclerView.Adapter<VodCardPortrait
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Vod item = mItems.get(position);
-        holder.name.setText(item.getVodName());
-        holder.remark.setText(item.getVodRemarks());
-        holder.remark.setVisibility(item.getVodRemarks().isEmpty() ? View.GONE : View.VISIBLE);
-        ImgUtil.load(item.getVodName(), item.getVodPic(), holder.image);
+        holder.name.setText(item.getName());
+        holder.remark.setText(item.getRemarks());
+        holder.remark.setVisibility(item.getRemarks().isEmpty() ? View.GONE : View.VISIBLE);
+        ImgUtil.load(item.getName(), item.getPic(), holder.image);
 
         holder.itemView.setOnClickListener(v -> {
             if (mListener != null) {
