@@ -15,6 +15,7 @@ import com.fongmi.android.tv.bean.Vod;
 import com.fongmi.android.tv.player.extractor.Source;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.fongmi.android.tv.utils.Sniffer;
+import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.net.OkHttp;
