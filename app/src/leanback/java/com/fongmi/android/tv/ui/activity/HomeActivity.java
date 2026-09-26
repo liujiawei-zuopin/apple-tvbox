@@ -113,7 +113,6 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         mBinding.progressLayout.showProgress();
         PermissionUtil.requestNotify(this);
         DLNARendererService.start(this);
-        Updater.create().start(this);
 
         setupTopNav();
         setupShelves();
