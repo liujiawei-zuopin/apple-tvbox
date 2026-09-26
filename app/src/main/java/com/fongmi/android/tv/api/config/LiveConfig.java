@@ -114,7 +114,9 @@ public class LiveConfig extends BaseConfig {
 
     @Override
     protected void load(Config config) throws Throwable {
+        if (config == null || TextUtils.isEmpty(config.getUrl())) return;
         String json = Decoder.getJson(UrlUtil.convert(config.getUrl()), TAG);
+        if (TextUtils.isEmpty(json)) return;
         if (Json.isObj(json)) checkJson(config, Json.parse(json).getAsJsonObject());
         else parseText(config, json);
     }

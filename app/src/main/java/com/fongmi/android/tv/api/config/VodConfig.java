@@ -111,7 +111,9 @@ public class VodConfig extends BaseConfig {
 
     @Override
     protected void load(Config config) throws Throwable {
+        if (config == null || TextUtils.isEmpty(config.getUrl())) return;
         String json = Decoder.getJson(UrlUtil.convert(config.getUrl()), TAG);
+        if (TextUtils.isEmpty(json)) return;
         checkJson(config, Json.parse(json).getAsJsonObject());
     }
 

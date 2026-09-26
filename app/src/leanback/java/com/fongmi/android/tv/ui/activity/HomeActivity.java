@@ -216,14 +216,27 @@ public class HomeActivity extends BaseActivity implements TopNavAdapter.OnTabLis
         return new Callback() {
             @Override
             public void success() {
-                mViewModel.homeContent();
+                mBinding.progressLayout.showContent();
+                if (getHome() != null && !getHome().isEmpty()) {
+                    mViewModel.homeContent();
+                } else if (!VodConfig.get().getSites().isEmpty()) {
+                    VodConfig.get().setHome(VodConfig.get().getSites().get(0));
+                    mViewModel.homeContent();
+                } else {
+                    populateHomeData(Result.empty());
+                }
                 getHistory();
             }
 
             @Override
             public void error(String msg) {
-                Notify.show(msg);
-                mViewModel.homeContent();
+                mBinding.progressLayout.showContent();
+                if (!TextUtils.isEmpty(msg)) Notify.show(msg);
+                if (getHome() != null && !getHome().isEmpty()) {
+                    mViewModel.homeContent();
+                } else {
+                    populateHomeData(Result.empty());
+                }
                 getHistory();
             }
         };

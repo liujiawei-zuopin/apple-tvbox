@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.api;
 
+import android.text.TextUtils;
 import android.util.Base64;
 
 import com.fongmi.android.tv.utils.UrlUtil;
@@ -20,9 +21,12 @@ public class Decoder {
     private static final Pattern JS_URI = Pattern.compile("\"(\\.|\\.\\.)/(.?|.+?)\\.js\\?(.?|.+?)\"");
 
     public static String getJson(String url, String tag) throws Exception {
+        if (TextUtils.isEmpty(url)) return "";
         try (Response res = OkHttp.newCall(url, tag).execute()) {
+            if (res.body() == null) return "";
             HttpUrl httpUrl = res.request().url();
-            int size = HttpUrl.parse(url).querySize();
+            HttpUrl parsed = HttpUrl.parse(url);
+            int size = parsed == null ? 0 : parsed.querySize();
             if (httpUrl.querySize() == size) url = httpUrl.toString();
             return verify(url, res.body().string());
         }

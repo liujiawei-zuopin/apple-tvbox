@@ -17,9 +17,11 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.fongmi.android.tv.App;
@@ -47,7 +49,6 @@ public class ImgUtil {
     private static final int MAX_CACHE_SIZE = 16 * 1024 * 1024;
     private static final int MAX_DATA_URI_LENGTH = 8 * 1024 * 1024;
     private static final Pattern IMAGE_MIME = Pattern.compile("image/[a-z0-9.+-]+");
-    private static final Set<String> failed = Collections.synchronizedSet(new HashSet<>());
     private static final Cache<String, Image> CACHE = CacheBuilder.newBuilder().maximumWeight(MAX_CACHE_SIZE).weigher((String key, Image value) -> value.data().length).build();
 
     public static void logo(ImageView view) {
@@ -80,26 +81,40 @@ public class ImgUtil {
 
     public static void load(String text, String url, ImageView view, boolean vod) {
         view.setScaleType(vod ? CENTER_CROP : FIT_CENTER);
-        if (!vod) view.setVisibility(TextUtils.isEmpty(url) ? View.GONE : View.VISIBLE);
-        if (TextUtils.isEmpty(url) || failed.contains(url)) view.setImageDrawable(getTextDrawable(text, vod));
-        else try {
-            RequestBuilder<Drawable> builder = Glide.with(view).load(getUrl(url)).listener(getListener(text, url, view, vod));
+        if (TextUtils.isEmpty(url)) {
+            view.setImageDrawable(getTextDrawable(text, vod));
+            return;
+        }
+        try {
+            Object model = getUrl(url);
+            if (model == null) {
+                view.setImageDrawable(getTextDrawable(text, vod));
+                return;
+            }
+            RequestBuilder<Drawable> builder = Glide.with(view)
+                    .load(model)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .transition(DrawableTransitionOptions.withCrossFade(200))
+                    .placeholder(getTextDrawable(text, vod))
+                    .error(getTextDrawable(text, vod));
             if (vod) builder.centerCrop().into(view);
             else builder.fitCenter().into(view);
         } catch (Throwable e) {
-            e.printStackTrace();
+            view.setImageDrawable(getTextDrawable(text, vod));
         }
     }
 
     public static Object getUrl(String url) {
+        if (TextUtils.isEmpty(url)) return null;
         String param = null;
         url = UrlUtil.convert(url);
         if (url.startsWith("data:")) return url;
         LazyHeaders.Builder builder = new LazyHeaders.Builder();
+        builder.addHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         if (url.contains("@Headers=")) addHeader(builder, param = url.split("@Headers=")[1].split("@")[0]);
         if (url.contains("@Cookie=")) builder.addHeader(HttpHeaders.COOKIE, param = url.split("@Cookie=")[1].split("@")[0]);
         if (url.contains("@Referer=")) builder.addHeader(HttpHeaders.REFERER, param = url.split("@Referer=")[1].split("@")[0]);
-        if (url.contains("@User-Agent=")) builder.addHeader(HttpHeaders.USER_AGENT, param = url.split("@User-Agent=")[1].split("@")[0]);
+        if (url.contains("@User-Agent=")) builder.setHeader(HttpHeaders.USER_AGENT, param = url.split("@User-Agent=")[1].split("@")[0]);
         url = param == null ? url : url.split("@")[0];
         return TextUtils.isEmpty(url) ? null : new GlideUrl(url, builder.build());
     }
@@ -110,9 +125,7 @@ public class ImgUtil {
         String key = Crypto.md5(url);
         if (TextUtils.isEmpty(key)) return "";
         if (CACHE.asMap().computeIfAbsent(key, ignored -> decode(url)) == null) return "";
-        String address = Server.get().getAddress("/image/" + key);
-        failed.remove(address);
-        return address;
+        return Server.get().getAddress("/image/" + key);
     }
 
     private static boolean isData(String url) {
@@ -145,26 +158,10 @@ public class ImgUtil {
         for (Map.Entry<String, String> entry : map.entrySet()) builder.addHeader(UrlUtil.fixHeader(entry.getKey()), entry.getValue());
     }
 
-    private static Drawable getTextDrawable(String text, boolean vod) {
+    public static Drawable getTextDrawable(String text, boolean vod) {
         TextDrawable.Builder builder = new TextDrawable.Builder();
         text = TextUtils.isEmpty(text) ? "！" : text.substring(0, 1);
-        if (vod) builder.buildRect(text, ColorGenerator.get400(text));
+        if (vod) return builder.buildRect(text, ColorGenerator.get400(text));
         return builder.buildRoundRect(text, ColorGenerator.get400(text), ResUtil.dp2px(4));
-    }
-
-    private static RequestListener<Drawable> getListener(String text, String url, ImageView view, boolean vod) {
-        return new RequestListener<>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                view.setImageDrawable(getTextDrawable(text, vod));
-                failed.add(url);
-                return true;
-            }
-
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                return false;
-            }
-        };
     }
 }

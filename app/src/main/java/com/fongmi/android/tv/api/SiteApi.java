@@ -54,6 +54,7 @@ public class SiteApi {
 
     @NonNull
     public static Result homeContent(@NonNull Site site) throws Exception {
+        if (site == null || site.isEmpty()) return Result.empty();
         if (isSpider(site)) {
             Spider spider = site.recent().spider();
             boolean crash = Prefers.getBoolean("crash");
