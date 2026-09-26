@@ -1,6 +1,8 @@
 package com.fongmi.android.tv.ui.home;
 
 import android.app.Activity;
+import android.view.KeyEvent;
+import android.view.View;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,7 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
 
     public interface TopNavCallback {
         void onTabSelected(int position, Class item);
+        void onNavigateDown();
     }
 
     public TopNavController(Activity activity, RecyclerView recycler, TopNavCallback callback) {
@@ -33,6 +36,26 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         this.mAdapter = new TopNavAdapter(this);
         this.mRecycler.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
         this.mRecycler.setAdapter(mAdapter);
+
+        this.mRecycler.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                view.setOnKeyListener((v, keyCode, event) -> {
+                    if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                        if (mCallback != null) {
+                            mCallback.onNavigateDown();
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                view.setOnKeyListener(null);
+            }
+        });
     }
 
     public void setTabs(List<Class> types) {
@@ -64,6 +87,15 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
     }
 
     public void requestFocus() {
+        int sel = getSelectedPosition();
+        if (sel >= 0 && sel < mAdapter.getItemCount()) {
+            mRecycler.scrollToPosition(sel);
+            RecyclerView.ViewHolder vh = mRecycler.findViewHolderForAdapterPosition(sel);
+            if (vh != null) {
+                vh.itemView.requestFocus();
+                return;
+            }
+        }
         mRecycler.requestFocus();
     }
 

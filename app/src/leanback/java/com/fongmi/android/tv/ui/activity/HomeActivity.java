@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.viewbinding.ViewBinding;
@@ -119,14 +121,43 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
+        // Listen for vertical scrolling to trigger Apple tvOS frosted glass background & text parallax
+        mBinding.homeScrollView.setOnScrollChangeListener((NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) -> {
+            mHeroController.onScroll(scrollY);
+        });
+
         setupCategoryView();
         setupViewModel();
+        adjustHeroSpaceForSunkShelf();
 
         initConfig();
     }
 
     @Override
     protected void initEvent() {
+    }
+
+    /**
+     * Dynamically adjusts heroInfoLayout top margin according to screen viewport,
+     * ensuring "Watch Now" shelf settles precisely at the bottom edge of the 1st screen.
+     */
+    private void adjustHeroSpaceForSunkShelf() {
+        mBinding.contentContainer.post(() -> {
+            int containerH = mBinding.contentContainer.getHeight();
+            if (containerH <= 0) return;
+
+            int heroH = ResUtil.dp2px(115);
+            int heroBottomMargin = ResUtil.dp2px(16);
+            int shelf1H = ResUtil.dp2px(24) + ResUtil.dp2px(118); // Header + Recycler
+            int bottomSafetyPadding = ResUtil.dp2px(28);
+
+            int targetTopMargin = containerH - heroH - heroBottomMargin - shelf1H - bottomSafetyPadding;
+            if (targetTopMargin > ResUtil.dp2px(60)) {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mBinding.heroInfoLayout.getLayoutParams();
+                lp.topMargin = targetTopMargin;
+                mBinding.heroInfoLayout.setLayoutParams(lp);
+            }
+        });
     }
 
     private void setupCategoryView() {
@@ -242,11 +273,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             App.post(() -> {
                 if (getCurrentFocus() == null || getCurrentFocus() == mBinding.btnEmptyConfig) {
-                    if (mBinding.recyclerWatchNow.getChildCount() > 0) {
-                        mBinding.recyclerWatchNow.getChildAt(0).requestFocus();
-                    } else {
-                        mTopNavController.requestFocus();
-                    }
+                    mShelfController.focusWatchNowItem(0);
                 }
             }, 200);
         } else if (hasSites && mTopNavController.getItemCount() > 1) {
@@ -321,6 +348,24 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         switchTab(position, item);
     }
 
+    @Override
+    public void onNavigateDown() {
+        if (mCurrentTab == 0) {
+            mShelfController.focusWatchNowItem(0);
+        } else {
+            if (mBinding.categoryFilterRecycler.getVisibility() == View.VISIBLE && mBinding.categoryFilterRecycler.getChildCount() > 0) {
+                mBinding.categoryFilterRecycler.getChildAt(0).requestFocus();
+            } else if (mBinding.categoryGrid.getChildCount() > 0) {
+                mBinding.categoryGrid.getChildAt(0).requestFocus();
+            }
+        }
+    }
+
+    @Override
+    public void onNavigateToTopNav() {
+        mTopNavController.requestFocus();
+    }
+
     private void switchTab(int position, Class item) {
         mCurrentTab = position;
         if (position == 0) {
@@ -328,6 +373,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
             mHeroController.setVisibility(View.VISIBLE);
             mBinding.categoryContainer.setVisibility(View.GONE);
+            mHeroController.resetScroll();
+            mBinding.homeScrollView.scrollTo(0, 0);
             if (mShelfController.isWatchNowEmpty()) {
                 if (mResult != null) {
                     populateHomeData(mResult);
@@ -394,6 +441,11 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         getHistory();
     }
 
+    @Override
+    public void onOpenDrawer() {
+        openDrawer();
+    }
+
     public void openDrawer() {
         mDrawerController.openDrawer();
     }
@@ -419,9 +471,14 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (mDrawerController.isDrawerOpen()) {
             mDrawerController.closeDrawer();
         } else if (mCurrentTab != 0) {
+            // Step-back: Switch back to Home Tab
             mTopNavController.setSelectedPosition(0);
             switchTab(0, mTopNavController.getItem(0));
             mTopNavController.requestFocus();
+        } else if (mBinding.homeScrollView.getScrollY() > ResUtil.dp2px(20)) {
+            // Step-back: Scroll back to top 1st screen and focus Watch Now
+            mBinding.homeScrollView.smoothScrollTo(0, 0);
+            mShelfController.focusWatchNowItem(0);
         } else {
             if (PlaybackService.isRunning()) {
                 Util.moveToBackground(this);
@@ -434,7 +491,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private void checkAction(Intent intent) {
         if (Intent.ACTION_SEND.equals(intent.getAction())) {
             VideoActivity.push(this, intent.getStringExtra(Intent.EXTRA_TEXT));
-        } else if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getData() != null) {
+        } else if (Intent.ACTION_VIEW.equals(intent.getData()) && intent.getData() != null) {
             PermissionUtil.requestFile(this, allGranted -> checkType(intent));
         } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String keyword = intent.getStringExtra(SearchManager.QUERY);

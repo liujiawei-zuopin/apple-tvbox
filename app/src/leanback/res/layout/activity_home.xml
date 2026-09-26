@@ -9,14 +9,30 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <!-- Layer 0: Full-screen Hero Backdrop -->
+    <!-- Layer 0a: Full-screen Hero Backdrop (Crisp High-Res) -->
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/heroBackdrop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <!-- Layer 1: Dark Cinematic Scrim Overlay -->
+    <!-- Layer 0b: Full-screen Hero Blurred Backdrop (Apple tvOS Frosted Glass on Scroll) -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/heroBlurBackdrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:scaleType="centerCrop" />
+
+    <!-- Layer 0c: Deep Frosted Glass Dark Overlay (Transforms into pure ambient glass when scrolled) -->
+    <View
+        android:id="@+id/heroFrostedOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="#D9101014" />
+
+    <!-- Layer 1: Dark Cinematic Scrim Overlay (First Screen Atmosphere) -->
     <View
         android:id="@+id/heroScrim"
         android:layout_width="match_parent"
@@ -94,20 +110,21 @@
                     android:scrollbars="none">
 
                     <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/shelvesContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:orientation="vertical"
-                        android:paddingBottom="60dp">
+                        android:paddingBottom="80dp">
 
-                        <!-- Hero Synopsis Info Area (Top of Home - Large Poster Exposure) -->
+                        <!-- Hero Synopsis Info Area (Sunk to bottom-middle, maximizing backdrop exposure) -->
                         <androidx.appcompat.widget.LinearLayoutCompat
                             android:id="@+id/heroInfoLayout"
-                            android:layout_width="620dp"
+                            android:layout_width="660dp"
                             android:layout_height="115dp"
-                            android:layout_marginTop="46dp"
-                            android:layout_marginBottom="32dp"
+                            android:layout_marginTop="125dp"
+                            android:layout_marginBottom="16dp"
                             android:orientation="vertical">
 
                             <TextView
@@ -125,7 +142,7 @@
                                 android:id="@+id/heroMeta"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
+                                android:layout_marginTop="4dp"
                                 android:textColor="#CCFFFFFF"
                                 android:textSize="13sp"
                                 tools:text="4K 超清 · 9.4分 · 1972 · 剧情 / 犯罪" />
@@ -134,7 +151,7 @@
                                 android:id="@+id/heroDesc"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
+                                android:layout_marginTop="4dp"
                                 android:ellipsize="end"
                                 android:lineSpacingExtra="2dp"
                                 android:maxLines="2"
@@ -143,7 +160,7 @@
                                 tools:text="是一部1972年的美国黑帮电影，根据马里奥·普佐的1969年同名小说改编，弗朗西斯·科波拉执导，由马龙·白兰度和阿尔·帕西诺主演。" />
                         </androidx.appcompat.widget.LinearLayoutCompat>
 
-                        <!-- Shelf 1: 现在观看 (Watch Now 16:9 Compact) -->
+                        <!-- Shelf 1: 现在观看 (Watch Now 16:9 Compact - Sunk to bottom of 1st screen) -->
                         <TextView
                             android:id="@+id/headerWatchNow"
                             android:layout_width="wrap_content"
@@ -161,8 +178,6 @@
                             android:layout_height="118dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
-                            android:nextFocusUp="@id/topNavRecycler"
-                            android:nextFocusDown="@id/gridHot"
                             android:orientation="horizontal" />
 
                         <!-- Shelf 2: 继续观看 (Continue Watching 16:9 Compact with progress) -->
@@ -170,7 +185,7 @@
                             android:id="@+id/headerContinue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="28dp"
                             android:layout_marginBottom="6dp"
                             android:text="@string/shelf_continue_watch"
                             android:textColor="@color/white"
@@ -194,7 +209,7 @@
                             android:id="@+id/headerHot"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="28dp"
                             android:layout_marginBottom="8dp"
                             android:text="@string/shelf_hot_recommend"
                             android:textColor="@color/white"
@@ -207,7 +222,6 @@
                             android:layout_height="wrap_content"
                             android:clipChildren="false"
                             android:clipToPadding="false"
-                            android:nextFocusUp="@id/recyclerWatchNow"
                             android:nestedScrollingEnabled="false" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
