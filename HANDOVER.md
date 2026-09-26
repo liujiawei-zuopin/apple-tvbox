@@ -1,9 +1,9 @@
 # Apple TVBox 项目工程交接与技术架构文档
 
-> **版本**：`v1.0.50`  
-> **基线 Commit**：`0ce2993`  
+> **版本**：`v1.0.53`  
+> **基线 Commit**：`f442036`  
 > **分支**：`main`  
-> **最后构建状态**：GitHub Actions CI 构建通过 (Release `v1.0.50`)  
+> **最后构建状态**：GitHub Actions CI 构建通过 (Release `v1.0.53`)  
 > **代码仓库**：[liujiawei-zuopin/apple-tvbox](https://github.com/liujiawei-zuopin/apple-tvbox)  
 > **本地工作区**：`c:\Users\liuji\Documents\antigravity\sharp-brahmagupta\apple-tvbox`
 
