@@ -24,7 +24,7 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="44dp"
-            android:background="@drawable/shape_search_bar"
+            android:background="@drawable/selector_search_bar"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="12dp"
@@ -36,10 +36,13 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="10dp"
+                android:background="@drawable/selector_keyboard"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusDown="@id/keyboard"
-                android:src="@drawable/ic_search_mic" />
+                android:padding="3dp"
+                android:src="@drawable/ic_search_mic"
+                app:tint="@color/selector_focus_white_pill_text" />
 
             <com.fongmi.android.tv.ui.custom.CustomSearchView
                 android:id="@+id/keyword"
@@ -56,7 +59,7 @@
                 android:maxLength="255"
                 android:nextFocusDown="@id/keyboard"
                 android:singleLine="true"
-                android:textColor="@color/white"
+                android:textColor="@color/selector_focus_white_pill_text"
                 android:textColorHint="#80FFFFFF"
                 android:textCursorDrawable="@drawable/shape_cursor"
                 android:textSize="17sp" />

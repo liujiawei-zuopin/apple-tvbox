@@ -103,12 +103,6 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
         });
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-            holder.itemView.animate()
-                    .scaleX(hasFocus ? 1.04f : 1.0f)
-                    .scaleY(hasFocus ? 1.04f : 1.0f)
-                    .setDuration(160)
-                    .start();
-
             if (hasFocus) {
                 int pos = holder.getBindingAdapterPosition();
                 if (pos != RecyclerView.NO_POSITION) {

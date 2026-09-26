@@ -32,12 +32,20 @@
         android:alpha="0"
         android:background="#66101014" />
 
-    <!-- Layer 0d: Soft Frosted Ambient Backdrop for Category & Search Pages -->
-    <View
+    <!-- Layer 0d: True StackBlur Frosted Ambient Backdrop for Category & Search Pages -->
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/categoryAmbientBackdrop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_category_frosted_ambient"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <!-- Layer 0e: Deep Frosted Dim Filter for Category Pages -->
+    <View
+        android:id="@+id/categoryAmbientOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88101014"
         android:visibility="gone" />
 
     <!-- Layer 1: Dark Cinematic Scrim Overlay (First Screen Atmosphere) -->
@@ -319,9 +327,9 @@
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center"
-                    android:paddingStart="2.5dp"
+                    android:paddingStart="6dp"
                     android:paddingTop="2.5dp"
-                    android:paddingEnd="2.5dp"
+                    android:paddingEnd="6dp"
                     android:paddingBottom="2.5dp">
 
                     <androidx.recyclerview.widget.RecyclerView

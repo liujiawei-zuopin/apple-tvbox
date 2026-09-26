@@ -84,6 +84,7 @@ public class HeroViewController {
                                         App.post(() -> {
                                             if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
                                             mBinding.heroBlurBackdrop.setImageBitmap(blurred);
+                                            mBinding.categoryAmbientBackdrop.setImageBitmap(blurred);
                                         });
                                     }
                                 });

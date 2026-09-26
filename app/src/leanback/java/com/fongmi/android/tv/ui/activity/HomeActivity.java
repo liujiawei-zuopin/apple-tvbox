@@ -136,13 +136,25 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
-        // Listen for vertical scrolling to trigger Apple tvOS frosted glass background & top bar collapse
+        // 1. Home ScrollView scrolling -> Parallax top bar collapse + Hero blur progression
         mBinding.homeScrollView.setOnScrollChangeListener((NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) -> {
             mHeroController.onScroll(scrollY);
-            int maxCollapse = ResUtil.dp2px(50);
-            mBinding.topBar.setTranslationY(-Math.min(scrollY, maxCollapse));
-            float alpha = Math.max(0f, 1.0f - (float) scrollY / ResUtil.dp2px(85));
-            mBinding.topBar.setAlpha(alpha);
+            updateTopBarOnScroll(scrollY);
+        });
+
+        // 2. Category Grid scrolling -> Parallax top bar collapse
+        mBinding.categoryGrid.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int scrollY = recyclerView.computeVerticalScrollOffset();
+                updateTopBarOnScroll(scrollY);
+            }
+        });
+
+        // 3. Search Page ScrollView scrolling -> Parallax top bar collapse
+        mBinding.searchContainer.scroll.setOnScrollChangeListener((NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) -> {
+            updateTopBarOnScroll(scrollY);
         });
 
         setupCategoryView();
@@ -150,6 +162,13 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         adjustHeroSpaceForSunkShelf();
 
         initConfig();
+    }
+
+    private void updateTopBarOnScroll(int scrollY) {
+        int maxCollapse = ResUtil.dp2px(50);
+        mBinding.topBar.setTranslationY(-Math.min(scrollY, maxCollapse));
+        float alpha = Math.max(0f, 1.0f - (float) scrollY / ResUtil.dp2px(85));
+        mBinding.topBar.setAlpha(alpha);
     }
 
     @Override
@@ -424,6 +443,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
             // Home View with smooth transition
             mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
             mBinding.categoryContainer.setVisibility(View.GONE);
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
 
@@ -452,6 +472,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+            mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
             mBinding.searchContainer.getRoot().setAlpha(0f);
             mBinding.searchContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
@@ -474,6 +495,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+            mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
             mBinding.categoryContainer.setAlpha(0f);
             mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));
@@ -504,6 +526,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+        mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
 
         mBinding.categoryContainer.setAlpha(0f);
         mBinding.categoryContainer.setTranslationY(ResUtil.dp2px(8));

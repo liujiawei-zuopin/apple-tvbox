@@ -107,10 +107,35 @@ public class SearchViewController implements WordAdapter.OnClickListener, Record
 
     private void setupKeyNavigation() {
         mBinding.keyword.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                if (mCallback != null) {
-                    mCallback.onNavigateToTopNav();
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    if (mCallback != null) {
+                        mCallback.onNavigateToTopNav();
+                        return true;
+                    }
+                } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && mBinding.keyword.getSelectionStart() == 0) {
+                    mBinding.mic.requestFocus();
                     return true;
+                }
+            }
+            return false;
+        });
+
+        mBinding.mic.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    if (mCallback != null) {
+                        mCallback.onNavigateToTopNav();
+                        return true;
+                    }
+                } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    mBinding.keyword.requestFocus();
+                    return true;
+                } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    if (mCallback != null) {
+                        mCallback.onOpenDrawer();
+                        return true;
+                    }
                 }
             }
             return false;
@@ -125,6 +150,53 @@ public class SearchViewController implements WordAdapter.OnClickListener, Record
                     if (keyCode == KeyEvent.KEYCODE_DPAD_UP && pos < 7) { // First row of keyboard
                         mBinding.keyword.requestFocus();
                         return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && pos % 7 == 0) {
+                        if (mCallback != null) {
+                            mCallback.onOpenDrawer();
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                view.setOnKeyListener(null);
+            }
+        });
+
+        mBinding.recordRecycler.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                view.setOnKeyListener((v, keyCode, event) -> {
+                    if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP && mBinding.scroll.getScrollY() <= 10) {
+                        if (mCallback != null) {
+                            mCallback.onNavigateToTopNav();
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                view.setOnKeyListener(null);
+            }
+        });
+
+        mBinding.wordRecycler.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                view.setOnKeyListener((v, keyCode, event) -> {
+                    if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP && mBinding.recordLayout.getVisibility() == View.GONE && mBinding.scroll.getScrollY() <= 10) {
+                        if (mCallback != null) {
+                            mCallback.onNavigateToTopNav();
+                            return true;
+                        }
                     }
                     return false;
                 });
@@ -144,7 +216,7 @@ public class SearchViewController implements WordAdapter.OnClickListener, Record
         } else {
             getSuggest(mBinding.keyword.getText().toString().trim());
         }
-        App.post(() -> mBinding.keyword.requestFocus(), 100);
+        // Do not steal focus from top navigation bar! User remains in top bar until pressing DOWN or clicking.
     }
 
     private boolean empty() {
