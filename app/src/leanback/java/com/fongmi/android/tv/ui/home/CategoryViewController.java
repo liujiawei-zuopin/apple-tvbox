@@ -607,7 +607,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     @Override
-    public void onItemClick(Value value) {
+    public void onFilterSelected(Value value) {
         if (mCallback != null) {
             mCallback.onFilterSelected(value);
         }
