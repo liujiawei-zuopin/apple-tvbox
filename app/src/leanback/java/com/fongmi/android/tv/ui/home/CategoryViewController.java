@@ -87,11 +87,20 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     private void initViews() {
-        // 1. Hero Play Button
+        // 1. Hero Play Button (Focus scale & D-Pad Carousel navigation)
         mBinding.categoryBtnPlay.setOnClickListener(v -> {
             if (mCurrentHeroVod != null && mCallback != null) {
                 mCallback.onVodClicked(mCurrentHeroVod);
             }
+        });
+        mBinding.categoryBtnPlay.setOnFocusChangeListener((v, hasFocus) -> {
+            v.animate()
+                    .scaleX(hasFocus ? 1.08f : 1.0f)
+                    .scaleY(hasFocus ? 1.08f : 1.0f)
+                    .setDuration(150)
+                    .start();
+            mBinding.categoryBtnPlayIcon.setColorFilter(hasFocus ? 0xFF121214 : 0xFFFFFFFF);
+            mBinding.categoryBtnPlayText.setTextColor(hasFocus ? 0xFF121214 : 0xFFFFFFFF);
         });
         mBinding.categoryBtnPlay.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -101,6 +110,19 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 jumpToRecommendFromHero();
                 return true;
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                if (mHeroItems.size() > 1) {
+                    prevHeroCarousel();
+                    return true;
+                } else if (mCallback != null) {
+                    mCallback.onOpenDrawer();
+                    return true;
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (mHeroItems.size() > 1) {
+                    nextHeroCarousel();
+                    return true;
+                }
             }
             return false;
         });
@@ -623,12 +645,38 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             mBinding.categoryFilterRecycler.setVisibility(View.GONE);
         }
         mGridAdapter.setItems(all);
-        mBinding.categoryScrollView.post(() -> adjustHeroLayout(mBinding.categoryScrollView.getHeight()));
     }
 
     public void updateGridData(List<Vod> items) {
         if (items != null) {
             mGridAdapter.setItems(items);
+        }
+    }
+
+    public void prevHeroCarousel() {
+        if (mHeroItems.isEmpty()) return;
+        mHeroIndex = (mHeroIndex - 1 + mHeroItems.size()) % mHeroItems.size();
+        updateHeroDisplay(mHeroItems.get(mHeroIndex));
+        restartHeroCarouselTimer();
+    }
+
+    public void nextHeroCarousel() {
+        if (mHeroItems.isEmpty()) return;
+        mHeroIndex = (mHeroIndex + 1) % mHeroItems.size();
+        updateHeroDisplay(mHeroItems.get(mHeroIndex));
+        restartHeroCarouselTimer();
+    }
+
+    private void restartHeroCarouselTimer() {
+        stopHeroCarousel();
+        if (mHeroItems.size() > 1) {
+            mCarouselRunnable = () -> {
+                if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
+                mHeroIndex = (mHeroIndex + 1) % mHeroItems.size();
+                updateHeroDisplay(mHeroItems.get(mHeroIndex));
+                App.post(mCarouselRunnable, 7000);
+            };
+            App.post(mCarouselRunnable, 7000);
         }
     }
 
@@ -680,7 +728,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             if (mBinding.categoryHeroBackdrop != null) {
                 Glide.with(mActivity)
                         .load(model)
-                        .transition(DrawableTransitionOptions.withCrossFade(350))
+                        .transition(DrawableTransitionOptions.withCrossFade(300))
                         .into(mBinding.categoryHeroBackdrop);
             }
         }
@@ -692,7 +740,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         int targetHeroH = containerHeight - peekingHeight;
         if (targetHeroH > ResUtil.dp2px(300)) {
             android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
-            if (lp != null && lp.height != targetHeroH) {
+            if (lp != null && Math.abs(lp.height - targetHeroH) > ResUtil.dp2px(4)) {
                 lp.height = targetHeroH;
                 mBinding.categoryHeroSection.setLayoutParams(lp);
             }

@@ -202,10 +202,11 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void updateTopBarOnScroll(int scrollY) {
-        // With true real-time BlurView, top navigation capsule stays pinned as an authentic
-        // Apple tvOS frosted glass floating header, continuously blurring content passing underneath.
-        mBinding.topBar.setTranslationY(0);
-        mBinding.topBar.setAlpha(1.0f);
+        // Parallax top bar collapse on scroll down, restoring on scroll up
+        int maxCollapse = ResUtil.dp2px(52);
+        float progress = Math.min(1.0f, Math.max(0f, (float) scrollY / ResUtil.dp2px(65)));
+        mBinding.topBar.setTranslationY(-progress * maxCollapse);
+        mBinding.topBar.setAlpha(1.0f - progress * 0.85f);
     }
 
     @Override
@@ -409,12 +410,21 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     @Override
     public void onTabSelected(int position, Class item) {
         if (item == null) return;
+        if (position == mCurrentTab) {
+            // Already active tab: smoothly bring topBar into view if scrolled, avoid reloading/flashing
+            mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
+            return;
+        }
         switchTab(position, item);
     }
 
     @Override
     public void onTabClicked(int position, Class item) {
         if (item == null) return;
+        if (position == mCurrentTab) {
+            mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
+            return;
+        }
         switchTab(position, item);
     }
 
@@ -431,8 +441,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     @Override
     public void onNavigateToTopNav() {
-        mBinding.topBar.setTranslationY(0);
-        mBinding.topBar.setAlpha(1.0f);
+        mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
         mTopNavController.requestFocus();
     }
 
@@ -495,14 +504,13 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(200).start();
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mBinding.searchContainer.getRoot().setAlpha(0f);
-            mBinding.searchContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
             mBinding.searchContainer.getRoot().setVisibility(View.VISIBLE);
-            mBinding.searchContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
+            mBinding.searchContainer.getRoot().animate().alpha(1f).setDuration(200).start();
 
             mBinding.topBar.setTranslationY(0);
             mBinding.topBar.setAlpha(1f);
@@ -531,21 +539,19 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(200).start();
 
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mBinding.categoryContainer.getRoot().setAlpha(0f);
-            mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
             mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
-            mBinding.categoryContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
+            mBinding.categoryContainer.getRoot().animate().alpha(1f).setDuration(200).start();
 
             mBinding.topBar.setTranslationY(0);
             mBinding.topBar.setAlpha(1f);
 
             mCategoryController.resetScroll();
-            mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
 
             mExtend.clear();
             if (getHome() != null && mCurrentCategoryClass != null) {
