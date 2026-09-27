@@ -224,10 +224,11 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             if (mCallback != null) {
                 mCallback.onCategoryScrolled(scrollY);
             }
-            // Hero info subtle fade on deep scroll
+            // Hero info and indicator dots subtle fade on deep scroll
             float fadeThreshold = ResUtil.dp2px(160);
             float alpha = Math.max(0f, 1.0f - (float) scrollY / fadeThreshold);
             mBinding.categoryHeroInfo.setAlpha(alpha);
+            mBinding.categoryHeroDots.setAlpha(alpha);
         });
     }
 
@@ -866,6 +867,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     public void resetScroll() {
         mBinding.categoryScrollView.scrollTo(0, 0);
         mBinding.categoryHeroInfo.setAlpha(1.0f);
+        mBinding.categoryHeroDots.setAlpha(1.0f);
     }
 
     public void destroy() {

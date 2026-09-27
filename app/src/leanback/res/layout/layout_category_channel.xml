@@ -53,14 +53,14 @@
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_category_hero_bottom_fade" />
 
-            <!-- Hero Synopsis & Play Button (Centered comfortably in vertical upper-middle section) -->
+            <!-- Hero Synopsis & Play Button (Centered comfortably in vertical mid-height) -->
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/categoryHeroInfo"
                 android:layout_width="660dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start|top"
                 android:layout_marginStart="44dp"
-                android:layout_marginTop="96dp"
+                android:layout_marginTop="140dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical">
@@ -107,12 +107,12 @@
                         tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <!-- Apple tvOS Action Row: ▶ 立即播放 + Carousel Indicator Dots -->
+                <!-- Apple tvOS Action Row: ▶ 立即播放 Button with generous top spacing -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/categoryHeroActionRow"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="22dp"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center_vertical"
@@ -152,17 +152,18 @@
                             android:textSize="13.5sp"
                             android:textStyle="bold" />
                     </androidx.appcompat.widget.LinearLayoutCompat>
-
-                    <!-- Carousel Page Indicator Dots -->
-                    <androidx.appcompat.widget.LinearLayoutCompat
-                        android:id="@+id/categoryHeroDots"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="18dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <!-- Carousel Page Indicator Dots (Horizontally centered in lower area of Hero Section) -->
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/categoryHeroDots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:orientation="horizontal" />
         </FrameLayout>
 
         <!-- 2. Shelf 1: "推荐" (16:9 Landscape compact cards, half-peeking at first screen bottom) -->
