@@ -2,6 +2,7 @@ package com.fongmi.android.tv.ui.activity;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -155,6 +156,13 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             @Override
             public void onCategoryScrolled(int scrollY) {
                 updateTopBarOnScroll(scrollY);
+            }
+
+            @Override
+            public void onHeroBlurredReady(Bitmap blurred) {
+                if (blurred != null && !isFinishing() && !isDestroyed()) {
+                    mBinding.categoryAmbientBackdrop.setImageBitmap(blurred);
+                }
             }
         });
         mSearchController = new SearchViewController(this, mBinding.searchContainer, new SearchViewController.SearchCallback() {

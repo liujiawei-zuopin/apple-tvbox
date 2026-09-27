@@ -1,12 +1,15 @@
 package com.fongmi.android.tv.ui.home;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.bean.Class;
@@ -26,8 +31,10 @@ import com.fongmi.android.tv.ui.adapter.FilterChipAdapter;
 import com.fongmi.android.tv.ui.adapter.VodCardLandscapeAdapter;
 import com.fongmi.android.tv.ui.adapter.VodCardPortraitAdapter;
 import com.fongmi.android.tv.ui.adapter.VodCardPortraitShelfAdapter;
+import com.fongmi.android.tv.utils.BlurUtil;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.ResUtil;
+import com.github.catvod.utils.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +76,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         void onNavigateToTopNav();
         void onOpenDrawer();
         void onCategoryScrolled(int scrollY);
+        void onHeroBlurredReady(Bitmap blurred);
     }
 
     public CategoryViewController(Activity activity, LayoutCategoryChannelBinding binding, CategoryCallback callback) {
@@ -666,11 +674,40 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
         updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
 
-        if (mBinding.categoryHeroBackdrop != null && !TextUtils.isEmpty(vod.getPic())) {
-            Glide.with(mActivity)
-                    .load(ImgUtil.getUrl(vod.getPic()))
-                    .transition(DrawableTransitionOptions.withCrossFade(350))
-                    .into(mBinding.categoryHeroBackdrop);
+        if (!TextUtils.isEmpty(vod.getPic())) {
+            Object model = ImgUtil.getUrl(vod.getPic());
+            if (mBinding.categoryHeroBackdrop != null) {
+                Glide.with(mActivity)
+                        .load(model)
+                        .transition(DrawableTransitionOptions.withCrossFade(350))
+                        .into(mBinding.categoryHeroBackdrop);
+            }
+
+            if (mCallback != null) {
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(model)
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
+                                Task.execute(() -> {
+                                    Bitmap blurred = BlurUtil.blur(resource, 26, 4);
+                                    if (blurred != null) {
+                                        App.post(() -> {
+                                            if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
+                                            if (mCallback != null) {
+                                                mCallback.onHeroBlurredReady(blurred);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {}
+                        });
+            }
         }
     }
 

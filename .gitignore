@@ -8,3 +8,7 @@ local.properties
 lib-*.aar
 /Release
 /docs
+build_cache/
+*.apk
+__pycache__/
+*.pyc
