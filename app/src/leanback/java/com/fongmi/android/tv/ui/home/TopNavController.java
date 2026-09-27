@@ -116,19 +116,24 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         return mAdapter.getItem(position);
     }
 
-    public int getItemCount() {
-        return mAdapter.getItemCount();
+    public boolean hasFocus() {
+        return mRecycler != null && mRecycler.hasFocus();
     }
 
     public void requestFocus() {
         int sel = getSelectedPosition();
         if (sel >= 0 && sel < mAdapter.getItemCount()) {
             mRecycler.scrollToPosition(sel);
-            RecyclerView.ViewHolder vh = mRecycler.findViewHolderForAdapterPosition(sel);
-            if (vh != null) {
-                vh.itemView.requestFocus();
-                return;
-            }
+            App.post(() -> {
+                RecyclerView.ViewHolder vh = mRecycler.findViewHolderForAdapterPosition(sel);
+                if (vh != null) {
+                    vh.itemView.requestFocus();
+                } else if (mRecycler.getChildCount() > 0) {
+                    View child = mRecycler.getChildAt(Math.min(sel, mRecycler.getChildCount() - 1));
+                    if (child != null) child.requestFocus();
+                }
+            });
+            return;
         }
         mRecycler.requestFocus();
     }

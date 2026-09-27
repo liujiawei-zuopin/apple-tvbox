@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,16 +34,16 @@ import java.util.List;
 
 /**
  * Controller for Apple TV+ rich category channels ("电影", "剧集", "综艺"):
- * 1. Top Section: Full-screen Hero Backdrop & Carousel with "▶ 立即播放" and Indicator Dots.
- * 2. Shelf 1: "推荐" (16:9 Landscape cards, strictly decoupled from Hero).
- * 3. Shelf 2+: Sub-genre Shelves (2:3 Portrait cards, 138dp x 214dp right-aligned with 16:9).
- * 4. Section 4: "全部影片" (Sub-category filters + 5-column poster grid).
+ * 1. Top Section: Hero Carousel Banner with centered synopsis, white play button, and indicator dots.
+ * 2. Gradient Transition: Fades seamlessly from hero poster into the deep theme colored background.
+ * 3. Shelf 1: "推荐" (16:9 Landscape cards, half-peeking at first screen bottom).
+ * 4. Shelf 2+: Sub-genre Shelves (2:3 Portrait cards, 138dp x 214dp right-aligned with 16:9).
+ * 5. Section 4: "全部影片" (Sub-category filters + 5-column poster grid).
  */
 public class CategoryViewController implements FilterChipAdapter.OnClickListener {
 
     private final Activity mActivity;
     private final LayoutCategoryChannelBinding mBinding;
-    private final AppCompatImageView mHeroBackdrop;
     private final CategoryCallback mCallback;
 
     private VodCardLandscapeAdapter mRecommendAdapter;
@@ -72,18 +71,14 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         void onCategoryScrolled(int scrollY);
     }
 
-    public CategoryViewController(Activity activity, LayoutCategoryChannelBinding binding, AppCompatImageView heroBackdrop, CategoryCallback callback) {
+    public CategoryViewController(Activity activity, LayoutCategoryChannelBinding binding, CategoryCallback callback) {
         this.mActivity = activity;
         this.mBinding = binding;
-        this.mHeroBackdrop = heroBackdrop;
         this.mCallback = callback;
         initViews();
     }
 
     private void initViews() {
-        // Dynamic sunken hero spacing so Recommend cards peek ~44dp at first screen
-        adjustHeroSpaceForSunkShelf();
-
         // 1. Hero Play Button
         mBinding.categoryBtnPlay.setOnClickListener(v -> {
             if (mCurrentHeroVod != null && mCallback != null) {
@@ -198,26 +193,6 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             float fadeThreshold = ResUtil.dp2px(160);
             float alpha = Math.max(0f, 1.0f - (float) scrollY / fadeThreshold);
             mBinding.categoryHeroInfo.setAlpha(alpha);
-        });
-    }
-
-    private void adjustHeroSpaceForSunkShelf() {
-        mBinding.categoryContentLayout.post(() -> {
-            int screenHeight = ResUtil.getScreenHeight();
-            if (screenHeight > 0) {
-                // Sunk shelf: Header Recommend + ~44dp of card visible at the bottom of first screen
-                int topPadding = ResUtil.dp2px(48);
-                int peekHeight = ResUtil.dp2px(68);
-                int heroInfoHeight = mBinding.categoryHeroInfo.getHeight();
-                if (heroInfoHeight <= 0) heroInfoHeight = ResUtil.dp2px(140);
-                int desiredMarginTop = Math.max(ResUtil.dp2px(180), screenHeight - topPadding - heroInfoHeight - peekHeight);
-
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mBinding.categoryHeroInfo.getLayoutParams();
-                if (params != null && params.topMargin != desiredMarginTop) {
-                    params.topMargin = desiredMarginTop;
-                    mBinding.categoryHeroInfo.setLayoutParams(params);
-                }
-            }
         });
     }
 
@@ -417,7 +392,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     private void jumpToRecommendFromHero() {
-        int targetY = Math.max(0, mBinding.categoryHeaderRecommend.getTop() - ResUtil.dp2px(70));
+        int targetY = Math.max(0, mBinding.categoryHeaderRecommend.getTop() - ResUtil.dp2px(65));
         mBinding.categoryScrollView.smoothScrollTo(0, targetY);
         focusRecommendItem(mRecommendFocusedPos);
     }
@@ -433,7 +408,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     private void jumpToRecommendFromSubGenre1() {
-        int targetY = Math.max(0, mBinding.categoryHeaderRecommend.getTop() - ResUtil.dp2px(70));
+        int targetY = Math.max(0, mBinding.categoryHeaderRecommend.getTop() - ResUtil.dp2px(65));
         mBinding.categoryScrollView.smoothScrollTo(0, targetY);
         focusRecommendItem(mRecommendFocusedPos);
     }
@@ -691,11 +666,11 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
         updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
 
-        if (mHeroBackdrop != null && !TextUtils.isEmpty(vod.getPic())) {
+        if (mBinding.categoryHeroBackdrop != null && !TextUtils.isEmpty(vod.getPic())) {
             Glide.with(mActivity)
                     .load(ImgUtil.getUrl(vod.getPic()))
-                    .transition(DrawableTransitionOptions.withCrossFade(400))
-                    .into(mHeroBackdrop);
+                    .transition(DrawableTransitionOptions.withCrossFade(350))
+                    .into(mBinding.categoryHeroBackdrop);
         }
     }
 

@@ -124,7 +124,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
         mShelfController = new ShelfSectionController(this, mBinding, this);
         mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
-        mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, mBinding.categoryAmbientBackdrop, new CategoryViewController.CategoryCallback() {
+        mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, new CategoryViewController.CategoryCallback() {
             @Override
             public void onVodClicked(Vod vod) {
                 HomeActivity.this.onVodClicked(vod);
@@ -142,6 +142,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             @Override
             public void onNavigateToTopNav() {
+                mBinding.topBar.setTranslationY(0);
+                mBinding.topBar.setAlpha(1.0f);
                 mTopNavController.requestFocus();
             }
 
@@ -158,6 +160,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mSearchController = new SearchViewController(this, mBinding.searchContainer, new SearchViewController.SearchCallback() {
             @Override
             public void onNavigateToTopNav() {
+                mBinding.topBar.setTranslationY(0);
+                mBinding.topBar.setAlpha(1.0f);
                 mTopNavController.requestFocus();
             }
 
@@ -187,6 +191,11 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void updateTopBarOnScroll(int scrollY) {
+        if (mTopNavController != null && mTopNavController.hasFocus()) {
+            mBinding.topBar.setTranslationY(0);
+            mBinding.topBar.setAlpha(1.0f);
+            return;
+        }
         int maxCollapse = ResUtil.dp2px(50);
         mBinding.topBar.setTranslationY(-Math.min(scrollY, maxCollapse));
         float alpha = Math.max(0f, 1.0f - (float) scrollY / ResUtil.dp2px(85));
@@ -415,6 +424,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     @Override
     public void onNavigateToTopNav() {
+        mBinding.topBar.setTranslationY(0);
+        mBinding.topBar.setAlpha(1.0f);
         mTopNavController.requestFocus();
     }
 

@@ -302,21 +302,21 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/topNavContainer"
                     android:layout_width="wrap_content"
-                    android:layout_height="34dp"
+                    android:layout_height="36dp"
                     android:layout_centerHorizontal="true"
                     android:background="@drawable/bg_top_capsule_bar"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center"
-                    android:paddingStart="6dp"
-                    android:paddingTop="2.5dp"
-                    android:paddingEnd="6dp"
-                    android:paddingBottom="2.5dp">
+                    android:paddingStart="3dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="3dp"
+                    android:paddingBottom="3dp">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/topNavRecycler"
                         android:layout_width="wrap_content"
-                        android:layout_height="29dp"
+                        android:layout_height="30dp"
                         android:clipChildren="false"
                         android:clipToPadding="false"
                         android:nextFocusDown="@id/recyclerWatchNow"

@@ -17,106 +17,132 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingTop="48dp"
+        android:paddingTop="44dp"
         android:paddingBottom="80dp">
 
-        <!-- 1. Hero Synopsis & Play Button Info Layout (Sunk dynamically to expose edge-to-edge backdrop) -->
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/categoryHeroInfo"
-            android:layout_width="660dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="230dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="vertical">
+        <!-- 1. Hero Carousel Section (Edge-to-Edge with Smooth Bottom Gradient Fade) -->
+        <FrameLayout
+            android:id="@+id/categoryHeroSection"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_marginStart="-44dp"
+            android:layout_marginEnd="-44dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <TextView
-                android:id="@+id/categoryHeroTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/white"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                tools:text="周处除三害" />
-
-            <TextView
-                android:id="@+id/categoryHeroMeta"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="#CCFFFFFF"
-                android:textSize="13sp"
-                tools:text="4K 超清 · 8.1分 · 2024 · 动作 / 犯罪" />
-
-            <TextView
-                android:id="@+id/categoryHeroDesc"
+            <!-- Hero Poster Backdrop Image -->
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/categoryHeroBackdrop"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:ellipsize="end"
-                android:lineSpacingExtra="2dp"
-                android:maxLines="2"
-                android:textColor="#B3FFFFFF"
-                android:textSize="13sp"
-                tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
 
-            <!-- Apple tvOS Action Row: ▶ 立即播放 + Carousel Indicator Dots -->
+            <!-- Smooth Bottom Gradient Fade into Page Theme Background -->
+            <View
+                android:id="@+id/categoryHeroGradientMask"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient_category_hero_mask" />
+
+            <!-- Hero Synopsis & Play Button (Centered Vertically in Hero Area) -->
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="match_parent"
+                android:id="@+id/categoryHeroInfo"
+                android:layout_width="660dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="44dp"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
 
-                <!-- ▶ 立即播放 Button -->
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:id="@+id/categoryBtnPlay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:background="@drawable/selector_hero_play_btn"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="20dp">
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginEnd="7dp"
-                        android:duplicateParentState="true"
-                        android:src="@drawable/ic_widget_play"
-                        app:tint="@color/selector_focus_white_pill_text" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:duplicateParentState="true"
-                        android:text="立即播放"
-                        android:textColor="@color/selector_focus_white_pill_text"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </androidx.appcompat.widget.LinearLayoutCompat>
-
-                <!-- Carousel Page Indicator Dots -->
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:id="@+id/categoryHeroDots"
+                <TextView
+                    android:id="@+id/categoryHeroTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-        </androidx.appcompat.widget.LinearLayoutCompat>
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    tools:text="周处除三害" />
 
-        <!-- 2. Shelf 1: "推荐" (16:9 Landscape compact cards, same as Home's Watch Now) -->
+                <TextView
+                    android:id="@+id/categoryHeroMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12.5sp"
+                    tools:text="4K 超清 · 8.1分 · 2024 · 动作 / 犯罪" />
+
+                <TextView
+                    android:id="@+id/categoryHeroDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="2"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12.5sp"
+                    tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
+
+                <!-- Apple tvOS Action Row: ▶ 立即播放 (白底黑字) + Carousel Indicator Dots -->
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- ▶ 立即播放 Button (Always Crisp White Pill with Black Text) -->
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/categoryBtnPlay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:background="@drawable/selector_hero_play_btn"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="20dp">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_marginEnd="6dp"
+                            android:duplicateParentState="true"
+                            android:src="@drawable/ic_widget_play"
+                            app:tint="#121214" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:duplicateParentState="true"
+                            android:text="立即播放"
+                            android:textColor="#121214"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold" />
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <!-- Carousel Page Indicator Dots -->
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/categoryHeroDots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="18dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </FrameLayout>
+
+        <!-- 2. Shelf 1: "推荐" (16:9 Landscape compact cards, half-peeking at first screen bottom) -->
         <TextView
             android:id="@+id/categoryHeaderRecommend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="85dp"
             android:layout_marginBottom="4dp"
             android:text="推荐"
             android:textColor="@color/white"

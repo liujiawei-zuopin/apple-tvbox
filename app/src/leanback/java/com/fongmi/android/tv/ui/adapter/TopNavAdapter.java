@@ -23,6 +23,7 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
 
     private final List<Class> mItems = new ArrayList<>();
     private final OnTabListener mListener;
+    private RecyclerView mRecyclerView;
     private int mSelectedPosition = 0;
     private Runnable mDebounceRunnable;
 
@@ -34,6 +35,12 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     public TopNavAdapter(OnTabListener listener) {
         this.mListener = listener;
         setHasStableIds(true);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.mRecyclerView = recyclerView;
     }
 
     @Override
@@ -62,10 +69,17 @@ public class TopNavAdapter extends RecyclerView.Adapter<TopNavAdapter.ViewHolder
     public void setSelectedPosition(int position) {
         if (position < 0 || position >= mItems.size()) return;
         if (mSelectedPosition == position) return;
-        int old = mSelectedPosition;
         mSelectedPosition = position;
-        notifyItemChanged(old);
-        notifyItemChanged(mSelectedPosition);
+        // In-place selection state update without rebinding ViewHolders (prevents focus blink/flicker)
+        if (mRecyclerView != null) {
+            for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+                View child = mRecyclerView.getChildAt(i);
+                int pos = mRecyclerView.getChildAdapterPosition(child);
+                if (pos != RecyclerView.NO_POSITION) {
+                    child.setSelected(pos == mSelectedPosition);
+                }
+            }
+        }
     }
 
     @NonNull
