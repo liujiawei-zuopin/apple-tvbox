@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.bean.Class;
 import com.fongmi.android.tv.bean.Filter;
 import com.fongmi.android.tv.bean.Result;
@@ -32,15 +35,16 @@ import java.util.List;
 
 /**
  * Controller for Apple TV+ rich category channels ("电影", "剧集", "综艺"):
- * 1. Top Section: Hero Banner Carousel (rotates hot titles with "▶ 立即播放" button).
+ * 1. Top Section: Full-screen Hero Backdrop & Carousel with "▶ 立即播放" and Indicator Dots.
  * 2. Shelf 1: "推荐" (16:9 Landscape cards, strictly decoupled from Hero).
- * 3. Shelf 2+: Sub-genre Shelves (2:3 Portrait cards).
+ * 3. Shelf 2+: Sub-genre Shelves (2:3 Portrait cards, 138dp x 214dp right-aligned with 16:9).
  * 4. Section 4: "全部影片" (Sub-category filters + 5-column poster grid).
  */
 public class CategoryViewController implements FilterChipAdapter.OnClickListener {
 
     private final Activity mActivity;
     private final LayoutCategoryChannelBinding mBinding;
+    private final AppCompatImageView mHeroBackdrop;
     private final CategoryCallback mCallback;
 
     private VodCardLandscapeAdapter mRecommendAdapter;
@@ -68,14 +72,18 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         void onCategoryScrolled(int scrollY);
     }
 
-    public CategoryViewController(Activity activity, LayoutCategoryChannelBinding binding, CategoryCallback callback) {
+    public CategoryViewController(Activity activity, LayoutCategoryChannelBinding binding, AppCompatImageView heroBackdrop, CategoryCallback callback) {
         this.mActivity = activity;
         this.mBinding = binding;
+        this.mHeroBackdrop = heroBackdrop;
         this.mCallback = callback;
         initViews();
     }
 
     private void initViews() {
+        // Dynamic sunken hero spacing so Recommend cards peek ~44dp at first screen
+        adjustHeroSpaceForSunkShelf();
+
         // 1. Hero Play Button
         mBinding.categoryBtnPlay.setOnClickListener(v -> {
             if (mCurrentHeroVod != null && mCallback != null) {
@@ -119,7 +127,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mBinding.categoryRecyclerRecommend.setAdapter(mRecommendAdapter);
         setupRecommendKeyNavigation();
 
-        // 3. Shelf 2: Sub-genre 1 (2:3 Portrait Shelf)
+        // 3. Shelf 2: Sub-genre 1 (2:3 Portrait Shelf, 138dp x 214dp)
         mSubGenre1Adapter = new VodCardPortraitShelfAdapter(new VodCardPortraitShelfAdapter.OnVodClickListener() {
             @Override
             public void onVodFocused(Vod vod) {}
@@ -138,7 +146,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mBinding.categoryRecyclerSubGenre1.setAdapter(mSubGenre1Adapter);
         setupSubGenre1KeyNavigation();
 
-        // 4. Shelf 3: Sub-genre 2 (2:3 Portrait Shelf)
+        // 4. Shelf 3: Sub-genre 2 (2:3 Portrait Shelf, 138dp x 214dp)
         mSubGenre2Adapter = new VodCardPortraitShelfAdapter(new VodCardPortraitShelfAdapter.OnVodClickListener() {
             @Override
             public void onVodFocused(Vod vod) {}
@@ -161,6 +169,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mFilterAdapter = new FilterChipAdapter(this);
         mBinding.categoryFilterRecycler.setHorizontalSpacing(ResUtil.dp2px(10));
         mBinding.categoryFilterRecycler.setAdapter(mFilterAdapter);
+        setupFilterKeyNavigation();
 
         mGridAdapter = new VodCardPortraitAdapter(new VodCardPortraitAdapter.OnVodClickListener() {
             @Override
@@ -190,6 +199,69 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             float alpha = Math.max(0f, 1.0f - (float) scrollY / fadeThreshold);
             mBinding.categoryHeroInfo.setAlpha(alpha);
         });
+    }
+
+    private void adjustHeroSpaceForSunkShelf() {
+        mBinding.categoryContentLayout.post(() -> {
+            int screenHeight = ResUtil.getScreenHeight();
+            if (screenHeight > 0) {
+                // Sunk shelf: Header Recommend + ~44dp of card visible at the bottom of first screen
+                int topPadding = ResUtil.dp2px(48);
+                int peekHeight = ResUtil.dp2px(68);
+                int heroInfoHeight = mBinding.categoryHeroInfo.getHeight();
+                if (heroInfoHeight <= 0) heroInfoHeight = ResUtil.dp2px(140);
+                int desiredMarginTop = Math.max(ResUtil.dp2px(180), screenHeight - topPadding - heroInfoHeight - peekHeight);
+
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mBinding.categoryHeroInfo.getLayoutParams();
+                if (params != null && params.topMargin != desiredMarginTop) {
+                    params.topMargin = desiredMarginTop;
+                    mBinding.categoryHeroInfo.setLayoutParams(params);
+                }
+            }
+        });
+    }
+
+    private void setupIndicatorDots(int totalDots) {
+        mBinding.categoryHeroDots.removeAllViews();
+        if (totalDots <= 1) {
+            mBinding.categoryHeroDots.setVisibility(View.GONE);
+            return;
+        }
+        mBinding.categoryHeroDots.setVisibility(View.VISIBLE);
+        int dotHeight = ResUtil.dp2px(6);
+        int dotMargin = ResUtil.dp2px(5);
+
+        for (int i = 0; i < totalDots; i++) {
+            View dot = new View(mActivity);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    i == 0 ? ResUtil.dp2px(16) : ResUtil.dp2px(6),
+                    dotHeight
+            );
+            params.setMarginEnd(dotMargin);
+            dot.setLayoutParams(params);
+            dot.setBackgroundResource(i == 0 ? R.drawable.dot_hero_carousel_active : R.drawable.dot_hero_carousel_inactive);
+            mBinding.categoryHeroDots.addView(dot);
+        }
+    }
+
+    private void updateIndicatorDots(int activeIndex) {
+        int count = mBinding.categoryHeroDots.getChildCount();
+        if (count == 0) return;
+        int dotHeight = ResUtil.dp2px(6);
+        int activeWidth = ResUtil.dp2px(16);
+        int inactiveWidth = ResUtil.dp2px(6);
+
+        for (int i = 0; i < count; i++) {
+            View dot = mBinding.categoryHeroDots.getChildAt(i);
+            boolean isActive = (i == activeIndex);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) dot.getLayoutParams();
+            if (params != null) {
+                params.width = isActive ? activeWidth : inactiveWidth;
+                params.height = dotHeight;
+                dot.setLayoutParams(params);
+            }
+            dot.setBackgroundResource(isActive ? R.drawable.dot_hero_carousel_active : R.drawable.dot_hero_carousel_inactive);
+        }
     }
 
     private void setupRecommendKeyNavigation() {
@@ -270,6 +342,30 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
                         return true;
                     } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && pos == 0) {
                         if (mCallback != null) mCallback.onOpenDrawer();
+                        return true;
+                    }
+                    return false;
+                });
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                view.setOnKeyListener(null);
+            }
+        });
+    }
+
+    private void setupFilterKeyNavigation() {
+        mBinding.categoryFilterRecycler.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                view.setOnKeyListener((v, keyCode, event) -> {
+                    if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                        jumpUpFromAllSection();
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                        focusGridItem(mGridFocusedPos % 5);
                         return true;
                     }
                     return false;
@@ -471,6 +567,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mHeroItems.clear();
         mHeroItems.addAll(all.subList(0, heroCount));
         mHeroIndex = 0;
+        setupIndicatorDots(mHeroItems.size());
         startHeroCarousel();
 
         // 2. Shelf 1: "推荐" (16:9 Landscape cards)
@@ -592,11 +689,13 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mBinding.categoryHeroDesc.setText(desc != null ? desc : "");
         mBinding.categoryHeroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
 
-        if (!TextUtils.isEmpty(vod.getPic())) {
+        updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
+
+        if (mHeroBackdrop != null && !TextUtils.isEmpty(vod.getPic())) {
             Glide.with(mActivity)
                     .load(ImgUtil.getUrl(vod.getPic()))
                     .transition(DrawableTransitionOptions.withCrossFade(400))
-                    .into(mBinding.categoryHeroBackdrop);
+                    .into(mHeroBackdrop);
         }
     }
 

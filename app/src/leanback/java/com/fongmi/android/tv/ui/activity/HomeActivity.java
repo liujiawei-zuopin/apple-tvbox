@@ -124,7 +124,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
         mShelfController = new ShelfSectionController(this, mBinding, this);
         mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
-        mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, new CategoryViewController.CategoryCallback() {
+        mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, mBinding.categoryAmbientBackdrop, new CategoryViewController.CategoryCallback() {
             @Override
             public void onVodClicked(Vod vod) {
                 HomeActivity.this.onVodClicked(vod);
@@ -519,7 +519,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientTint.animate().alpha(1f).setDuration(220).start();
 
-            mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
+            mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mBinding.categoryContainer.getRoot().setAlpha(0f);
             mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
@@ -555,7 +555,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
         mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
         mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
-        mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
+        mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
         mBinding.categoryContainer.getRoot().setAlpha(0f);
         mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
