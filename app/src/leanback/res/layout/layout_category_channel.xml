@@ -17,20 +17,21 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingTop="44dp"
+        android:paddingTop="0dp"
         android:paddingBottom="80dp">
 
-        <!-- 1. Hero Carousel Section (Edge-to-Edge with Smooth Bottom Gradient Fade) -->
+        <!-- 1. Hero Carousel Section (Full-Screen Edge-to-Edge with Smooth Bottom Gradient Fade) -->
         <FrameLayout
             android:id="@+id/categoryHeroSection"
             android:layout_width="match_parent"
-            android:layout_height="320dp"
+            android:layout_height="476dp"
             android:layout_marginStart="-44dp"
             android:layout_marginEnd="-44dp"
+            android:layout_marginTop="0dp"
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- Hero Poster Backdrop Image -->
+            <!-- Hero Poster Backdrop Image (Full-Screen Crisp Backdrop) -->
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/categoryHeroBackdrop"
                 android:layout_width="match_parent"
@@ -44,14 +45,14 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/gradient_category_hero_mask" />
 
-            <!-- Hero Synopsis & Play Button (Centered Vertically in Hero Area) -->
+            <!-- Hero Synopsis & Play Button (Positioned comfortably in lower section) -->
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/categoryHeroInfo"
                 android:layout_width="660dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|start"
+                android:layout_gravity="bottom|start"
                 android:layout_marginStart="44dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginBottom="22dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -142,7 +143,7 @@
             android:id="@+id/categoryHeaderRecommend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="85dp"
+            android:layout_marginTop="0dp"
             android:layout_marginBottom="4dp"
             android:text="推荐"
             android:textColor="@color/white"

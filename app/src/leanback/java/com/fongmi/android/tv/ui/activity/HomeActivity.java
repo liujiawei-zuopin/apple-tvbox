@@ -58,6 +58,7 @@ import com.fongmi.android.tv.ui.home.ShelfSectionController;
 import com.fongmi.android.tv.ui.home.SideDrawerController;
 import com.fongmi.android.tv.ui.home.TopNavController;
 import com.fongmi.android.tv.utils.FileChooser;
+import com.fongmi.android.tv.utils.FrostedGlassUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.PermissionUtil;
 import com.fongmi.android.tv.utils.ResUtil;
@@ -160,9 +161,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             @Override
             public void onHeroBlurredReady(Bitmap blurred) {
-                if (blurred != null && !isFinishing() && !isDestroyed()) {
-                    mBinding.categoryAmbientBackdrop.setImageBitmap(blurred);
-                }
+                // Category page retains its dedicated deep frosted glass ambient backdrop
             }
         });
         mSearchController = new SearchViewController(this, mBinding.searchContainer, new SearchViewController.SearchCallback() {
@@ -405,6 +404,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             tabType = mTopNavController.getItem(mCurrentTab).getTypeId();
         }
         mCategoryController.setCategoryData(result, mCurrentCategoryClass, tabType);
+        mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
     }
 
     @Override
@@ -493,12 +493,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
+            mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
-            mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
-            mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientOverlay.setVisibility(View.VISIBLE);
+            mBinding.categoryAmbientTint.setVisibility(View.GONE);
+            mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mBinding.searchContainer.getRoot().setAlpha(0f);
             mBinding.searchContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
@@ -519,25 +519,22 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
-            // Set category ambient theme
+            // Set category ambient theme with genuine Gaussian frosted glass
             if (TopNavController.ID_MOVIE.equals(item.getTypeId())) {
-                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_movie_emerald);
+                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getEmeraldFrosted());
             } else if (TopNavController.ID_TV.equals(item.getTypeId())) {
-                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_tv_sapphire);
+                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getSapphireFrosted());
             } else if (TopNavController.ID_VARIETY.equals(item.getTypeId())) {
-                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_variety_amethyst);
+                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getAmethystFrosted());
             } else {
-                mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
+                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
             }
 
             mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
             mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
 
-            mBinding.categoryAmbientTint.setAlpha(0f);
-            mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientTint.animate().alpha(1f).setDuration(220).start();
-
+            mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mBinding.categoryContainer.getRoot().setAlpha(0f);
@@ -549,6 +546,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.topBar.setAlpha(1f);
 
             mCategoryController.resetScroll();
+            mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
 
             mExtend.clear();
             if (getHome() != null && mCurrentCategoryClass != null) {
@@ -568,12 +566,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.searchContainer.getRoot().setVisibility(View.GONE);
         mHeroController.setVisibility(View.GONE);
 
+        mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
 
-        mBinding.categoryAmbientTint.setBackgroundResource(R.drawable.bg_ambient_default);
-        mBinding.categoryAmbientTint.setVisibility(View.VISIBLE);
+        mBinding.categoryAmbientTint.setVisibility(View.GONE);
         mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
         mBinding.categoryContainer.getRoot().setAlpha(0f);
@@ -585,6 +583,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.topBar.setAlpha(1f);
 
         mCategoryController.resetScroll();
+        mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
 
         mExtend.clear();
         if (getHome() != null) {

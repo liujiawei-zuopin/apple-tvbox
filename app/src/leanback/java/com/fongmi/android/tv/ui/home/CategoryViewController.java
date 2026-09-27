@@ -623,6 +623,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             mBinding.categoryFilterRecycler.setVisibility(View.GONE);
         }
         mGridAdapter.setItems(all);
+        mBinding.categoryScrollView.post(() -> adjustHeroLayout(mBinding.categoryScrollView.getHeight()));
     }
 
     public void updateGridData(List<Vod> items) {
@@ -681,32 +682,19 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
                         .load(model)
                         .transition(DrawableTransitionOptions.withCrossFade(350))
                         .into(mBinding.categoryHeroBackdrop);
-            }
+            // Category page background uses dedicated deep frosted ambient glass instead of poster
+        }
+    }
 
-            if (mCallback != null) {
-                Glide.with(mActivity)
-                        .asBitmap()
-                        .load(model)
-                        .into(new CustomTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
-                                Task.execute(() -> {
-                                    Bitmap blurred = BlurUtil.blur(resource, 26, 4);
-                                    if (blurred != null) {
-                                        App.post(() -> {
-                                            if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
-                                            if (mCallback != null) {
-                                                mCallback.onHeroBlurredReady(blurred);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {}
-                        });
+    public void adjustHeroLayout(int containerHeight) {
+        if (containerHeight <= 0) return;
+        int peekingHeight = ResUtil.dp2px(64);
+        int targetHeroH = containerHeight - peekingHeight;
+        if (targetHeroH > ResUtil.dp2px(300)) {
+            android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
+            if (lp != null && lp.height != targetHeroH) {
+                lp.height = targetHeroH;
+                mBinding.categoryHeroSection.setLayoutParams(lp);
             }
         }
     }
