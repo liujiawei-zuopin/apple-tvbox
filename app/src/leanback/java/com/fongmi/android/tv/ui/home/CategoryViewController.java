@@ -682,7 +682,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
                         .load(model)
                         .transition(DrawableTransitionOptions.withCrossFade(350))
                         .into(mBinding.categoryHeroBackdrop);
-            // Category page background uses dedicated deep frosted ambient glass instead of poster
+            }
         }
     }
 
