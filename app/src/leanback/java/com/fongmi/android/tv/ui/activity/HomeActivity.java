@@ -202,15 +202,10 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void updateTopBarOnScroll(int scrollY) {
-        if (mTopNavController != null && mTopNavController.hasFocus()) {
-            mBinding.topBar.setTranslationY(0);
-            mBinding.topBar.setAlpha(1.0f);
-            return;
-        }
-        int maxCollapse = ResUtil.dp2px(50);
-        mBinding.topBar.setTranslationY(-Math.min(scrollY, maxCollapse));
-        float alpha = Math.max(0f, 1.0f - (float) scrollY / ResUtil.dp2px(85));
-        mBinding.topBar.setAlpha(alpha);
+        // With true real-time BlurView, top navigation capsule stays pinned as an authentic
+        // Apple tvOS frosted glass floating header, continuously blurring content passing underneath.
+        mBinding.topBar.setTranslationY(0);
+        mBinding.topBar.setAlpha(1.0f);
     }
 
     @Override
