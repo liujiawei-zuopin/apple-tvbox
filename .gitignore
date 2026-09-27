@@ -12,3 +12,4 @@ build_cache/
 *.apk
 __pycache__/
 *.pyc
+*.py
