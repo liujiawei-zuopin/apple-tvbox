@@ -61,45 +61,60 @@
                 android:layout_gravity="bottom|start"
                 android:layout_marginStart="44dp"
                 android:layout_marginBottom="22dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/categoryHeroTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/white"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    tools:text="周处除三害" />
-
-                <TextView
-                    android:id="@+id/categoryHeroMeta"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12.5sp"
-                    tools:text="4K 超清 · 8.1分 · 2024 · 动作 / 犯罪" />
-
-                <TextView
-                    android:id="@+id/categoryHeroDesc"
+                <!-- Animated Text Group: Smooth slide-fade transition on carousel switch -->
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/categoryHeroTextGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:ellipsize="end"
-                    android:lineSpacingExtra="2dp"
-                    android:maxLines="2"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="12.5sp"
-                    tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/categoryHeroTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/white"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:text="周处除三害" />
+
+                    <TextView
+                        android:id="@+id/categoryHeroMeta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12.5sp"
+                        tools:text="4K 超清 · 8.1分 · 2024 · 动作 / 犯罪" />
+
+                    <TextView
+                        android:id="@+id/categoryHeroDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:ellipsize="end"
+                        android:lineSpacingExtra="2dp"
+                        android:maxLines="2"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="12.5sp"
+                        tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <!-- Apple tvOS Action Row: ▶ 立即播放 + Carousel Indicator Dots -->
                 <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/categoryHeroActionRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -108,8 +123,11 @@
                         android:id="@+id/categoryBtnPlay"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:layout_marginStart="2dp"
                         android:background="@drawable/selector_hero_play_btn"
                         android:clickable="true"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"

@@ -88,12 +88,16 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
     private void initViews() {
         // 1. Hero Play Button (Focus scale & D-Pad Carousel navigation)
+        mBinding.categoryBtnPlay.setPivotX(0f);
+        mBinding.categoryBtnPlay.setPivotY(ResUtil.dp2px(18));
         mBinding.categoryBtnPlay.setOnClickListener(v -> {
             if (mCurrentHeroVod != null && mCallback != null) {
                 mCallback.onVodClicked(mCurrentHeroVod);
             }
         });
         mBinding.categoryBtnPlay.setOnFocusChangeListener((v, hasFocus) -> {
+            v.setPivotX(0f);
+            v.setPivotY(v.getHeight() > 0 ? v.getHeight() / 2f : ResUtil.dp2px(18));
             v.animate()
                     .scaleX(hasFocus ? 1.08f : 1.0f)
                     .scaleY(hasFocus ? 1.08f : 1.0f)
@@ -259,11 +263,17 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         for (int i = 0; i < count; i++) {
             View dot = mBinding.categoryHeroDots.getChildAt(i);
             boolean isActive = (i == activeIndex);
+            int targetW = isActive ? activeWidth : inactiveWidth;
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) dot.getLayoutParams();
-            if (params != null) {
-                params.width = isActive ? activeWidth : inactiveWidth;
-                params.height = dotHeight;
-                dot.setLayoutParams(params);
+            if (params != null && params.width != targetW) {
+                android.animation.ValueAnimator anim = android.animation.ValueAnimator.ofInt(params.width, targetW);
+                anim.setDuration(200);
+                anim.addUpdateListener(a -> {
+                    params.width = (int) a.getAnimatedValue();
+                    params.height = dotHeight;
+                    dot.setLayoutParams(params);
+                });
+                anim.start();
             }
             dot.setBackgroundResource(isActive ? R.drawable.dot_hero_carousel_active : R.drawable.dot_hero_carousel_inactive);
         }
@@ -656,14 +666,14 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     public void prevHeroCarousel() {
         if (mHeroItems.isEmpty()) return;
         mHeroIndex = (mHeroIndex - 1 + mHeroItems.size()) % mHeroItems.size();
-        updateHeroDisplay(mHeroItems.get(mHeroIndex));
+        animateHeroTransition(-1, mHeroItems.get(mHeroIndex));
         restartHeroCarouselTimer();
     }
 
     public void nextHeroCarousel() {
         if (mHeroItems.isEmpty()) return;
         mHeroIndex = (mHeroIndex + 1) % mHeroItems.size();
-        updateHeroDisplay(mHeroItems.get(mHeroIndex));
+        animateHeroTransition(1, mHeroItems.get(mHeroIndex));
         restartHeroCarouselTimer();
     }
 
@@ -673,7 +683,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             mCarouselRunnable = () -> {
                 if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
                 mHeroIndex = (mHeroIndex + 1) % mHeroItems.size();
-                updateHeroDisplay(mHeroItems.get(mHeroIndex));
+                animateHeroTransition(1, mHeroItems.get(mHeroIndex));
                 App.post(mCarouselRunnable, 7000);
             };
             App.post(mCarouselRunnable, 7000);
@@ -689,7 +699,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             mCarouselRunnable = () -> {
                 if (mActivity.isFinishing() || mActivity.isDestroyed()) return;
                 mHeroIndex = (mHeroIndex + 1) % mHeroItems.size();
-                updateHeroDisplay(mHeroItems.get(mHeroIndex));
+                animateHeroTransition(1, mHeroItems.get(mHeroIndex));
                 App.post(mCarouselRunnable, 7000);
             };
             App.post(mCarouselRunnable, 7000);
@@ -700,6 +710,55 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         if (mCarouselRunnable != null) {
             App.removeCallbacks(mCarouselRunnable);
             mCarouselRunnable = null;
+        }
+    }
+
+    private void animateHeroTransition(int direction, Vod vod) {
+        if (vod == null) return;
+        mCurrentHeroVod = vod;
+
+        // 1. Text slide & cross-fade transition
+        int slideOffset = ResUtil.dp2px(16) * direction;
+        mBinding.categoryHeroTextGroup.animate()
+                .alpha(0f)
+                .translationX(-slideOffset)
+                .setDuration(120)
+                .withEndAction(() -> {
+                    mBinding.categoryHeroTitle.setText(vod.getName() != null ? vod.getName() : "");
+
+                    List<String> metas = new ArrayList<>();
+                    if (!TextUtils.isEmpty(vod.getRemarks())) metas.add(vod.getRemarks());
+                    if (!TextUtils.isEmpty(vod.getYear())) metas.add(vod.getYear());
+                    if (!TextUtils.isEmpty(vod.getArea())) metas.add(vod.getArea());
+                    if (!TextUtils.isEmpty(vod.getDirector())) metas.add("导演: " + vod.getDirector());
+                    mBinding.categoryHeroMeta.setText(TextUtils.join(" · ", metas));
+
+                    String desc = vod.getContent();
+                    if (TextUtils.isEmpty(desc)) desc = vod.getActor();
+                    mBinding.categoryHeroDesc.setText(desc != null ? desc : "");
+                    mBinding.categoryHeroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
+
+                    mBinding.categoryHeroTextGroup.setTranslationX(slideOffset);
+                    mBinding.categoryHeroTextGroup.animate()
+                            .alpha(1f)
+                            .translationX(0)
+                            .setDuration(180)
+                            .start();
+                })
+                .start();
+
+        // 2. Smoothly animate indicator dots
+        updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
+
+        // 3. Smooth backdrop crossfade
+        if (!TextUtils.isEmpty(vod.getPic())) {
+            Object model = ImgUtil.getUrl(vod.getPic());
+            if (mBinding.categoryHeroBackdrop != null) {
+                Glide.with(mActivity)
+                        .load(model)
+                        .transition(DrawableTransitionOptions.withCrossFade(250))
+                        .into(mBinding.categoryHeroBackdrop);
+            }
         }
     }
 
@@ -720,6 +779,9 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         if (TextUtils.isEmpty(desc)) desc = vod.getActor();
         mBinding.categoryHeroDesc.setText(desc != null ? desc : "");
         mBinding.categoryHeroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
+
+        mBinding.categoryHeroTextGroup.setAlpha(1f);
+        mBinding.categoryHeroTextGroup.setTranslationX(0);
 
         updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
 
