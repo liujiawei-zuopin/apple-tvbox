@@ -3,6 +3,7 @@ package com.fongmi.android.tv.ui.home;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -558,12 +559,58 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     /**
+     * Updates the hero gradient mask and bottom fade layer to match the category theme background color.
+     */
+    public void updateCategoryTheme(String tabType) {
+        int themeColor;
+        if ("movie".equalsIgnoreCase(tabType) || TopNavController.ID_MOVIE.equalsIgnoreCase(tabType)) {
+            themeColor = 0xFF08160F; // Emerald
+        } else if ("tv".equalsIgnoreCase(tabType) || TopNavController.ID_TV.equalsIgnoreCase(tabType)) {
+            themeColor = 0xFF070E1A; // Sapphire
+        } else if ("variety".equalsIgnoreCase(tabType) || TopNavController.ID_VARIETY.equalsIgnoreCase(tabType)) {
+            themeColor = 0xFF120717; // Amethyst
+        } else {
+            themeColor = 0xFF101014; // Deep Slate
+        }
+
+        int baseRgb = themeColor & 0x00FFFFFF;
+
+        // 1. Bottom fade: transparent -> 40% -> 80% -> 100% theme color
+        int[] bottomColors = new int[]{
+                0x00000000 | baseRgb,
+                0x66000000 | baseRgb,
+                0xCC000000 | baseRgb,
+                themeColor
+        };
+        GradientDrawable bottomFade = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                bottomColors
+        );
+        mBinding.categoryHeroBottomFade.setBackground(bottomFade);
+
+        // 2. Hero gradient mask: subtle top darkening + strong middle-to-bottom theme wash
+        int[] maskColors = new int[]{
+                0x2A000000,
+                0x4D000000 | baseRgb,
+                0xB3000000 | baseRgb,
+                themeColor
+        };
+        GradientDrawable maskFade = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                maskColors
+        );
+        mBinding.categoryHeroGradientMask.setBackground(maskFade);
+    }
+
+    /**
      * Populates channel data: Hero carousel, Recommend shelf, Sub-genre shelves, All catalog grid & filters.
      */
     public void setCategoryData(Result result, Class categoryClass, String tabType) {
         if (result == null || result.getList() == null || result.getList().isEmpty()) {
             return;
         }
+
+        updateCategoryTheme(tabType);
 
         List<Vod> all = result.getList();
         int total = all.size();

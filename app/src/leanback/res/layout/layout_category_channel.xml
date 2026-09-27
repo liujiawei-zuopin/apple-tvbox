@@ -49,18 +49,18 @@
             <View
                 android:id="@+id/categoryHeroBottomFade"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
+                android:layout_height="220dp"
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_category_hero_bottom_fade" />
 
-            <!-- Hero Synopsis & Play Button (Positioned comfortably in lower section) -->
+            <!-- Hero Synopsis & Play Button (Centered comfortably in vertical upper-middle section) -->
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/categoryHeroInfo"
                 android:layout_width="660dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
+                android:layout_gravity="start|top"
                 android:layout_marginStart="44dp"
-                android:layout_marginBottom="22dp"
+                android:layout_marginTop="96dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical">

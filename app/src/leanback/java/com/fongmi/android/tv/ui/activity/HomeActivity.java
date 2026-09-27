@@ -92,6 +92,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private int mCurrentTab = 0;
     private Class mCurrentCategoryClass;
     private final HashMap<String, String> mExtend = new HashMap<>();
+    private final HashMap<String, Result> mCategoryCache = new HashMap<>();
 
     private Site getHome() {
         return VodConfig.get().getHome();
@@ -234,7 +235,18 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 lp.topMargin = targetTopMargin;
                 mBinding.heroInfoLayout.setLayoutParams(lp);
             }
+
+            if (mCategoryController != null) {
+                mCategoryController.adjustHeroLayout(containerH);
+            }
         });
+    }
+
+    private String getCategoryCacheKey(int tabPosition, Class categoryClass) {
+        if (categoryClass != null && !TextUtils.isEmpty(categoryClass.getTypeId())) {
+            return categoryClass.getTypeId();
+        }
+        return "tab_" + tabPosition;
     }
 
     private void setupViewModel() {
@@ -245,6 +257,10 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 populateHomeData(mResult = result);
                 Cache.clear().put(result);
             } else if (mCurrentTab != 4) {
+                if (result != null && result.getList() != null && !result.getList().isEmpty()) {
+                    String cacheKey = getCategoryCacheKey(mCurrentTab, mCurrentCategoryClass);
+                    mCategoryCache.put(cacheKey, result);
+                }
                 populateCategoryData(result);
             }
         });
@@ -298,6 +314,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void loadConfig(Config config) {
+        mCategoryCache.clear();
         switch (config.getType()) {
             case 0:
                 VodConfig.load(config, getCallback());
@@ -313,6 +330,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     @Override
     public void setSite(Site item) {
+        mCategoryCache.clear();
         VodConfig.get().setHome(item);
         RefreshEvent.history();
         RefreshEvent.home();
@@ -404,7 +422,6 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             tabType = mTopNavController.getItem(mCurrentTab).getTypeId();
         }
         mCategoryController.setCategoryData(result, mCurrentCategoryClass, tabType);
-        mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
     }
 
     @Override
@@ -520,6 +537,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             // Category View with smooth cross-fade transition and custom frosted ambient background
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
+            String cacheKey = getCategoryCacheKey(position, mCurrentCategoryClass);
+            String tabType = item.getTypeId();
 
             mBinding.heroScrim.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.GONE);
@@ -527,31 +546,46 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mHeroController.setVisibility(View.GONE);
 
             // Set category ambient theme with genuine Gaussian frosted glass
-            if (TopNavController.ID_MOVIE.equals(item.getTypeId())) {
-                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getEmeraldFrosted());
-            } else if (TopNavController.ID_TV.equals(item.getTypeId())) {
-                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getSapphireFrosted());
-            } else if (TopNavController.ID_VARIETY.equals(item.getTypeId())) {
-                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getAmethystFrosted());
+            Bitmap frostedBmp;
+            if (TopNavController.ID_MOVIE.equals(tabType)) {
+                frostedBmp = FrostedGlassUtil.getEmeraldFrosted();
+            } else if (TopNavController.ID_TV.equals(tabType)) {
+                frostedBmp = FrostedGlassUtil.getSapphireFrosted();
+            } else if (TopNavController.ID_VARIETY.equals(tabType)) {
+                frostedBmp = FrostedGlassUtil.getAmethystFrosted();
             } else {
-                mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
+                frostedBmp = FrostedGlassUtil.getDefaultFrosted();
             }
 
-            mBinding.categoryAmbientBackdrop.setAlpha(0f);
+            mBinding.categoryAmbientBackdrop.setImageBitmap(frostedBmp);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(200).start();
+            mBinding.categoryAmbientBackdrop.setAlpha(1f);
 
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
-            mBinding.categoryContainer.getRoot().setAlpha(0f);
-            mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
-            mBinding.categoryContainer.getRoot().animate().alpha(1f).setDuration(200).start();
+            mCategoryController.updateCategoryTheme(tabType);
+
+            boolean isAlreadyVisible = mBinding.categoryContainer.getRoot().getVisibility() == View.VISIBLE;
+            if (!isAlreadyVisible) {
+                mBinding.categoryContainer.getRoot().setAlpha(0f);
+                mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
+                mBinding.categoryContainer.getRoot().animate().alpha(1f).setDuration(180).start();
+            } else {
+                mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
+                mBinding.categoryContainer.getRoot().setAlpha(1f);
+            }
 
             mBinding.topBar.setTranslationY(0);
             mBinding.topBar.setAlpha(1f);
 
             mCategoryController.resetScroll();
+
+            // Instant render from cache if available -> zero flash, zero layout jump
+            Result cached = mCategoryCache.get(cacheKey);
+            if (cached != null) {
+                populateCategoryData(cached);
+            }
 
             mExtend.clear();
             if (getHome() != null && mCurrentCategoryClass != null) {
@@ -566,6 +600,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (item == null) return;
         mCurrentTab = -1;
         mCurrentCategoryClass = item;
+        String cacheKey = getCategoryCacheKey(-1, item);
 
         mBinding.homeScrollView.setVisibility(View.GONE);
         mBinding.searchContainer.getRoot().setVisibility(View.GONE);
@@ -579,6 +614,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.categoryAmbientTint.setVisibility(View.GONE);
         mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
+        mCategoryController.updateCategoryTheme(item.getTypeId());
+
         mBinding.categoryContainer.getRoot().setAlpha(0f);
         mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
         mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
@@ -588,7 +625,11 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.topBar.setAlpha(1f);
 
         mCategoryController.resetScroll();
-        mCategoryController.adjustHeroLayout(mBinding.contentContainer.getHeight());
+
+        Result cached = mCategoryCache.get(cacheKey);
+        if (cached != null) {
+            populateCategoryData(cached);
+        }
 
         mExtend.clear();
         if (getHome() != null) {
