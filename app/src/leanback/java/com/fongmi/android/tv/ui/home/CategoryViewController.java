@@ -34,7 +34,7 @@ import com.fongmi.android.tv.ui.adapter.VodCardPortraitShelfAdapter;
 import com.fongmi.android.tv.utils.BlurUtil;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.ResUtil;
-import com.github.catvod.utils.Task;
+import com.fongmi.android.tv.utils.Task;
 
 import java.util.ArrayList;
 import java.util.List;
