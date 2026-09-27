@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.bean.Class;
 import com.fongmi.android.tv.ui.adapter.TopNavAdapter;
 
