@@ -3,11 +3,14 @@ package com.fongmi.android.tv.ui.activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -124,6 +127,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
         mHeroController = new HeroViewController(this, mBinding);
         mTopNavController = new TopNavController(this, mBinding.topNavRecycler, this);
+        initTopNavFrostedGlass();
         mShelfController = new ShelfSectionController(this, mBinding, this);
         mDrawerController = new SideDrawerController(this, mBinding.sideDrawer, this);
         mCategoryController = new CategoryViewController(this, mBinding.categoryContainer, new CategoryViewController.CategoryCallback() {
@@ -798,5 +802,16 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         Source.get().exit();
         Server.get().stop();
         super.onDestroy();
+    }
+
+    private void initTopNavFrostedGlass() {
+        if (mBinding.topNavBlurView != null && mBinding.blurTarget != null) {
+            mBinding.topNavBlurView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+            mBinding.topNavBlurView.setClipToOutline(true);
+            Drawable windowBg = new ColorDrawable(0xFF101012);
+            mBinding.topNavBlurView.setupWith(mBinding.blurTarget)
+                    .setFrameClearDrawable(windowBg)
+                    .setBlurRadius(20f);
+        }
     }
 }

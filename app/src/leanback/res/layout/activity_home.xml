@@ -9,7 +9,15 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <!-- Layer 0a: Full-screen Hero Backdrop (Crisp High-Res) -->
+    <!-- Underlying Visual Hierarchy wrapped in BlurTarget for Realtime Backdrop Sampling -->
+    <eightbitlab.com.blurview.BlurTarget
+        android:id="@+id/blurTarget"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <!-- Layer 0a: Full-screen Hero Backdrop (Crisp High-Res) -->
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/heroBackdrop"
         android:layout_width="match_parent"
@@ -287,45 +295,50 @@
 
             </FrameLayout>
 
-            <!-- Top Navigation Bar (Pure Floating Centered Frosted Capsule Bar) -->
-            <RelativeLayout
-                android:id="@+id/topBar"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_alignParentTop="true"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:paddingTop="6dp"
-                android:paddingBottom="2dp">
-
-                <!-- Center: Apple TV Style Translucent Capsule Tabs Bar -->
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:id="@+id/topNavContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_centerHorizontal="true"
-                    android:background="@drawable/bg_top_capsule_bar"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center"
-                    android:paddingStart="3dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="3dp"
-                    android:paddingBottom="3dp">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/topNavRecycler"
-                        android:layout_width="wrap_content"
-                        android:layout_height="30dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:nextFocusDown="@id/recyclerWatchNow"
-                        android:orientation="horizontal" />
-                </androidx.appcompat.widget.LinearLayoutCompat>
-            </RelativeLayout>
-
         </RelativeLayout>
     </com.fongmi.android.tv.ui.custom.ProgressLayout>
+
+    </eightbitlab.com.blurview.BlurTarget>
+
+    <!-- Top Navigation Bar (Pure Floating Centered Frosted Capsule Bar with Realtime Blur) -->
+    <RelativeLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_gravity="top"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="6dp"
+        android:paddingBottom="2dp"
+        android:paddingStart="44dp"
+        android:paddingEnd="44dp">
+
+        <!-- Center: Apple TV Style Translucent Capsule Tabs Bar with True Realtime Blur -->
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/topNavBlurView"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_centerHorizontal="true"
+            app:blurOverlayColor="#1EFFFFFF"
+            android:background="@drawable/bg_top_capsule_bar"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:paddingStart="3dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="3dp"
+            android:paddingBottom="3dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/topNavRecycler"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:nextFocusDown="@id/recyclerWatchNow"
+                android:orientation="horizontal" />
+        </eightbitlab.com.blurview.BlurView>
+    </RelativeLayout>
 
     <!-- Layer 3: Floating Frosted Glass Side Drawer (Menu Triggered) -->
     <include

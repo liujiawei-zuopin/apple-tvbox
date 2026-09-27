@@ -80,3 +80,7 @@
 -keep class com.google.zxing.qrcode.QRCodeReader { *; }
 -keep class com.google.zxing.qrcode.QRCodeWriter { *; }
 -keep class com.google.zxing.qrcode.decoder.ErrorCorrectionLevel { *; }
+
+# BlurView
+-dontwarn eightbitlab.com.blurview.**
+-keep class eightbitlab.com.blurview.** { *; }

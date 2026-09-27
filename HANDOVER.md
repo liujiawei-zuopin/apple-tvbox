@@ -1,111 +1,152 @@
-# Apple TVBox 项目工程交接与技术架构文档
+# Apple TV 风格电视盒子项目交接文档 (Project Handover)
 
-> **版本**：`v1.0.57`  
-> **基线 Commit**：`Release v1.0.57`  
-> **分支**：`main`  
-> **最后构建状态**：GitHub Actions CI 构建通过 (Release `v1.0.57`)  
-> **代码仓库**：[liujiawei-zuopin/apple-tvbox](https://github.com/liujiawei-zuopin/apple-tvbox)  
-> **本地工作区**：`c:\Users\liuji\Documents\antigravity\sharp-brahmagupta\apple-tvbox`
+> **文档版本**: 1.0 (对应代码 Release `v1.0.65` / Commit `a241335`)  
+> **更新时间**: 2026-09-28  
+> **适用场景**: 新对话无缝接续开发、团队协作交接、技术架构回顾
 
 ---
 
-## 一、 项目整体概述与核心架构
+## 1. 项目基本信息
 
-本项目基于 **FongMi（蜂蜜）TV 核心引擎** 进行深度重构，实现了 **“底层数据/播放引擎与前端 Apple tvOS 交互界面的 100% 彻底解耦”**。
+- **项目名称**: Apple TV 风格沉浸式电视盒子 (FongMi TVBox Leanback 重构版)
+- **代码仓库**: `https://github.com/liujiawei-zuopin/apple-tvbox`
+- **主要分支**: `main`
+- **最新发布**: [Release v1.0.65](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
+- **包名与启动 Activity**: `com.fongmi.android.tv` / `com.fongmi.android.tv.ui.activity.HomeActivity`
+- **模拟器/测试设备**: MuMu 模拟器 Android 12 (1080P TV 模式, `127.0.0.1:16384`)
+- **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe`
 
-```mermaid
-graph TD
-    subgraph Frontend_UI_Layer ["前端 UI 表现层 (Apple tvOS 规范)"]
-        TopNav["TopNavController (居中 34dp 磨砂胶囊栏)"]
-        Hero["HeroViewController (双图层全景海报与动态毛玻璃)"]
-        Shelf["ShelfSectionController (沉底货架与 138x78dp 光学对齐)"]
-        Category["CategoryViewController (分类大屏 Hero轮播+立即播放+推荐+子分类+全部影片)"]
-        Search["SearchViewController (内置全功能大屏搜索页)"]
-        Drawer["SideDrawerController (毛玻璃抽屉菜单 & 原生源分类)"]
-        HomeAct["HomeActivity (主控制器调度、视差滚动与阶梯返回)"]
-        HomeAct --> TopNav
-        HomeAct --> Hero
-        HomeAct --> Shelf
-        HomeAct --> Category
-        HomeAct --> Search
-        HomeAct --> Drawer
-    end
+---
 
-    subgraph Backend_Engine_Layer ["底层引擎层 (FongMi Core Engine)"]
-        SiteVM["SiteViewModel / VideoViewModel"]
-        VodCfg["VodConfig / LiveConfig / Config"]
-        SiteAPI["SiteApi / Decoder (支持 assets://)"]
-        NanoSvr["Local NanoHTTPD Server"]
-        PlayerSvc["PlaybackService (ExoPlayer / MPV)"]
-        RoomDB["AppDatabase (Room SQLite)"]
-    end
+## 2. 核心视觉体系与已实现功能
 
-    HomeAct <--> SiteVM
-    SiteVM <--> VodCfg
-    VodCfg <--> SiteAPI
-    SiteAPI <--> NanoSvr
-    SiteAPI <--> RoomDB
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    顶部磨砂药丸导航栏 (Top Nav)                     │
+│               [ 主页 ]  [ 电影 ]  [ 剧集 ]  [ 综艺 ]  [ 🔍 ]       │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. 主页 (Home):                                                 │
+│    - 100vh 全屏海报轮播 + 渐变遮罩                                │
+│    - “现在观看” 横版大卡片轮播                                   │
+│    - “继续观看”、“正在热播” 6 列对齐货架                          │
+│    - 界面向下滚动时，背景自动切换为海报多重高斯模糊层               │
+├─────────────────────────────────────────────────────────────────┤
+│ 2. 分类页 (电影 / 剧集 / 综艺):                                 │
+│    - 100vh 全屏沉浸海报轮播，文字位于中下部黄金视觉区               │
+│    - “▶ 立即播放” 白底黑字按钮 + 轮播进度点                     │
+│    - 底部露出半截（40%~50%）“推荐”栏卡片（动态计算高度）           │
+│    - 按 ⬇️ 平滑展开“推荐”栏，按 ⬆️ 平滑回滚至全屏海报              │
+│    - “动作”、“爱情”等子分类卡片与“推荐”严格 6 列右端对齐           │
+│    - 页面底部承接“全部影片”瀑布流                                │
+├─────────────────────────────────────────────────────────────────┤
+│ 3. 专属暗色高斯毛玻璃背景 (FrostedGlassUtil):                     │
+│    - 电影：深祖母绿真毛玻璃 (#08160F + #00E599 光核)              │
+│    - 剧集：深蓝宝石真毛玻璃 (#070E1A + #0A84FF 光核)              │
+│    - 综艺：深紫水晶真毛玻璃 (#120717 + #BF5AF2 光核)              │
+│    - 明确原则：严禁用海报直接当分类背景，滑动时深邃稳定不闪烁       │
+├─────────────────────────────────────────────────────────────────┤
+│ 4. 搜索页 (Search):                                             │
+│    - 极简磨砂药丸容器，选中元素为白底黑字                          │
+│    - 焦点可顺畅返回顶部药丸，彻底解决焦点陷阱锁定问题               │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 二、 前端 UI 组件划分与核心文件清单
+## 3. 关键架构设计与源码对照
 
-前端 UI 逻辑全部解耦至独立控制器中，避免了以往所有逻辑堆叠在单一 Activity 导致的“改一处坏全局”问题：
+### 3.1 顶部药丸导航系统 (`TopNavController`)
+- **源码文件**:
+  - 控制器: [`TopNavController.java`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/java/com/fongmi/android/tv/ui/home/TopNavController.java)
+  - 药丸背景: [`bg_top_capsule_bar.xml`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/res/drawable/bg_top_capsule_bar.xml)
+  - 激活项背景: [`bg_top_nav_pill_active.xml`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/res/drawable/bg_top_nav_pill_active.xml)
+- **技术要点**:
+  - **严格无描边 (No Stroke)**: 药丸底色采用 `#66FFFFFF` $\to$ `#44FFFFFF` 的纯高漫透光白渐变，彻底移除任何白色细描边。
+  - **离开药丸保持高亮**: 光标切入下方货架或播放按钮时，当前选中的 Tab 仍维持纯白圆角胶囊底色与黑字。
+  - **防闪烁与焦点流转**: 向上回滚时先平滑重置滚动条坐标再转移焦点，避免快速回跳导致的白边或跳帧。
 
-| 组件名称 | 对应 Java 控制器 / 布局文件 | 职责与设计规范 (v1.0.57 升级) |
-| :--- | :--- | :--- |
-| **顶部胶囊导航** | `TopNavController.java`<br>`TopNavAdapter.java`<br>`bg_top_capsule_bar.xml`<br>`bg_capsule_selected.xml` | • 完全屏幕水平居中，34dp 磨砂玻璃外槽 + 29dp 弹性缩放药丸。<br>• 固定 5 大入口：主页、电影、剧集、综艺、搜索 🔍。<br>• 纯白高亮药丸跟随焦点同步平移，杜绝双药丸 Bug。 |
-| **Hero 全景海报与动态模糊** | `HeroViewController.java`<br>`BlurUtil.java`<br>`activity_home.xml` | • **双图层架构**：底层高清海报 + 顶层预生成 StackBlur 毛玻璃层。<br>• **第一屏海报区域极大化**：占据屏幕 70% 面积，极具视觉冲击力。<br>• **下滑动态毛玻璃化**：下滑离开第一屏时，海报平滑过渡为深色磨砂背景，简介文字视差淡出；滑回第一屏瞬间恢复清晰。 |
-| **三大沉底货架与光学对齐** | `ShelfSectionController.java`<br>`VodCardLandscapeAdapter.java`<br>`VodCardPortraitAdapter.java` | • **卡片均分排布**：138dp × 78dp 黄金 16:9 卡片，首屏均分排布 6 张卡片无截断。<br>• **光学视觉对齐**：负外边距校准，卡片左圆角弧顶与标题文字垂直对齐。<br>• **D-Pad 确定性单步跳轴**：`现在观看 ⬇️ 继续观看 ⬇️ 正在热播 ⬆️ 顶栏胶囊`。 |
-| **分类大屏频道页** | `CategoryViewController.java`<br>`VodCardPortraitShelfAdapter.java`<br>`layout_category_channel.xml`<br>`bg_ambient_movie_emerald.xml`<br>`bg_ambient_tv_sapphire.xml`<br>`bg_ambient_variety_amethyst.xml` | • **专属暗色毛玻璃背景**：电影（深墨绿 `#093623`）、剧集（深宝蓝 `#0C2E68`）、综艺（深紫晶 `#33105B`）。<br>• **顶部 Hero 轮播**：轮播近期热播剧，简介下方包含 Apple tvOS 纯白高光「▶ 立即播放」药丸按钮（获焦时白底黑字高对比度）。<br>• **推荐货架 (16:9)**：138x78dp 横版卡片（解耦不联动上方 Hero）。<br>• **子分类货架 (2:3)**：精选主流子分类横向货架（如“动作”、“爱情”等）。<br>• **全部影片 (5 列大网格)**：多维分类芯片筛选 + 5 列瀑布流全量影片。 |
-| **大屏内置搜索** | `SearchViewController.java`<br>`layout_home_search.xml`<br>`shape_search_bar.xml` | • 顶栏直接切换搜索页，内置虚拟键盘、热搜榜单、历史记录与语音输入。<br>• 按键上下平滑与顶栏联动。 |
-| **毛玻璃抽屉** | `SideDrawerController.java`<br>`layout_side_drawer.xml` | • 左侧呼出式深色磨砂面板，按遥控器 [菜单键] 或在首张卡片按 `⬅️` 滑出。<br>• 顶部展示时钟，包含 9 项快捷菜单与当前站点原始原生分类网格。 |
+### 3.2 分类频道控制器与全屏海报 (`CategoryViewController`)
+- **源码文件**:
+  - 控制器: [`CategoryViewController.java`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/java/com/fongmi/android/tv/ui/home/CategoryViewController.java)
+  - 布局文件: [`layout_category_channel.xml`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/res/layout/layout_category_channel.xml)
+  - 海报渐变过渡: [`gradient_category_hero_mask.xml`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/res/drawable/gradient_category_hero_mask.xml)
+- **技术要点**:
+  - **全屏沉浸重构**: 海报容器从原先被裁剪的 320dp 修复为全屏铺满（`100vh`）。
+  - **半截露卡计算公式**:
+    ```java
+    // 动态根据屏幕总高减去 64dp (标题20dp + 间距4dp + 卡片半截40dp)
+    int targetHeroH = containerH - ResUtil.dp2px(64);
+    heroContainer.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, targetHeroH));
+    ```
+  - **双向平滑滚动控制**:
+    - 在“▶ 立即播放”按 `KEYCODE_DPAD_DOWN`: 调用 `smoothScrollTo(0, heroHeight - 120)`，并聚焦推荐首张卡片；
+    - 在“推荐”按 `KEYCODE_DPAD_UP`: 调用 `smoothScrollTo(0, 0)`，聚焦回“▶ 立即播放”。
+  - **货架网格对齐**: 卡片宽度与左右间距通过屏幕可用宽度均分计算，确保“动作”、“爱情”等子分类卡片与“推荐”栏在屏幕右边缘严格对齐。
 
----
-
-## 三、 内置高保真离线演示测试源机制
-
-为彻底摆脱外部服务器不稳定或第三方源失效对开发测试的干扰，工程内置了离线高保真演示数据源：
-
-1. **内置资源文件**：
-   - `app/src/main/assets/demo_config.json`：定义内置站点 `Apple TV+ 精选`，指定 `api: assets://demo_api.json`。
-   - `app/src/main/assets/demo_api.json`：包含电影、剧集、动漫、纪录片四大分类，10+ 部精选影视（《沙丘 2》、《奥本海默》、《流人》、《基地》、《头脑特工队 2》、《蓦然回首》等），含高清封面、背景剧照、完整剧情和可直连播放的 4K/1080P 测试视频流。
-2. **核心代码适配点**：
-   - **自启动回退机制**（`Config.java` & `VodConfig.java`）：全新安装且无任何配置时，默认自动加载 `assets://demo_config.json`。
-   - **`assets://` 协议解析**（`SiteApi.java`）：所有 `site.getApi()` 请求均通过 `UrlUtil.convert()` 映射至本地 NanoHTTPD 服务器，实现纯本地离线解析与流畅播放。
-   - **用户自定义源兼容**：用户在「配置」中输入任意第三方源（如 `http://www.xn--sss604efuw.com/tv`）时，系统自动切换并持久化保存。
-
----
-
-## 四、 本地自动化调试与测试工具链
-
-工程已建立一套稳定可靠的自动化拉取、安装与 MuMu 模拟器回归测试工具链：
-
-### 1. 常用测试脚本清单（位于根目录）
-
-- **极速断点续传下载器**：`download_resilient.py`  
-  *解决国内直连 GitHub 下载 113MB 安装包过慢和网络中断问题，支持 HTTP Range 续传与多重重试，约 9 秒完成下载。*
-- **全自动回归测试脚本**：`watch_and_test_v42.py` / `run_local_test.py`  
-  *监听 GitHub CI 完成 -> 自动下载最新 Release -> 安装到 MuMu 模拟器 -> 执行 15 项 D-Pad 遥控器全链路按键 -> 抓取屏幕并保存至 `v42_screenshots/`。*
-- **分类与抽屉专项测试**：`test_tabs_and_drawer.py`  
-  *针对顶部分类切换与左侧菜单抽屉展开/关闭进行独立测试。*
-
-### 2. 本地 ADB 环境配置
-
-- **ADB 路径**：`D:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe`
-- **模拟器端口**：`127.0.0.1:16384`
-- **包名与入口**：`com.fongmi.android.tv/.ui.activity.HomeActivity`
+### 3.3 真实高斯磨砂毛玻璃引擎 (`FrostedGlassUtil`)
+- **源码文件**:
+  - 工具类: [`FrostedGlassUtil.java`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/main/java/com/fongmi/android/tv/utils/FrostedGlassUtil.java)
+  - 模糊底层算法: [`BlurUtil.java`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/main/java/com/fongmi/android/tv/utils/BlurUtil.java)
+  - 宿主绑定: [`HomeActivity.java`](file:///c:/Users/liuji/Documents/antigravity/sharp-brahmagupta/apple-tvbox/app/src/leanback/java/com/fongmi/android/tv/ui/activity/HomeActivity.java)
+- **技术要点**:
+  - **根治“假透明底”**: Android 原生 View 的 Alpha 值只是颜色混合，没有模糊卷积。`FrostedGlassUtil` 通过 `RadialGradient` 在 Canvas 上绘制多个有机发光球体，结合 `BlurUtil.fastBlur(bitmap, 26, true)` 生成内存真实毛玻璃位图：
+    - **电影 (Emerald)**: `#08160F` 底色 + `#00E599` 光斑
+    - **剧集 (Sapphire)**: `#070E1A` 底色 + `#0A84FF` 光斑
+    - **综艺 (Amethyst)**: `#120717` 底色 + `#BF5AF2` 光斑
+  - **异步与缓存机制**: 生成的毛玻璃 Drawable 缓存在 `ConcurrentHashMap`，切换 Tab 时零延迟直接复用，不产生 GC 卡顿。
 
 ---
 
-## 五、 已解决的关键缺陷与技术沉淀
+## 4. 关键设计约束与防踩坑守则
 
-1. **第一屏海报遮挡与货架半露问题**：
-   - **解决**：在 `HomeActivity` 中引入 `adjustHeroSpaceForSunkShelf()` 动态计算视口高度，将“现在观看”货架沉降吸附于屏幕底部，海报露出面积提升至 70%，消除下方货架露出的杂乱感。
-2. **背景海报在滑动到列表时干扰文字**：
-   - **解决**：引入 `BlurUtil`（纯 Java 优化的 StackBlur 算法）与双图层渲染引擎，下滑时背景图平滑过渡为深色毛玻璃模糊背景，Hero 文本视差淡出，保证 60fps 满帧流畅且文字对比度极佳。
-3. **遥控器（D-Pad）跳轴确定性导航**：
-   - **解决**：在 `ShelfSectionController` 中拦截 `DPAD_DOWN` / `DPAD_UP`，实现确定性的单步跳轴，配合 `smoothScrollTo` 实现平滑居中滚动，杜绝原生 FocusFinder 乱跳和丢焦。
-4. **阶梯式返回键（Step-back UX）**：
-   - **解决**：按返回键遵循 `关闭抽屉 -> 返回主页 Tab -> 滚回第一屏 -> 退出应用` 逻辑，杜绝误触直接闪退。
+> [!IMPORTANT]
+> **后续开发务必严格遵守以下约束：**
+> 1. **严禁在磨砂玻璃上添加描边 (Stroke)**：无论是顶部胶囊药丸还是磨砂卡片，均不得设置白色或浅色边框线（`no stroke`）。
+> 2. **分类页不得使用海报作为背景**：电影/剧集/综艺的背景必须为 `FrostedGlassUtil` 生成的深绿/深蓝/深紫高斯毛玻璃，滑动时背景不可随海报剧烈变色。
+> 3. **分类页首屏海报必须 100vh 全屏沉浸**：严禁将其包在固定高度（如 300dp/320dp）的局部容器中。
+> 4. **首屏必须露半截推荐卡片**：高度必须经由 `adjustHeroLayout()` 动态算得，保持 40%~50% 露卡视觉引导。
+> 5. **遥控器按键导航闭查**：按键上下移动焦点时，必须严格处理边界聚焦，不得出现焦点掉入不可见区域或死锁。
+
+---
+
+## 5. 自动化构建与实机验证流水线
+
+项目包含高度自动化的 CI/CD 与实机回归测试脚本：
+
+1. **自动构建流水线**:
+   - 推送代码到 GitHub `main` 分支触发 GitHub Actions 编译构建；
+   - 编译产物自动发布为 GitHub Release（最新为 `v1.0.65`）。
+2. **自动化测试脚本 (`run_v64_pipeline.py`)**:
+   - 自动轮询 GitHub Actions 直至构建成功；
+   - 自动下载最新 APK 并推送到 MuMu 模拟器无损覆盖安装；
+   - 模拟遥控器（DPAD 键位）完整走测：主页 $\to$ 电影 $\to$ 立即播放 $\to$ 推荐 $\to$ 动作/爱情 $\to$ 剧集 $\to$ 综艺 $\to$ 搜索 $\to$ 返回主页；
+   - 截取实机高清无损图片保存到 Artifact 目录进行视觉审查。
+
+---
+
+## 6. 后续开发建议与待办列表 (Backlog)
+
+1. **真实数据源对接**:
+   - 目前分类页中的海报轮播、推荐栏、子分类（动作、爱情等）已具备完整的动态布局架构，接下来可进一步对接视频源站的 API / JSON 配置，实现子分类与全部影片的真实分页加载；
+2. **卡片聚焦动效打磨**:
+   - 可进一步对选中的卡片增加 Apple TV 风格的轻微浮起缩放（`scaleX/Y = 1.06`）与微投影；
+3. **真实遥控器物理按键适配**:
+   - 在真实电视机顶盒上验证遥控器菜单键（Menu）直接唤出顶栏胶囊的高级快捷交互。
+
+---
+
+## 7. 新对话开篇提示词 (Prompt Template)
+
+在新对话中，你可以直接复制并发送以下内容快速建立上下文：
+
+```markdown
+我们正在进行 Apple TV 风格电视盒子（com.fongmi.android.tv）的前端重构工作。
+项目最新版本已演进至 Release v1.0.65 (Commit: a241335)。
+关键已实现架构：
+1. 顶部无描边磨砂胶囊导航栏（TopNavController，离焦维持高亮，搜索无锁死）；
+2. 分类页（电影/剧集/综艺）100vh 全屏海报轮播 + 底部半截露卡推荐栏 + 白底黑字“立即播放”；
+3. 电影（深祖母绿）、剧集（深蓝宝石）、综艺（深紫水晶）专属高斯毛玻璃环境光引擎（FrostedGlassUtil）；
+4. 推荐与动作/爱情等子分类卡片全右端对齐。
+
+请阅读交接文档后，继续协助我进行下一阶段的开发：[填写你的下一步需求]
+```

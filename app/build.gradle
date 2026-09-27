@@ -98,6 +98,7 @@ dependencies {
     implementation project(':chaquo')
     implementation project(':quickjs')
     implementation libs.appcompat
+    implementation libs.blurview
     implementation libs.lifecycle.service
     implementation libs.media
     implementation(libs.media3.exoplayer.hls) {
