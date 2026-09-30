@@ -554,7 +554,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             } else if (TopNavController.ID_VARIETY.equals(tabType)) {
                 frostedBmp = FrostedGlassUtil.getAmethystFrosted();
             } else {
-                frostedBmp = FrostedGlassUtil.getDefaultFrosted();
+                frostedBmp = FrostedGlassUtil.getCategoryDefaultFrosted();
             }
 
             mBinding.categoryAmbientBackdrop.setImageBitmap(frostedBmp);
@@ -606,7 +606,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.searchContainer.getRoot().setVisibility(View.GONE);
         mHeroController.setVisibility(View.GONE);
 
-        mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
+        mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getCategoryDefaultFrosted());
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();

@@ -21,15 +21,16 @@ public class FrostedGlassUtil {
     private static Bitmap sEmerald;
     private static Bitmap sSapphire;
     private static Bitmap sAmethyst;
+    private static Bitmap sCategoryDefault;
     private static Bitmap sDefault;
 
     public static synchronized Bitmap getEmeraldFrosted() {
         if (sEmerald == null || sEmerald.isRecycled()) {
             sEmerald = createAmbient(
-                    0xFF08160F,
-                    0x6000E599, 0x25059669,
-                    0x4500C853, 0x15047857,
-                    0x3500897B
+                    0xFF050E09,
+                    0x3800E599, 0x15059669,
+                    0x2600C853, 0x0D047857,
+                    0x1E00897B
             );
         }
         return sEmerald;
@@ -38,10 +39,10 @@ public class FrostedGlassUtil {
     public static synchronized Bitmap getSapphireFrosted() {
         if (sSapphire == null || sSapphire.isRecycled()) {
             sSapphire = createAmbient(
-                    0xFF070E1A,
-                    0x600A84FF, 0x251D4ED8,
-                    0x451E88E5, 0x151E40AF,
-                    0x351565C0
+                    0xFF040811,
+                    0x380A84FF, 0x151D4ED8,
+                    0x261E88E5, 0x0D1E40AF,
+                    0x1E1565C0
             );
         }
         return sSapphire;
@@ -50,13 +51,25 @@ public class FrostedGlassUtil {
     public static synchronized Bitmap getAmethystFrosted() {
         if (sAmethyst == null || sAmethyst.isRecycled()) {
             sAmethyst = createAmbient(
-                    0xFF120717,
-                    0x60BF5AF2, 0x259333EA,
-                    0x45AB47BC, 0x157B1FA2,
-                    0x356A1B9A
+                    0xFF09040D,
+                    0x38BF5AF2, 0x159333EA,
+                    0x26AB47BC, 0x0D7B1FA2,
+                    0x1E6A1B9A
             );
         }
         return sAmethyst;
+    }
+
+    public static synchronized Bitmap getCategoryDefaultFrosted() {
+        if (sCategoryDefault == null || sCategoryDefault.isRecycled()) {
+            sCategoryDefault = createAmbient(
+                    0xFF07070A,
+                    0x203B4252, 0x0D2E3440,
+                    0x184C566A, 0x0A2E3440,
+                    0x143B4252
+            );
+        }
+        return sCategoryDefault;
     }
 
     public static synchronized Bitmap getDefaultFrosted() {

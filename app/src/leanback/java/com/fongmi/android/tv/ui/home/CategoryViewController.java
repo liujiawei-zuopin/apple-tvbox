@@ -560,41 +560,28 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     /**
-     * Updates the hero gradient mask and bottom fade layer to match the category theme background color.
+     * Updates the hero gradient mask to match the category theme background color.
      */
     public void updateCategoryTheme(String tabType) {
         int themeColor;
         if ("movie".equalsIgnoreCase(tabType) || TopNavController.ID_MOVIE.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF08160F; // Emerald
+            themeColor = 0xFF050E09; // Deep Emerald
         } else if ("tv".equalsIgnoreCase(tabType) || TopNavController.ID_TV.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF070E1A; // Sapphire
+            themeColor = 0xFF040811; // Deep Sapphire
         } else if ("variety".equalsIgnoreCase(tabType) || TopNavController.ID_VARIETY.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF120717; // Amethyst
+            themeColor = 0xFF09040D; // Deep Amethyst
         } else {
-            themeColor = 0xFF101014; // Deep Slate
+            themeColor = 0xFF07070A; // Deep Slate
         }
 
         int baseRgb = themeColor & 0x00FFFFFF;
 
-        // 1. Bottom fade: transparent -> 40% -> 80% -> 100% theme color
-        int[] bottomColors = new int[]{
-                0x00000000 | baseRgb,
-                0x66000000 | baseRgb,
-                0xCC000000 | baseRgb,
-                themeColor
-        };
-        GradientDrawable bottomFade = new GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                bottomColors
-        );
-        mBinding.categoryHeroBottomFade.setBackground(bottomFade);
-
-        // 2. Hero gradient mask: subtle top darkening + strong middle-to-bottom theme wash
+        // Hero gradient mask: left-weighted & subtle top darkening for title/synopsis text readability
         int[] maskColors = new int[]{
-                0x2A000000,
-                0x4D000000 | baseRgb,
-                0xB3000000 | baseRgb,
-                themeColor
+                0x30000000 | baseRgb,
+                0x60000000 | baseRgb,
+                0x90000000 | baseRgb,
+                0xB0000000 | baseRgb
         };
         GradientDrawable maskFade = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,

@@ -31,27 +31,26 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- Hero Poster Backdrop Image (Full-Screen Crisp Backdrop) -->
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/categoryHeroBackdrop"
+            <!-- Alpha Fade Poster Container: Smoothly fades out poster bottom to 0 alpha for seamless ambient blending -->
+            <com.fongmi.android.tv.ui.custom.AlphaFadeFrameLayout
+                android:id="@+id/categoryHeroFadeContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:layout_height="match_parent">
 
-            <!-- Smooth Dark Gradient Mask for Hero Backdrop -->
-            <View
-                android:id="@+id/categoryHeroGradientMask"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/gradient_category_hero_mask" />
+                <!-- Hero Poster Backdrop Image (Full-Screen Crisp Backdrop) -->
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/categoryHeroBackdrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
 
-            <!-- Dedicated Bottom Gradient Fade Layer into Shelf Background -->
-            <View
-                android:id="@+id/categoryHeroBottomFade"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/gradient_category_hero_bottom_fade" />
+                <!-- Smooth Left-to-Right & Top-to-Bottom Scrim for Hero Backdrop -->
+                <View
+                    android:id="@+id/categoryHeroGradientMask"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_category_hero_mask" />
+            </com.fongmi.android.tv.ui.custom.AlphaFadeFrameLayout>
 
             <!-- Hero Synopsis & Play Button (Centered comfortably in vertical mid-height) -->
             <androidx.appcompat.widget.LinearLayoutCompat
