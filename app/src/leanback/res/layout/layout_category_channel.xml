@@ -24,7 +24,7 @@
         <FrameLayout
             android:id="@+id/categoryHeroSection"
             android:layout_width="match_parent"
-            android:layout_height="476dp"
+            android:layout_height="540dp"
             android:layout_marginStart="-44dp"
             android:layout_marginEnd="-44dp"
             android:layout_marginTop="0dp"
@@ -43,13 +43,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop" />
-
-                <!-- Smooth Left-to-Right & Top-to-Bottom Scrim for Hero Backdrop -->
-                <View
-                    android:id="@+id/categoryHeroGradientMask"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/gradient_category_hero_mask" />
             </com.fongmi.android.tv.ui.custom.AlphaFadeFrameLayout>
 
             <!-- Hero Synopsis & Play Button (Centered comfortably in vertical mid-height) -->
@@ -79,6 +72,10 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="0"
+                        android:shadowDy="2"
+                        android:shadowRadius="6"
                         android:textColor="@color/white"
                         android:textSize="28sp"
                         android:textStyle="bold"
@@ -89,6 +86,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="4"
                         android:textColor="#CCFFFFFF"
                         android:textSize="12.5sp"
                         tools:text="4K 超清 · 8.1分 · 2024 · 动作 / 犯罪" />
@@ -101,6 +102,10 @@
                         android:ellipsize="end"
                         android:lineSpacingExtra="2dp"
                         android:maxLines="2"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="4"
                         android:textColor="#B3FFFFFF"
                         android:textSize="12.5sp"
                         tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />

@@ -52,21 +52,21 @@ public class AlphaFadeFrameLayout extends FrameLayout {
         if (w > 0 && h > 0 && (w != mLastW || h != mLastH)) {
             mLastW = w;
             mLastH = h;
-            // 4-stop smooth cubic-like alpha attenuation curve:
-            // 0% ~ 40%: 100% Solid Opacity (Crisp poster subject)
-            // 40% ~ 68%: Gentle initial fade (Alpha ~217)
-            // 68% ~ 88%: Progressive feathering (Alpha ~90)
-            // 88% ~ 100%: Complete dissolve into 0 (Alpha 0 at bottom edge)
+            // 5-stop smooth cubic-like alpha attenuation curve for full-screen hero:
+            // 0% ~ 72%: 100% Solid Opacity (Full-screen crisp poster visual)
+            // 72% ~ 86%: Gentle initial feathering (Alpha ~210)
+            // 86% ~ 95%: Progressive soft dissolve (Alpha ~80)
+            // 95% ~ 100%: Complete zero-alpha fade at bottom edge
             mGradient = new LinearGradient(
                     0, 0, 0, h,
                     new int[]{
                             0xFF000000,
                             0xFF000000,
-                            0xD9000000,
-                            0x5A000000,
+                            0xD4000000,
+                            0x50000000,
                             0x00000000
                     },
-                    new float[]{0f, 0.40f, 0.68f, 0.88f, 1.0f},
+                    new float[]{0f, 0.72f, 0.86f, 0.95f, 1.0f},
                     Shader.TileMode.CLAMP
             );
             mMaskPaint.setShader(mGradient);

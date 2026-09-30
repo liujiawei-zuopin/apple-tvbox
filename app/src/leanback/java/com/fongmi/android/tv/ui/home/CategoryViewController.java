@@ -88,6 +88,15 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     private void initViews() {
+        int screenH = ResUtil.getScreenHeight();
+        if (screenH > 0) {
+            android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
+            if (lp != null) {
+                lp.height = screenH;
+                mBinding.categoryHeroSection.setLayoutParams(lp);
+            }
+        }
+
         // 1. Hero Play Button (Focus scale & D-Pad Carousel navigation)
         mBinding.categoryBtnPlay.setPivotX(0f);
         mBinding.categoryBtnPlay.setPivotY(ResUtil.dp2px(18));
@@ -560,34 +569,10 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     }
 
     /**
-     * Updates the hero gradient mask to match the category theme background color.
+     * Category theme configuration hook.
      */
     public void updateCategoryTheme(String tabType) {
-        int themeColor;
-        if ("movie".equalsIgnoreCase(tabType) || TopNavController.ID_MOVIE.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF050E09; // Deep Emerald
-        } else if ("tv".equalsIgnoreCase(tabType) || TopNavController.ID_TV.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF040811; // Deep Sapphire
-        } else if ("variety".equalsIgnoreCase(tabType) || TopNavController.ID_VARIETY.equalsIgnoreCase(tabType)) {
-            themeColor = 0xFF09040D; // Deep Amethyst
-        } else {
-            themeColor = 0xFF07070A; // Deep Slate
-        }
-
-        int baseRgb = themeColor & 0x00FFFFFF;
-
-        // Hero gradient mask: left-weighted & subtle top darkening for title/synopsis text readability
-        int[] maskColors = new int[]{
-                0x30000000 | baseRgb,
-                0x60000000 | baseRgb,
-                0x90000000 | baseRgb,
-                0xB0000000 | baseRgb
-        };
-        GradientDrawable maskFade = new GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                maskColors
-        );
-        mBinding.categoryHeroGradientMask.setBackground(maskFade);
+        // Hero poster is displayed clean and full-screen without obstructing masks.
     }
 
     /**
@@ -833,8 +818,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
     public void adjustHeroLayout(int containerHeight) {
         if (containerHeight <= 0) return;
-        int peekingHeight = ResUtil.dp2px(64);
-        int targetHeroH = containerHeight - peekingHeight;
+        int targetHeroH = containerHeight;
         if (targetHeroH > ResUtil.dp2px(300)) {
             android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
             if (lp != null && Math.abs(lp.height - targetHeroH) > ResUtil.dp2px(4)) {
