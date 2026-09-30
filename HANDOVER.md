@@ -1,7 +1,7 @@
 # Apple TV 风格电视盒子项目交接文档 (Project Handover)
 
-> **文档版本**: 1.6 (对应代码 Release `v1.0.74`)  
-> **更新时间**: 2026-09-30  
+> **文档版本**: 1.7 (对应代码 Release `v1.0.78`)  
+> **更新时间**: 2026-10-01  
 > **适用场景**: 新对话无缝接续开发、团队协作交接、技术架构回顾
 
 ---
@@ -11,7 +11,7 @@
 - **项目名称**: Apple TV 风格沉浸式电视盒子 (FongMi TVBox Leanback 重构版)
 - **代码仓库**: `https://github.com/liujiawei-zuopin/apple-tvbox`
 - **主要分支**: `main`
-- **最新发布**: [Release v1.0.74](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
+- **最新发布**: [Release v1.0.78](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
 - **包名与启动 Activity**: `com.fongmi.android.tv` / `com.fongmi.android.tv.ui.activity.HomeActivity`
 - **模拟器/测试设备**: MuMu 模拟器 Android 12 (1080P TV 模式, `127.0.0.1:16384`)
 - **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe`
@@ -26,14 +26,14 @@
 │               [ 主页 ]  [ 电影 ]  [ 剧集 ]  [ 综艺 ]  [ 🔍 ]       │
 ├─────────────────────────────────────────────────────────────────┤
 │ 1. 主页 (Home):                                                 │
-│    - 100vh 全屏海报轮播 + 渐变遮罩                                │
+│    - 100vh 全屏海报剧照 + 调深暗夜渐变遮罩 (Darker Scrim)          │
 │    - “现在观看” 横版大卡片轮播                                   │
 │    - “继续观看”、“正在热播” 6 列对齐货架                          │
-│    - 向下滚动时：顶部药丸平滑向上移出屏幕，背景自动模糊            │
+│    - 向下滚动时：顶部药丸平滑向上移出屏幕，背景深暗磨砂化           │
 │    - 向上回滚时：顶部药丸平滑复位，无闪烁刷新                     │
 ├─────────────────────────────────────────────────────────────────┤
 │ 2. 分类页 (电影 / 剧集 / 综艺):                                 │
-│    - 标题、简介位于垂直中高居中舒适区 (Top Margin 140dp)          │
+│    - 标题、简介、播放按钮整体下移至黄金视觉中下平衡区 (Top 170dp) │
 │    - “▶ 立即播放” 纯白胶囊，与上方简介保留 22dp 高级呼吸感间距     │
 │    - 轮播指示点置于底部水平居中区域 (Bottom Margin 24dp)           │
 │    - 左右键切换与自动轮播：标题/简介方向性滑入滑出+指示点平滑缩放 │
@@ -58,16 +58,14 @@
 
 ---
 
-## 3. 最新问题修复与架构优化 (v1.0.74)
+## 3. 最新问题修复与架构优化 (v1.0.78)
 
 | 序号 | 用户反馈问题 | 根因剖析 | 解决方案与实现代码 |
 | :--- | :--- | :--- | :--- |
-| **1** | 标题简介需要再往下靠一点 | 之前 `marginTop="96dp"` 偏靠上，未完全处于中轴视觉平衡区 | 将 `categoryHeroInfo` 的 `marginTop` 调整为 `140dp`，完美居于视口中轴线。 |
-| **2** | 立即播放按钮与上面简介要有间距 | 之前 `categoryHeroActionRow` 的 `marginTop` 为 `12dp`，偏紧凑 | 将按钮行的 `marginTop` 增加至 `22dp`，形成富有呼吸感的排版层次。 |
-| **3** | 轮播指示点放在靠下居中区域 | 之前指示点紧跟在播放按钮右侧 | 将 `categoryHeroDots` 移为 `categoryHeroSection` 的直接子 View，设置 `gravity="bottom|center_horizontal"` 与 `marginBottom="24dp"`，水平居中优雅悬浮在海报底部过渡区。 |
-| **4** | 分类切换海报轮播闪烁 / 尺寸跳动 | ① 每次切 Tab 强制将容器 `alpha` 设为 0 重走动画；<br>② 异步网络回调完成后重复调用 `adjustHeroLayout` 修改 Section 高度引发二次重绘；<br>③ 缺乏内存缓存，切 Tab 先展示空白再渲染海报 | ① `HomeActivity` 新增 `mCategoryCache` 内存缓存，切 Tab 命中即刻同步上屏；<br>② 若分类容器已处于显示状态，直接做数据过渡，不重复打落 `alpha(0f)`；<br>③ `adjustHeroLayout` 改为在容器测量时预设完成，网络回调不再修改高度。 |
-| **5** | 海报轮播与“推荐”货架背景过渡生硬 | 之前使用静态渐变色块盖住海报底部（结束于硬编码纯色 `#08160F`），而底层是动态多光谱光斑（RadialGradient 光核），纯色色块在 476dp 底部边缘戛然而止，与底层不同亮度的磨砂光斑碰撞形成可见横线接缝 | **创建 `AlphaFadeFrameLayout` 硬件加速着色器容器**：<br>① 在 `dispatchDraw` 中通过 `PorterDuff.Mode.DST_IN` + 4 段式非线性 `LinearGradient` 将海报底部平滑羽化为透明（Alpha=0）；<br>② 彻底移除 `categoryHeroBottomFade` 纯色盖板，海报消融后自然裸露出底层贯穿全屏的 `categoryAmbientBackdrop` 真实高斯磨砂光斑，海报区与“推荐”栏共享同一张底图画布，实现 100% 绝对无缝过渡！ |
-| **6** | 除首页和搜索外，分类页背景需要再深暗一点 | 之前分类页磨砂底图光核透明度较高、基色偏亮 | 在 `FrostedGlassUtil.java` 全面调深分类基底色并调低光晕光强（电影基色由 `#08160F` 调深至 `#050E09`，剧集基色由 `#070E1A` 调深至 `#040811`，综艺基色由 `#120717` 调深至 `#09040D`），同时保持首页海报毛玻璃与搜索页标准底图不变。 |
+| **1** | 分类海报标题/描述/立即播放按钮整体再往下移一点点 | 原 `marginTop="140dp"` 上方空间充裕，下移后在 476dp 容器内更加舒展稳重 | 将 `categoryHeroInfo` 的 `layout_marginTop` 由 `140dp` 调整至 `170dp`，处于 476dp 高度容器黄金中下平衡区。 |
+| **2** | 首页的背景效果也暗深一点（海报当背景不变） | 首页原渐变暗光遮罩（`gradient_scrim_hero.xml`）透明度较高，底色偏灰 | 将首页 `gradient_scrim_hero.xml` 渐变加深为 `#59000000` $\to$ `#4D060608` $\to$ `#F8060608`，并将滚动磨砂滤镜 `heroFrostedOverlay` 加深至 `#8008080A`，在完整保留全屏海报剧照的同时呈现深邃暗夜影院质感。 |
+| **3** | 海报轮播与“推荐”货架背景过渡生硬 | 之前使用静态渐变色块盖住海报底部（结束于硬编码纯色 `#08160F`），而底层是动态多光谱光斑（RadialGradient 光核），纯色色块在 476dp 底部边缘戛然而止，与底层不同亮度的磨砂光斑碰撞形成可见横线接缝 | **创建 `AlphaFadeFrameLayout` 硬件加速着色器容器**：<br>① 在 `dispatchDraw` 中通过 `PorterDuff.Mode.DST_IN` + 4 段式非线性 `LinearGradient` 将海报底部平滑羽化为透明（Alpha=0）；<br>② 彻底移除 `categoryHeroBottomFade` 纯色盖板，海报消融后自然裸露出底层贯穿全屏的 `categoryAmbientBackdrop` 真实高斯磨砂光斑，海报区与“推荐”栏共享同一张底图画布，实现 100% 绝对无缝过渡！ |
+| **4** | 除首页和搜索外，分类页背景需要再深暗一点 | 之前分类页磨砂底图光核透明度较高、基色偏亮 | 在 `FrostedGlassUtil.java` 全面调深分类基底色并调低光晕光强（电影基色由 `#08160F` 调深至 `#050E09`，剧集基色由 `#070E1A` 调深至 `#040811`，综艺基色由 `#120717` 调深至 `#09040D`），同时保持首页海报毛玻璃与搜索页标准底图不变。 |
 
 ---
 

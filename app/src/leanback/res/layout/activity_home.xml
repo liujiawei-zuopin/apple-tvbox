@@ -5,7 +5,7 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#101012"
+    android:background="#08080A"
     android:clipChildren="false"
     android:clipToPadding="false">
 
@@ -38,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0"
-        android:background="#66101014" />
+        android:background="#8008080A" />
 
     <!-- Layer 0d: True StackBlur Frosted Ambient Backdrop for Category & Search Pages -->
     <androidx.appcompat.widget.AppCompatImageView
