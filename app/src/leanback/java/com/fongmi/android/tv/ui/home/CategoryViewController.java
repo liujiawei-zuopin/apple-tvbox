@@ -90,9 +90,11 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
     private void initViews() {
         int screenH = ResUtil.getScreenHeight();
         if (screenH > 0) {
+            int peekingHeight = ResUtil.dp2px(64);
+            int targetH = screenH - peekingHeight;
             android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
             if (lp != null) {
-                lp.height = screenH;
+                lp.height = targetH;
                 mBinding.categoryHeroSection.setLayoutParams(lp);
             }
         }
@@ -818,7 +820,8 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
     public void adjustHeroLayout(int containerHeight) {
         if (containerHeight <= 0) return;
-        int targetHeroH = containerHeight;
+        int peekingHeight = ResUtil.dp2px(64);
+        int targetHeroH = containerHeight - peekingHeight;
         if (targetHeroH > ResUtil.dp2px(300)) {
             android.view.ViewGroup.LayoutParams lp = mBinding.categoryHeroSection.getLayoutParams();
             if (lp != null && Math.abs(lp.height - targetHeroH) > ResUtil.dp2px(4)) {

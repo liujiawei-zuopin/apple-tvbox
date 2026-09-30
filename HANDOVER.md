@@ -1,6 +1,6 @@
 # Apple TV 风格电视盒子项目交接文档 (Project Handover)
 
-> **文档版本**: 1.8 (对应代码 Release `v1.0.78`)  
+> **文档版本**: 1.9 (对应代码 Release `v1.0.79`)  
 > **更新时间**: 2026-10-01  
 > **适用场景**: 新对话无缝接续开发、团队协作交接、技术架构回顾
 
@@ -11,7 +11,7 @@
 - **项目名称**: Apple TV 风格沉浸式电视盒子 (FongMi TVBox Leanback 重构版)
 - **代码仓库**: `https://github.com/liujiawei-zuopin/apple-tvbox`
 - **主要分支**: `main`
-- **最新发布**: [Release v1.0.78](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
+- **最新发布**: [Release v1.0.79](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
 - **包名与启动 Activity**: `com.fongmi.android.tv` / `com.fongmi.android.tv.ui.activity.HomeActivity`
 - **模拟器/测试设备**: MuMu 模拟器 Android 12 (1080P TV 模式, `127.0.0.1:16384`)
 - **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe`
@@ -33,15 +33,16 @@
 │    - 向上回滚时：顶部药丸平滑复位，无闪烁刷新                     │
 ├─────────────────────────────────────────────────────────────────┤
 │ 2. 分类页 (电影 / 剧集 / 综艺):                                 │
-│    - 100vh 全屏沉浸海报展示 (海报滚动区彻底移除暗色渐变遮罩挡光)   │
-│    - 标题/简介/Meta 采用高雅文字阴影，兼顾任何浅色/深色海报清晰度  │
+│    - 海报滚动区彻底移除暗色渐变遮罩挡光，纯净还原海报原生画质      │
+│    - 标题、简介与 Meta 纯净纯白排版 (无文字阴影，极简 Apple TV 风格)│
 │    - 标题、简介、播放按钮整体位于黄金视觉中下平衡区 (Top 170dp)    │
 │    - “▶ 立即播放” 纯白胶囊，与上方简介保留 22dp 高级呼吸感间距     │
-│    - 轮播指示点置于底部水平居中区域 (Bottom Margin 28dp)           │
+│    - 轮播指示点置于海报下部水平居中 (Bottom Margin 24dp)           │
+│    - 底部露出半截（40%~50%）“推荐”栏卡片（保持原始沉浸露头排版）    │
 │    - 左右键切换与自动轮播：标题/简介方向性滑入滑出+指示点平滑缩放 │
 │    - 硬件加速 Alpha 渐变容器 (AlphaFadeFrameLayout, DST_IN 着色器) │
-│      顶部 72% 区域 100% 实色完整呈现，仅在底部 28% 区域平滑羽化消融│
-│      至 Alpha 0，与底层深暗高斯磨砂光斑底图无缝融合                 │
+│      顶部 72% 实色完整呈现，底部 28% 平滑羽化消融至 Alpha 0，       │
+│      与底层深暗高斯磨砂光斑底图及“推荐”栏背景无缝交融             │
 │    - 内存数据级秒开缓存 (mCategoryCache)，Tab 切换零闪烁/零跳动    │
 │    - 向下滚动时顶部药丸随画面向上滑出，向上返回顶部药丸平滑无重载 │
 ├─────────────────────────────────────────────────────────────────┤
