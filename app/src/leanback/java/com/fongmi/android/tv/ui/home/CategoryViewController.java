@@ -770,12 +770,14 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         if (vod == null) return;
         mCurrentHeroVod = vod;
 
-        // 1. Text slide & cross-fade transition
-        int slideOffset = ResUtil.dp2px(14) * direction;
+        // 1. Apple tvOS fluid text glide & cross-fade transition
+        int slideOffset = ResUtil.dp2px(20) * direction;
+        mBinding.categoryHeroTextGroup.animate().cancel();
         mBinding.categoryHeroTextGroup.animate()
                 .alpha(0f)
                 .translationX(-slideOffset)
-                .setDuration(130)
+                .setDuration(150)
+                .setInterpolator(new android.view.animation.AccelerateInterpolator(1.2f))
                 .withEndAction(() -> {
                     mBinding.categoryHeroTitle.setText(vod.getName() != null ? vod.getName() : "");
 
@@ -794,7 +796,8 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
                     mBinding.categoryHeroTextGroup.animate()
                             .alpha(1f)
                             .translationX(0)
-                            .setDuration(190)
+                            .setDuration(260)
+                            .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f))
                             .start();
                 })
                 .start();
@@ -802,14 +805,18 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         // 2. Smoothly animate indicator dots
         updateIndicatorDots(mHeroIndex % Math.max(1, mHeroItems.size()));
 
-        // 3. Smooth backdrop crossfade
+        // 3. Smooth backdrop crossfade preserving previous drawable placeholder (zero flash)
         if (!TextUtils.isEmpty(vod.getPic())) {
             Object model = ImgUtil.getUrl(vod.getPic());
             if (mBinding.categoryHeroBackdrop != null) {
-                Glide.with(mActivity)
+                Drawable currentDrawable = mBinding.categoryHeroBackdrop.getDrawable();
+                com.bumptech.glide.RequestBuilder<Drawable> request = Glide.with(mActivity)
                         .load(model)
-                        .transition(DrawableTransitionOptions.withCrossFade(250))
-                        .into(mBinding.categoryHeroBackdrop);
+                        .transition(DrawableTransitionOptions.withCrossFade(350));
+                if (currentDrawable != null) {
+                    request = request.placeholder(currentDrawable);
+                }
+                request.into(mBinding.categoryHeroBackdrop);
             }
         }
     }

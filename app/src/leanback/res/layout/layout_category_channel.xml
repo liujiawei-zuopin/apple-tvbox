@@ -57,11 +57,11 @@
                 android:clipToPadding="false"
                 android:orientation="vertical">
 
-                <!-- Animated Text Group: Smooth slide-fade transition on carousel switch -->
+                <!-- Animated Text Group: Fixed height container (124dp) to ensure 0px vertical jump for Play button across 1/2/3 lines of synopsis -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/categoryHeroTextGroup"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="124dp"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:orientation="vertical">
@@ -97,20 +97,18 @@
                         android:layout_marginTop="5dp"
                         android:ellipsize="end"
                         android:lineSpacingExtra="3dp"
-                        android:lines="2"
-                        android:maxLines="2"
-                        android:minLines="2"
+                        android:maxLines="3"
                         android:textColor="#B3FFFFFF"
                         android:textSize="12.5sp"
                         tools:text="通缉犯陈桂林以为自己患上绝症，生命将尽，决心查出通缉榜上排名在自己前面的两大罪犯，并将其除掉以扬名立万。" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <!-- Apple tvOS Action Row: ▶ 立即播放 Button with generous top spacing -->
+                <!-- Apple tvOS Action Row: ▶ 立即播放 Button with stable top margin -->
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:id="@+id/categoryHeroActionRow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="16dp"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:gravity="center_vertical"

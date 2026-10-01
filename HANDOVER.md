@@ -1,6 +1,6 @@
 # Apple TV 风格电视盒子项目交接文档 (Project Handover)
 
-> **文档版本**: 2.1 (对应代码 Release `v1.0.82`)  
+> **文档版本**: 2.2 (对应代码 Release `v1.0.84`)  
 > **更新时间**: 2026-10-01  
 > **适用场景**: 新对话无缝接续开发、团队协作交接、技术架构全景回顾
 
@@ -11,14 +11,14 @@
 - **项目名称**: Apple TV 风格沉浸式电视盒子 (FongMi TVBox Leanback 重构版)
 - **代码仓库**: `https://github.com/liujiawei-zuopin/apple-tvbox`
 - **主要分支**: `main`
-- **最新发布**: [Release v1.0.82](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
+- **最新发布**: [Release v1.0.84](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
 - **包名与启动 Activity**: `com.fongmi.android.tv` / `com.fongmi.android.tv.ui.activity.HomeActivity`
 - **模拟器/测试设备**: MuMu 模拟器 Android 12/15 (1080P TV 模式, `127.0.0.1:16384`)
-- **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe`
+- **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_main\adb.exe`
 
 ---
 
-## 2. 核心架构与 3 大精度交互优化 (v2.1)
+## 2. 核心架构与 3 大精度交互优化 (v2.2)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -30,16 +30,16 @@
 │    - 其他非标准频道（动漫、纪录片、少儿、短剧等）收拢于侧边抽屉或可选定列表      │
 │    - 保持顶栏极简纯粹，杜绝站点海量分类撑爆顶栏                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 2. 彻底解决海报全屏闪烁 (True 100vw Zero-Flash Layout):                     │
-│    - categoryContainer 提升为 progressLayout 直属全宽子容器 (100vw)          │
-│    - 彻底废除负边距 (-44dp margin hack)，分类海报在首帧测量即 100% 满屏渲染    │
-│    - 彻底杜绝“先露白边/未填满、下一帧突然撑满全屏”的缩放闪现问题               │
+│ 2. 全频道 Apple TV 级平滑切换动效 (Fluid Channel Switch Motion):            │
+│    - 主页 <-> 电影 <-> 剧集 <-> 综艺 <-> 搜索 横向频道切换具备物理方向滑动感      │
+│    - 采用 32dp 方向位移 + 240ms DecelerateInterpolator 减速曲线 + CrossFade      │
+│    - 频道与侧边抽屉切换时具备多光谱高斯毛玻璃背景无缝渐变                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 3. 轮播高度防抖与 Apple TV 流体文字过渡 (Anti-Jumping Hero Motion):          │
-│    - categoryHeroDesc 约束固定 2 行标准高度 (lines=2, minLines=2, maxLines=2)│
-│    - 无论不同影片简介长短/有无，简介文字区域高度恒定不变                      │
-│    - 彻底消除轮播切片时“▶ 立即播放”胶囊按钮上下剧烈抽搐跳动的问题              │
-│    - 配合 14dp 方向性位移 + 190ms Apple 级 CrossFade 淡入淡出，动效丝滑自然    │
+│ 3. 轮播高度绝对锁死与 Apple TV 双阶流体文字动效 (Rock-Solid Hero Carousel): │
+│    - categoryHeroTextGroup 锁死为 124dp 恒定高度容器，支持 1~3 行丰富剧情描述  │
+│    - “▶ 立即播放”按钮坐标 100% 绝对锚定，不同电影 2段/3段简介切换零像素跳动    │
+│    - 轮播切片采用 150ms 进场 + 260ms 减速出场贝塞尔曲线，海报保留前图 CrossFade │
+│    - 彻底告别生硬闪烁与突兀跳动                                                │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 

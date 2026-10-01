@@ -488,19 +488,38 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void switchTab(int position, Class item) {
+        int prevTab = mCurrentTab;
         mCurrentTab = position;
+        int direction = (prevTab >= 0 && position != prevTab) ? (position > prevTab ? 1 : -1) : 1;
+        int slideOffset = direction * ResUtil.dp2px(32);
+
         if (position == 0 || TopNavController.ID_HOME.equals(item.getTypeId())) {
-            // Home View with smooth transition
-            mBinding.heroScrim.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            // Home View with smooth Apple TV transition
+            mBinding.searchContainer.getRoot().setVisibility(View.GONE);
+            mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
+
+            mBinding.categoryAmbientBackdrop.animate().cancel();
+            mBinding.categoryAmbientBackdrop.animate().alpha(0f).setDuration(200).withEndAction(() -> {
+                mBinding.categoryAmbientBackdrop.setVisibility(View.GONE);
+            }).start();
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
-            mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
-            mBinding.searchContainer.getRoot().setVisibility(View.GONE);
 
-            mBinding.homeScrollView.setAlpha(0f);
+            mBinding.heroScrim.setVisibility(View.VISIBLE);
+            mBinding.heroScrim.setAlpha(0f);
+            mBinding.heroScrim.animate().alpha(1f).setDuration(240).start();
+
             mBinding.homeScrollView.setVisibility(View.VISIBLE);
-            mBinding.homeScrollView.animate().alpha(1f).setDuration(200).start();
+            mBinding.homeScrollView.animate().cancel();
+            mBinding.homeScrollView.setTranslationX(slideOffset);
+            mBinding.homeScrollView.setAlpha(0f);
+            mBinding.homeScrollView.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(240)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                    .start();
+
             mHeroController.setVisibility(View.VISIBLE);
             mHeroController.resetScroll();
             ScrollCoordinator.resetTopBar(mBinding.topBar);
@@ -514,28 +533,35 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 }
             }
         } else if (TopNavController.ID_SEARCH.equals(item.getTypeId())) {
-            // Embedded Search Page with smooth transition
+            // Embedded Search Page with smooth Apple TV transition
             mBinding.heroScrim.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.GONE);
             mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
             mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getDefaultFrosted());
-            mBinding.categoryAmbientBackdrop.setAlpha(0f);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(200).start();
+            mBinding.categoryAmbientBackdrop.animate().cancel();
+            mBinding.categoryAmbientBackdrop.setAlpha(0f);
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(240).start();
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
-            mBinding.searchContainer.getRoot().setAlpha(0f);
             mBinding.searchContainer.getRoot().setVisibility(View.VISIBLE);
-            mBinding.searchContainer.getRoot().animate().alpha(1f).setDuration(200).start();
+            mBinding.searchContainer.getRoot().animate().cancel();
+            mBinding.searchContainer.getRoot().setTranslationX(slideOffset);
+            mBinding.searchContainer.getRoot().setAlpha(0f);
+            mBinding.searchContainer.getRoot().animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(240)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                    .start();
 
             ScrollCoordinator.resetTopBar(mBinding.topBar);
-
             mSearchController.onTabActivated();
         } else {
-            // Category View with smooth cross-fade transition and custom multi-spectral frosted ambient background
+            // Category View with smooth directional cross-fade transition and custom multi-spectral frosted ambient background
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
             String cacheKey = getCategoryCacheKey(position, mCurrentCategoryClass);
@@ -549,28 +575,32 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
             // Set category ambient theme with multi-spectral Gaussian frosted glass
             Bitmap frostedBmp = FrostedGlassUtil.getFrostedForCategory(tabType, typeName);
-
             mBinding.categoryAmbientBackdrop.setImageBitmap(frostedBmp);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-            mBinding.categoryAmbientBackdrop.setAlpha(1f);
+            mBinding.categoryAmbientBackdrop.animate().cancel();
+            mBinding.categoryAmbientBackdrop.setAlpha(0.6f);
+            mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(240).start();
 
             mBinding.categoryAmbientTint.setVisibility(View.GONE);
             mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
             mCategoryController.updateCategoryTheme(tabType);
 
-            boolean isAlreadyVisible = mBinding.categoryContainer.getRoot().getVisibility() == View.VISIBLE;
-            if (!isAlreadyVisible) {
-                mBinding.categoryContainer.getRoot().setAlpha(0f);
-                mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
-                mBinding.categoryContainer.getRoot().animate().alpha(1f).setDuration(180).start();
-            } else {
-                mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
-                mBinding.categoryContainer.getRoot().setAlpha(1f);
-            }
+            mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
+            mBinding.categoryContainer.getRoot().setAlpha(1f);
+
+            // Channel Slide & CrossFade Transition for categoryContentLayout
+            mBinding.categoryContainer.categoryContentLayout.animate().cancel();
+            mBinding.categoryContainer.categoryContentLayout.setTranslationX(slideOffset);
+            mBinding.categoryContainer.categoryContentLayout.setAlpha(0f);
+            mBinding.categoryContainer.categoryContentLayout.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(240)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                    .start();
 
             ScrollCoordinator.resetTopBar(mBinding.topBar);
-
             mCategoryController.resetScroll();
 
             // Instant render from cache if available -> zero flash, zero layout jump
@@ -599,22 +629,30 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mHeroController.setVisibility(View.GONE);
 
         mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getFrostedForCategory(item.getTypeId(), item.getTypeName()));
+        mBinding.categoryAmbientBackdrop.animate().cancel();
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
-        mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
+        mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(240).start();
 
         mBinding.categoryAmbientTint.setVisibility(View.GONE);
         mBinding.categoryAmbientOverlay.setVisibility(View.GONE);
 
         mCategoryController.updateCategoryTheme(item.getTypeId());
 
-        mBinding.categoryContainer.getRoot().setAlpha(0f);
-        mBinding.categoryContainer.getRoot().setTranslationY(ResUtil.dp2px(8));
         mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
-        mBinding.categoryContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
+        mBinding.categoryContainer.getRoot().setAlpha(1f);
+
+        mBinding.categoryContainer.categoryContentLayout.animate().cancel();
+        mBinding.categoryContainer.categoryContentLayout.setTranslationY(ResUtil.dp2px(16));
+        mBinding.categoryContainer.categoryContentLayout.setAlpha(0f);
+        mBinding.categoryContainer.categoryContentLayout.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(240)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f))
+                .start();
 
         ScrollCoordinator.resetTopBar(mBinding.topBar);
-
         mCategoryController.resetScroll();
 
         Result cached = mCategoryCache.get(cacheKey);
