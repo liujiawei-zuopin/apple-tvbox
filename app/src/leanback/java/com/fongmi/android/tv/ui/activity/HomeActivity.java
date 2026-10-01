@@ -184,6 +184,10 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             }
         });
 
+        // Ensure category and search overlays are strictly hidden at startup
+        mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
+        mBinding.searchContainer.getRoot().setVisibility(View.GONE);
+
         mBinding.btnEmptyConfig.setOnClickListener(v -> ConfigDialog.create().vod().show(this));
 
         // 1. Home ScrollView scrolling -> Parallax top bar collapse + Hero blur progression
