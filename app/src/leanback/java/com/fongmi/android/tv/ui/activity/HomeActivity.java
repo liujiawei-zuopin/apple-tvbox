@@ -203,11 +203,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void updateTopBarOnScroll(int scrollY) {
-        // Parallax top bar collapse on scroll down, restoring on scroll up
-        int maxCollapse = ResUtil.dp2px(52);
-        float progress = Math.min(1.0f, Math.max(0f, (float) scrollY / ResUtil.dp2px(65)));
-        mBinding.topBar.setTranslationY(-progress * maxCollapse);
-        mBinding.topBar.setAlpha(1.0f - progress * 0.85f);
+        ScrollCoordinator.onScroll(scrollY, mBinding.topBar, null, null);
     }
 
     @Override
@@ -416,10 +412,10 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     private void populateCategoryData(Result result) {
         if (result == null) return;
         String tabType = "movie";
-        if (mCurrentTab == 2) tabType = "tv";
-        else if (mCurrentTab == 3) tabType = "variety";
-        else if (mTopNavController.getItem(mCurrentTab) != null) {
+        if (mCurrentTab >= 0 && mTopNavController.getItem(mCurrentTab) != null) {
             tabType = mTopNavController.getItem(mCurrentTab).getTypeId();
+        } else if (mCurrentCategoryClass != null) {
+            tabType = mCurrentCategoryClass.getTypeId();
         }
         mCategoryController.setCategoryData(result, mCurrentCategoryClass, tabType);
     }
@@ -429,7 +425,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         if (item == null) return;
         if (position == mCurrentTab) {
             // Already active tab: smoothly bring topBar into view if scrolled, avoid reloading/flashing
-            mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
+            ScrollCoordinator.animateRestoreTopBar(mBinding.topBar);
             return;
         }
         switchTab(position, item);
@@ -439,7 +435,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     public void onTabClicked(int position, Class item) {
         if (item == null) return;
         if (position == mCurrentTab) {
-            mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
+            ScrollCoordinator.animateRestoreTopBar(mBinding.topBar);
             return;
         }
         switchTab(position, item);
@@ -458,7 +454,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
 
     @Override
     public void onNavigateToTopNav() {
-        mBinding.topBar.animate().translationY(0).alpha(1.0f).setDuration(150).start();
+        ScrollCoordinator.animateRestoreTopBar(mBinding.topBar);
         mTopNavController.requestFocus();
     }
 
@@ -472,6 +468,12 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         } else if (TopNavController.ID_VARIETY.equals(standardId)) {
             keywords = new String[]{"综艺", "真人秀", "娱乐", "Show"};
         } else {
+            // Direct match for dynamic channels (anime, documentary, short drama, etc.)
+            for (Class c : mRawTypes) {
+                if (c.getTypeId() != null && c.getTypeId().equals(standardId)) {
+                    return c;
+                }
+            }
             return null;
         }
         for (String kw : keywords) {
@@ -500,8 +502,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.homeScrollView.animate().alpha(1f).setDuration(200).start();
             mHeroController.setVisibility(View.VISIBLE);
             mHeroController.resetScroll();
-            mBinding.topBar.setTranslationY(0);
-            mBinding.topBar.setAlpha(1f);
+            ScrollCoordinator.resetTopBar(mBinding.topBar);
             mBinding.homeScrollView.scrollTo(0, 0);
 
             if (mShelfController.isWatchNowEmpty()) {
@@ -529,33 +530,24 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
             mBinding.searchContainer.getRoot().setVisibility(View.VISIBLE);
             mBinding.searchContainer.getRoot().animate().alpha(1f).setDuration(200).start();
 
-            mBinding.topBar.setTranslationY(0);
-            mBinding.topBar.setAlpha(1f);
+            ScrollCoordinator.resetTopBar(mBinding.topBar);
 
             mSearchController.onTabActivated();
         } else {
-            // Category View with smooth cross-fade transition and custom frosted ambient background
+            // Category View with smooth cross-fade transition and custom multi-spectral frosted ambient background
             Class mapped = findMappedCategory(item.getTypeId());
             mCurrentCategoryClass = mapped != null ? mapped : item;
             String cacheKey = getCategoryCacheKey(position, mCurrentCategoryClass);
             String tabType = item.getTypeId();
+            String typeName = mCurrentCategoryClass != null ? mCurrentCategoryClass.getTypeName() : item.getTypeName();
 
             mBinding.heroScrim.setVisibility(View.GONE);
             mBinding.homeScrollView.setVisibility(View.GONE);
             mBinding.searchContainer.getRoot().setVisibility(View.GONE);
             mHeroController.setVisibility(View.GONE);
 
-            // Set category ambient theme with genuine Gaussian frosted glass
-            Bitmap frostedBmp;
-            if (TopNavController.ID_MOVIE.equals(tabType)) {
-                frostedBmp = FrostedGlassUtil.getEmeraldFrosted();
-            } else if (TopNavController.ID_TV.equals(tabType)) {
-                frostedBmp = FrostedGlassUtil.getSapphireFrosted();
-            } else if (TopNavController.ID_VARIETY.equals(tabType)) {
-                frostedBmp = FrostedGlassUtil.getAmethystFrosted();
-            } else {
-                frostedBmp = FrostedGlassUtil.getCategoryDefaultFrosted();
-            }
+            // Set category ambient theme with multi-spectral Gaussian frosted glass
+            Bitmap frostedBmp = FrostedGlassUtil.getFrostedForCategory(tabType, typeName);
 
             mBinding.categoryAmbientBackdrop.setImageBitmap(frostedBmp);
             mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
@@ -576,8 +568,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
                 mBinding.categoryContainer.getRoot().setAlpha(1f);
             }
 
-            mBinding.topBar.setTranslationY(0);
-            mBinding.topBar.setAlpha(1f);
+            ScrollCoordinator.resetTopBar(mBinding.topBar);
 
             mCategoryController.resetScroll();
 
@@ -606,7 +597,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.searchContainer.getRoot().setVisibility(View.GONE);
         mHeroController.setVisibility(View.GONE);
 
-        mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getCategoryDefaultFrosted());
+        mBinding.categoryAmbientBackdrop.setImageBitmap(FrostedGlassUtil.getFrostedForCategory(item.getTypeId(), item.getTypeName()));
         mBinding.categoryAmbientBackdrop.setAlpha(0f);
         mBinding.categoryAmbientBackdrop.setVisibility(View.VISIBLE);
         mBinding.categoryAmbientBackdrop.animate().alpha(1f).setDuration(220).start();
@@ -621,8 +612,7 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
         mBinding.categoryContainer.getRoot().setVisibility(View.VISIBLE);
         mBinding.categoryContainer.getRoot().animate().alpha(1f).translationY(0).setDuration(220).start();
 
-        mBinding.topBar.setTranslationY(0);
-        mBinding.topBar.setAlpha(1f);
+        ScrollCoordinator.resetTopBar(mBinding.topBar);
 
         mCategoryController.resetScroll();
 

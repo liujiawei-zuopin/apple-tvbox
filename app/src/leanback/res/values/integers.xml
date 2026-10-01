@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Apple TV Motion & Timing Design Tokens -->
+    <integer name="anim_duration_focus">150</integer>
+    <integer name="anim_duration_crossfade">200</integer>
+    <integer name="anim_duration_carousel_fade">180</integer>
+    <integer name="anim_duration_dot_scale">200</integer>
+    <integer name="hero_carousel_interval_ms">7000</integer>
+</resources>

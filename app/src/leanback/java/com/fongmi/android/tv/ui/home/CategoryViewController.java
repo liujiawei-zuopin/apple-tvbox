@@ -235,11 +235,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             if (mCallback != null) {
                 mCallback.onCategoryScrolled(scrollY);
             }
-            // Hero info and indicator dots subtle fade on deep scroll
-            float fadeThreshold = ResUtil.dp2px(160);
-            float alpha = Math.max(0f, 1.0f - (float) scrollY / fadeThreshold);
-            mBinding.categoryHeroInfo.setAlpha(alpha);
-            mBinding.categoryHeroDots.setAlpha(alpha);
+            ScrollCoordinator.onScroll(scrollY, null, mBinding.categoryHeroInfo, mBinding.categoryHeroDots);
         });
     }
 
@@ -590,12 +586,28 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         List<Vod> all = result.getList();
         int total = all.size();
 
-        // Configure "全部影片" Title based on active category
+        // Configure "全部XX" Title based on active category
+        String typeName = categoryClass != null && !TextUtils.isEmpty(categoryClass.getTypeName()) ? categoryClass.getTypeName() : tabType;
         String allTitle = "全部影片";
-        if ("tv".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("剧"))) {
-            allTitle = "全部剧集";
-        } else if ("variety".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("综艺"))) {
-            allTitle = "全部综艺";
+        if (typeName != null) {
+            String lower = typeName.toLowerCase();
+            if (lower.contains("tv") || lower.contains("剧") || lower.contains("连续剧") || lower.contains("drama")) {
+                allTitle = "全部剧集";
+            } else if (lower.contains("variety") || lower.contains("综艺") || lower.contains("show")) {
+                allTitle = "全部综艺";
+            } else if (lower.contains("anime") || lower.contains("漫") || lower.contains("动画") || lower.contains("番剧")) {
+                allTitle = "全部动漫";
+            } else if (lower.contains("doc") || lower.contains("纪") || lower.contains("探索")) {
+                allTitle = "全部纪录片";
+            } else if (lower.contains("kid") || lower.contains("少儿") || lower.contains("儿童")) {
+                allTitle = "全部少儿";
+            } else if (lower.contains("sport") || lower.contains("体") || lower.contains("赛事")) {
+                allTitle = "全部体育";
+            } else if (lower.contains("short") || lower.contains("短剧")) {
+                allTitle = "全部短剧";
+            } else {
+                allTitle = "全部" + typeName;
+            }
         }
         mBinding.categoryHeaderAll.setText(allTitle);
 
@@ -624,50 +636,68 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
             filters = result.getFilters().get(categoryClass != null ? categoryClass.getTypeId() : "");
         }
 
-        String subGenre1Name = "动作";
-        String subGenre2Name = "爱情";
-        if ("tv".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("剧"))) {
-            subGenre1Name = "国产剧";
-            subGenre2Name = "美剧";
-        } else if ("variety".equalsIgnoreCase(tabType) || (categoryClass != null && categoryClass.getTypeName() != null && categoryClass.getTypeName().contains("综艺"))) {
-            subGenre1Name = "真人秀";
-            subGenre2Name = "脱口秀";
+        String subGenre1Name = "热播精选";
+        String subGenre2Name = "高分推荐";
+        if (typeName != null) {
+            String lower = typeName.toLowerCase();
+            if (lower.contains("movie") || lower.contains("电影") || lower.contains("片")) {
+                subGenre1Name = "动作"; subGenre2Name = "爱情";
+            } else if (lower.contains("tv") || lower.contains("剧")) {
+                subGenre1Name = "国产剧"; subGenre2Name = "美剧";
+            } else if (lower.contains("variety") || lower.contains("综艺")) {
+                subGenre1Name = "真人秀"; subGenre2Name = "脱口秀";
+            } else if (lower.contains("anime") || lower.contains("漫")) {
+                subGenre1Name = "日本动漫"; subGenre2Name = "国产动漫";
+            } else if (lower.contains("doc") || lower.contains("纪")) {
+                subGenre1Name = "自然地理"; subGenre2Name = "人文历史";
+            } else if (lower.contains("kid") || lower.contains("少儿")) {
+                subGenre1Name = "益智启蒙"; subGenre2Name = "冒险动画";
+            }
         }
 
         if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {
             List<Value> values = filters.get(0).getValue();
-            int idx = 0;
+            List<String> validNames = new ArrayList<>();
             for (Value val : values) {
                 if (!"全部".equals(val.getN()) && !TextUtils.isEmpty(val.getN())) {
-                    if (idx == 0) subGenre1Name = val.getN();
-                    else if (idx == 1) subGenre2Name = val.getN();
-                    idx++;
-                    if (idx >= 2) break;
+                    validNames.add(val.getN());
                 }
             }
+            if (validNames.size() >= 1) subGenre1Name = validNames.get(0);
+            if (validNames.size() >= 2) subGenre2Name = validNames.get(1);
         }
 
         // SubGenre 1 Shelf
-        List<Vod> shelf1Items = new ArrayList<>();
-        int shelf1Count = Math.min(total, 6);
-        for (int i = 0; i < shelf1Count; i++) {
-            shelf1Items.add(all.get((i + 2) % total));
+        if (total >= 4) {
+            List<Vod> shelf1Items = new ArrayList<>();
+            int shelf1Count = Math.min(total, 6);
+            for (int i = 0; i < shelf1Count; i++) {
+                shelf1Items.add(all.get((i + 2) % total));
+            }
+            mBinding.categoryHeaderSubGenre1.setText(subGenre1Name);
+            mBinding.categoryHeaderSubGenre1.setVisibility(View.VISIBLE);
+            mBinding.categoryRecyclerSubGenre1.setVisibility(View.VISIBLE);
+            mSubGenre1Adapter.setItems(shelf1Items);
+        } else {
+            mBinding.categoryHeaderSubGenre1.setVisibility(View.GONE);
+            mBinding.categoryRecyclerSubGenre1.setVisibility(View.GONE);
         }
-        mBinding.categoryHeaderSubGenre1.setText(subGenre1Name);
-        mBinding.categoryHeaderSubGenre1.setVisibility(View.VISIBLE);
-        mBinding.categoryRecyclerSubGenre1.setVisibility(View.VISIBLE);
-        mSubGenre1Adapter.setItems(shelf1Items);
 
         // SubGenre 2 Shelf
-        List<Vod> shelf2Items = new ArrayList<>();
-        int shelf2Count = Math.min(total, 6);
-        for (int i = 0; i < shelf2Count; i++) {
-            shelf2Items.add(all.get((i + 4) % total));
+        if (total >= 8) {
+            List<Vod> shelf2Items = new ArrayList<>();
+            int shelf2Count = Math.min(total, 6);
+            for (int i = 0; i < shelf2Count; i++) {
+                shelf2Items.add(all.get((i + 4) % total));
+            }
+            mBinding.categoryHeaderSubGenre2.setText(subGenre2Name);
+            mBinding.categoryHeaderSubGenre2.setVisibility(View.VISIBLE);
+            mBinding.categoryRecyclerSubGenre2.setVisibility(View.VISIBLE);
+            mSubGenre2Adapter.setItems(shelf2Items);
+        } else {
+            mBinding.categoryHeaderSubGenre2.setVisibility(View.GONE);
+            mBinding.categoryRecyclerSubGenre2.setVisibility(View.GONE);
         }
-        mBinding.categoryHeaderSubGenre2.setText(subGenre2Name);
-        mBinding.categoryHeaderSubGenre2.setVisibility(View.VISIBLE);
-        mBinding.categoryRecyclerSubGenre2.setVisibility(View.VISIBLE);
-        mSubGenre2Adapter.setItems(shelf2Items);
 
         // 4. Section 4: "全部影片" Filter Chips & 5-Column Grid
         if (filters != null && !filters.isEmpty() && filters.get(0).getValue() != null) {

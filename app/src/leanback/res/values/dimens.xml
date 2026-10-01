@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Apple TV Design Tokens: Layout & Spacing -->
+    <dimen name="screen_edge_padding">44dp</dimen>
+    <dimen name="top_nav_height">48dp</dimen>
+    <dimen name="top_nav_capsule_height">36dp</dimen>
+    <dimen name="top_nav_item_height">30dp</dimen>
+    
+    <dimen name="hero_section_height">476dp</dimen>
+    <dimen name="hero_info_margin_top">170dp</dimen>
+    <dimen name="hero_info_width">660dp</dimen>
+    <dimen name="hero_action_margin_top">22dp</dimen>
+    <dimen name="hero_btn_play_height">36dp</dimen>
+    <dimen name="hero_dots_margin_bottom">24dp</dimen>
+    <dimen name="shelf_peeking_height">64dp</dimen>
+    
+    <!-- Shelf Dimensions -->
+    <dimen name="shelf_landscape_height">88dp</dimen>
+    <dimen name="shelf_landscape_card_width">138dp</dimen>
+    <dimen name="shelf_landscape_card_height">78dp</dimen>
+    <dimen name="shelf_portrait_height">222dp</dimen>
+    <dimen name="shelf_portrait_card_width">138dp</dimen>
+    <dimen name="shelf_portrait_card_height">207dp</dimen>
+
+    <!-- Corner Radius Tokens -->
+    <dimen name="corner_radius_pill">18dp</dimen>
+    <dimen name="corner_radius_card_landscape">12dp</dimen>
+    <dimen name="corner_radius_card_portrait">10dp</dimen>
+    <dimen name="corner_radius_filter_chip">14dp</dimen>
+    <dimen name="corner_radius_dot">3dp</dimen>
+</resources>
