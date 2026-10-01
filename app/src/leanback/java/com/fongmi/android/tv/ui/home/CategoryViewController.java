@@ -771,11 +771,11 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
         mCurrentHeroVod = vod;
 
         // 1. Text slide & cross-fade transition
-        int slideOffset = ResUtil.dp2px(16) * direction;
+        int slideOffset = ResUtil.dp2px(14) * direction;
         mBinding.categoryHeroTextGroup.animate()
                 .alpha(0f)
                 .translationX(-slideOffset)
-                .setDuration(120)
+                .setDuration(130)
                 .withEndAction(() -> {
                     mBinding.categoryHeroTitle.setText(vod.getName() != null ? vod.getName() : "");
 
@@ -788,14 +788,13 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
                     String desc = vod.getContent();
                     if (TextUtils.isEmpty(desc)) desc = vod.getActor();
-                    mBinding.categoryHeroDesc.setText(desc != null ? desc : "");
-                    mBinding.categoryHeroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
+                    mBinding.categoryHeroDesc.setText(!TextUtils.isEmpty(desc) ? desc : "");
 
                     mBinding.categoryHeroTextGroup.setTranslationX(slideOffset);
                     mBinding.categoryHeroTextGroup.animate()
                             .alpha(1f)
                             .translationX(0)
-                            .setDuration(180)
+                            .setDuration(190)
                             .start();
                 })
                 .start();
@@ -830,8 +829,7 @@ public class CategoryViewController implements FilterChipAdapter.OnClickListener
 
         String desc = vod.getContent();
         if (TextUtils.isEmpty(desc)) desc = vod.getActor();
-        mBinding.categoryHeroDesc.setText(desc != null ? desc : "");
-        mBinding.categoryHeroDesc.setVisibility(TextUtils.isEmpty(desc) ? View.GONE : View.VISIBLE);
+        mBinding.categoryHeroDesc.setText(!TextUtils.isEmpty(desc) ? desc : "");
 
         mBinding.categoryHeroTextGroup.setAlpha(1f);
         mBinding.categoryHeroTextGroup.setTranslationX(0);

@@ -96,28 +96,6 @@ public class TopNavController implements TopNavAdapter.OnTabListener {
         varietyTab.setTypeName("综艺");
         tabs.add(varietyTab);
 
-        // Dynamically add extra site categories if present (e.g. 动漫, 纪录片, 少儿, 短剧)
-        if (types != null) {
-            for (Class c : types) {
-                if (c == null || android.text.TextUtils.isEmpty(c.getTypeName())) continue;
-                String name = c.getTypeName();
-                // Filter out standard ones already represented
-                if (name.contains("电影") || name.contains("片") || name.contains("剧") || name.contains("综艺")) {
-                    continue;
-                }
-                boolean exists = false;
-                for (Class existing : tabs) {
-                    if (name.equals(existing.getTypeName()) || (c.getTypeId() != null && c.getTypeId().equals(existing.getTypeId()))) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    tabs.add(c);
-                }
-            }
-        }
-
         Class searchTab = new Class();
         searchTab.setTypeId(ID_SEARCH);
         searchTab.setTypeName("");
