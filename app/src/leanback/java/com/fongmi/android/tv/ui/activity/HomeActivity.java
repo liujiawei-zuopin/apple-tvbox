@@ -338,6 +338,8 @@ public class HomeActivity extends BaseActivity implements TopNavController.TopNa
     }
 
     private void populateHomeData(Result result) {
+        mBinding.categoryContainer.getRoot().setVisibility(View.GONE);
+        mBinding.searchContainer.getRoot().setVisibility(View.GONE);
         mRawTypes = result != null && result.getTypes() != null ? result.getTypes() : new ArrayList<>();
         mDrawerController.setCategories(mRawTypes);
         mTopNavController.setTabs(mRawTypes);

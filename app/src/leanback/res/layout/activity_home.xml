@@ -85,6 +85,7 @@
             layout="@layout/layout_category_channel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:tag="manual"
             android:visibility="gone" />
 
         <RelativeLayout

@@ -15,7 +15,8 @@ import java.util.List;
 
 public class ProgressLayout extends RelativeLayout {
 
-    private static final String TAG_PROGRESS = "ProgressLayout.TAG_PROGRESS";
+    public static final String TAG_PROGRESS = "ProgressLayout.TAG_PROGRESS";
+    public static final String TAG_MANUAL = "manual";
 
     public enum State {
         CONTENT, PROGRESS, EMPTY
@@ -62,7 +63,7 @@ public class ProgressLayout extends RelativeLayout {
     @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
         super.addView(child, index, params);
-        if (child.getTag() == null || !child.getTag().equals(TAG_PROGRESS)) {
+        if (child.getTag() == null || (!child.getTag().equals(TAG_PROGRESS) && !child.getTag().equals(TAG_MANUAL))) {
             mContentViews.add(child);
         }
     }
