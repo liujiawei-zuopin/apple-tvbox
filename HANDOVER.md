@@ -1,6 +1,6 @@
-# Apple TV 风格电视盒子项目交接文档 (Project Handover)
+# TV+ (Apple TV 风格电视盒子项目交接文档)
 
-> **文档版本**: 2.2 (对应代码 Release `v1.0.84`)  
+> **文档版本**: 2.3 (对应全新命名 `TV+` / 包名 `com.tvplus`)  
 > **更新时间**: 2026-10-01  
 > **适用场景**: 新对话无缝接续开发、团队协作交接、技术架构全景回顾
 
@@ -8,11 +8,11 @@
 
 ## 1. 项目基本信息
 
-- **项目名称**: Apple TV 风格沉浸式电视盒子 (FongMi TVBox Leanback 重构版)
+- **软件名称**: TV+ (Apple TV 风格沉浸式电视盒子)
 - **代码仓库**: `https://github.com/liujiawei-zuopin/apple-tvbox`
 - **主要分支**: `main`
-- **最新发布**: [Release v1.0.84](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
-- **包名与启动 Activity**: `com.fongmi.android.tv` / `com.fongmi.android.tv.ui.activity.HomeActivity`
+- **最新发布**: [Releases](https://github.com/liujiawei-zuopin/apple-tvbox/releases)
+- **包名与启动 Activity**: `com.tvplus` / `com.fongmi.android.tv.ui.activity.HomeActivity`
 - **模拟器/测试设备**: MuMu 模拟器 Android 12/15 (1080P TV 模式, `127.0.0.1:16384`)
 - **本地 ADB 路径**: `D:\Program Files\Netease\MuMuPlayer\nx_main\adb.exe`
 

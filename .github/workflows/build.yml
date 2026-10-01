@@ -80,7 +80,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Apple-TVBox-Leanback-APK
+          name: TV-Plus-Leanback-APK
           path: outputs/*.apk
           retention-days: 30
 
@@ -89,12 +89,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: Apple TVBox Release v1.0.${{ github.run_number }}
+          name: TV+ Release v1.0.${{ github.run_number }}
           draft: false
           prerelease: false
           files: outputs/*.apk
           body: |
-            ## 🍎 Apple tvOS 风格专属电视端播放器
+            ## 📺 TV+ (Apple tvOS 风格专属电视端播放器)
 
             ### 视觉与交互特性：
             - ✨ **Apple tvOS 沉浸式设计**：全屏高清剧照联动 + 顶部半透明胶囊分类导航
